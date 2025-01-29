@@ -1,0 +1,381 @@
+<!-- <template>
+    <v-card flat >
+      <span class="flex justify-center border-b-[1px] text-3xl ">Course Registration Form</span>
+      <v-snackbar
+        v-model="snackbar"
+        absolute
+        top
+        right
+        color="success"
+      >
+        <span>Registration successful!</span>
+        <v-icon dark>
+          mdi-checkbox-marked-circle
+        </v-icon>
+      </v-snackbar>
+      <v-form
+        ref="form"
+        @submit.prevent="submit"
+      
+      >
+        <v-container fluid  class="border-[1px] border-gray-200 !w-[900px]"  >
+          
+          <v-row   class="!flex !flex-col  !col-span-2   ">
+            <v-col
+            cols="14"
+            sm="10">
+              <v-text-field
+                v-model="form.Title"
+                :rules="rules.Titile"
+                color="black darken-2"
+                label="Course Title"
+                required
+              ></v-text-field>
+             </v-col>
+             <v-col
+        cols="14"
+        sm="10"
+      >
+        <v-textarea
+        v-model="form.Description"
+        :rules="rules.Description"
+          label="Course Descriptions"
+          row-height="30"
+          rows="3"
+          variant="filled"
+          auto-grow
+        ></v-textarea>
+      </v-col>
+      <v-col
+        cols="14"
+        sm="10"
+      >
+        <v-textarea
+        v-model="form.Prerequest"
+        :rules="rules.Prerequest"
+          label="Prerequest"
+          row-height="20"
+          rows="2"
+          variant="filled"
+          auto-grow
+        ></v-textarea>
+      </v-col>
+      <v-col
+        cols="14"
+        sm="10"
+      >
+        <v-textarea
+        v-model="form.Objective"
+        :rules="rules.Objective"
+          label="Course Objective"
+          row-height="20"
+          rows="2"
+          variant="filled"
+          auto-grow
+        ></v-textarea>
+      </v-col> <v-card-actions>
+        <v-btn
+            text
+            @click="goBack"
+          >
+            Back
+          </v-btn>
+          <v-btn
+            text
+            @click="resetForm"
+          >
+            Clear
+          </v-btn>
+         
+          <v-spacer></v-spacer>
+          <v-btn
+            :disabled="!formIsValid"
+            text
+            color="primary"
+            type="submit"
+          >
+            Register
+          </v-btn>
+        </v-card-actions>
+      
+               </v-row>
+        </v-container>
+       </v-form>
+   
+    </v-card>
+  </template>
+  
+  <script>
+    export default {
+      data () {
+        const defaultForm = Object.freeze({
+          Titile: '',
+          Description: '',
+          Prerequest: '',
+          Objective: '',
+          
+        })
+  
+        return {
+          
+          form: Object.assign({}, defaultForm),
+          rules: {
+           
+            Description: [val => (val || '').length > 0 || 'This field is required'],
+            Titile: [val => (val || '').length > 0 || 'This field is required'],
+            Objective: [val => (val || '').length > 0 || 'This field is required'],
+            Prerequest: [val => (val || '').length > 0 || 'This field is required'],
+        
+          },
+          snackbar: false,
+          
+        }
+      },
+      
+      computed: {
+        formIsValid () {
+          return (
+            this.form.Description &&
+            this.form.Prerequest &&
+            this.form.Objective
+          )
+        },
+        
+     
+      },
+  
+      methods: {
+        resetForm () {
+          this.form = Object.assign({}, this.defaultForm)
+          this.$refs.form.reset()
+        },
+        submit () {
+          this.snackbar = true
+          this.resetForm()
+        },
+        goBack() {
+             this.$router.go(-1)},
+      },
+      
+    
+    }
+  </script> -->
+  <template>
+    <div class="m-4 ">
+      <!-- Button to toggle overlay -->
+      
+      <v-btn
+              color="blue"
+              v-bind="props"
+              icon="mdi-plus"
+              size="large"
+              variant="text"
+               @click="overlay = !overlay"
+            >
+            </v-btn>
+  
+      <!-- Overlay with form -->
+      <v-overlay v-model="overlay" class="!flex !justify-start m-20 ">
+       
+        <v-card flat class="bg-slate-300 " >
+      <span class="flex justify-center border-b-[1px] text-3xl ">Course Registration Form</span>
+      <v-snackbar
+        v-model="snackbar"
+        absolute
+        top
+        right
+        color="success"
+       
+      >
+        <span>Registration successful!</span>
+        <v-icon dark>
+          mdi-checkbox-marked-circle
+        </v-icon>
+      </v-snackbar>
+      <v-form
+        ref="form"
+        @submit.prevent="submit"
+      
+      >
+        <v-container fluid  class="border-[1px] border-gray-200 !w-[900px]"  >
+          
+          <v-row   class="!flex !flex-col  !col-span-2   ">
+            <v-col
+            cols="14"
+            sm="10">
+              <v-text-field
+                v-model="form.Title"
+                :rules="rules.Titile"
+                color="black darken-2"
+                label="Course Title"
+                required
+              ></v-text-field>
+             </v-col>
+             <v-col
+        cols="14"
+        sm="10"
+      >
+        <v-textarea
+        v-model="form.Description"
+        :rules="rules.Description"
+          label="Course Descriptions"
+          row-height="30"
+          rows="3"
+          variant="filled"
+          auto-grow
+        ></v-textarea>
+      </v-col>
+      <v-col
+        cols="14"
+        sm="10"
+      >
+        <v-textarea
+        v-model="form.Prerequest"
+        :rules="rules.Prerequest"
+          label="Prerequest"
+          row-height="20"
+          rows="2"
+          variant="filled"
+          auto-grow
+        ></v-textarea>
+      </v-col>
+      <v-col
+        cols="14"
+        sm="10"
+      >
+        <v-textarea
+        v-model="form.Objective"
+        :rules="rules.Objective"
+          label="Course Objective"
+          row-height="20"
+          rows="2"
+          variant="filled"
+          auto-grow
+        ></v-textarea>
+      </v-col> <v-card-actions>
+        <v-btn
+            text
+            @click="goBack"
+          >
+            Back
+          </v-btn>
+          <v-btn
+            text
+            @click="resetForm"
+          >
+            Clear
+          </v-btn>
+         
+          <v-spacer></v-spacer>
+          <v-btn
+            :disabled="!formIsValid"
+            text
+            color="primary"
+            type="submit"
+          >
+            Register
+          </v-btn>
+        </v-card-actions>
+      
+               </v-row>
+        </v-container>
+       </v-form>
+   
+    </v-card>
+      </v-overlay>
+    </div>
+  </template>
+  
+  <script>
+    export default {
+      data () {
+        const defaultForm = Object.freeze({
+          Titile: '',
+          Description: '',
+          Prerequest: '',
+          Objective: '',
+          
+        })
+  
+        return {
+          overlay: false,
+          form: Object.assign({}, defaultForm),
+          rules: {
+           
+            Description: [val => (val || '').length > 0 || 'This field is required'],
+            Titile: [val => (val || '').length > 0 || 'This field is required'],
+            Objective: [val => (val || '').length > 0 || 'This field is required'],
+            Prerequest: [val => (val || '').length > 0 || 'This field is required'],
+        
+          },
+          snackbar: false,
+          
+        }
+      },
+      
+      computed: {
+        formIsValid () {
+          return (
+            this.form.Description &&
+            this.form.Prerequest &&
+            this.form.Objective
+          )
+        },
+        
+     
+      },
+  
+      methods: {
+        resetForm () {
+          this.form = Object.assign({}, this.defaultForm)
+          this.$refs.form.reset()
+        },
+        submit () {
+          this.snackbar = true
+           this.$refs.form.reset();
+        },
+        goBack() {
+             this.$router.go(-1)},
+      },
+      
+    
+    }
+  </script> 
+<!--   
+  <script>
+  export default {
+    data() {
+      return {
+        overlay: false,
+        valid: false,
+        form: {
+          name: "",
+          email: "",
+          password: "",
+        },
+        rules: {
+          required: (value) => !!value || "This field is required.",
+          email: (value) =>
+            /.+@.+\..+/.test(value) || "E-mail must be valid.",
+          min: (minLength) => (value) =>
+            (value && value.length >= minLength) ||
+            `Minimum ${minLength} characters required.`,
+        },
+      };
+    },
+    methods: {
+      submit() {
+        // Access the form reference to trigger validation
+        if (this.$refs.form.validate()) {
+          alert("Form submitted successfully!");
+          this.overlay = false;
+          // Reset the form after submission
+          this.$refs.form.reset();
+        }
+      },
+    },
+  };
+  </script> -->
+  
+ 
+  
