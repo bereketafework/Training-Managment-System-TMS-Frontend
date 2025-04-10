@@ -32,7 +32,7 @@ ChartJS.register(
   BarElement,
   CategoryScale,
   LinearScale,
-  PointElement
+  PointElement,
 );
 const vuetify = createVuetify({
   components,

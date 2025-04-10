@@ -179,19 +179,7 @@
        
         <v-card flat class="bg-slate-300 " >
       <span class="flex justify-center border-b-[1px] text-3xl ">Course Registration Form</span>
-      <v-snackbar
-        v-model="snackbar"
-        absolute
-        top
-        right
-        color="success"
-       
-      >
-        <span>Registration successful!</span>
-        <v-icon dark>
-          mdi-checkbox-marked-circle
-        </v-icon>
-      </v-snackbar>
+     
       <v-form
         ref="form"
         @submit.prevent="submit"

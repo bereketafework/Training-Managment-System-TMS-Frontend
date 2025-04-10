@@ -202,6 +202,74 @@
         </v-table>
         
       </div>
+      <div>
+      <v-skeleton-loader
+        v-if="loading"
+        type="table,table-heading, table-row"
+        class="mt-4"
+      ></v-skeleton-loader>
+
+      <v-data-table
+        :headers="headers"
+        :items="items"
+        :search="searchQuery"
+        density="compact"
+      >
+        <template v-slot:top>
+          <v-toolbar flat>
+            <v-btn
+              color="white"
+              prepend-icon="mdi-plus"
+              size="large"
+              class="!bg-blue-500 rounded-lg"
+              variant="outlined"
+              @click="toggleForm"
+            >
+              Create</v-btn
+            >
+            <v-toolbar-title class="flex justify-center items-center !text-4xl">
+              List of Trainings
+            </v-toolbar-title>
+            <v-text-field
+              class="bg-transparent"
+              v-model="searchQuery"
+              append-inner-icon="mdi-magnify"
+              color="primary"
+              density="comfortable"
+              label="Search"
+              variant="outlined"
+              hide-details
+              single-line
+              clearable
+            ></v-text-field>
+            <v-btn
+              icon="mdi-filter-outline"
+              color="Primary"
+              size="large"
+              variant="text"
+              @click="toggleFilterDialog"
+            ></v-btn>
+          </v-toolbar>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-dots-vertical"
+                variant="text"
+                color="gray-lighten-2"
+              ></v-btn>
+            </template>
+            <v-list>
+              <v-list-item @click="selectItem(item)">Edit</v-list-item>
+              <v-list-item @click="confirmDelete(item)">Delete</v-list-item>
+            </v-list>
+          </v-menu>
+        </template></v-data-table
+      >
+    </div>
+    
     </div>
   </template>
   

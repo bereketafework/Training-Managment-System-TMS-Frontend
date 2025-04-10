@@ -6,36 +6,83 @@
       </div>
   
       <!-- Dashboard Summary Cards -->
-      <v-row class="mb-8">
-        <v-col cols="12" md="4">
-          <v-card outlined>
-            <v-card-title>Total Participants</v-card-title>
-            <v-card-text>
-              <h2 class="text-4xl text-center">{{ totalParticipants }}</h2>
+      <v-row class="mb-8 border-t-2 border-opacity-10">
+        <v-col cols="12" md="6">
+          <v-card outlined class="!border-b-2 !border-blue-500 roubl !border-l-2 !flex  justify-center  ">
+            <div  class="flex justify-center items-center m-2 ">
+        <v-icon icon="mdi-account-group-outline " size="50"></v-icon>
+    </div>
+    <div>
+
+            <v-card-title class="text-center !text-2xl m-2 !font-bold font-serif ">Total Participants</v-card-title>
+            <v-card-text class="flex justify-center gap-2">
+              <div class="flex justify-bet gap-2">
+      
+              <h2 class="text-4xl text-center">{{ ParticipantData.length}}</h2>
+            </div>
             </v-card-text>
+          </div>
           </v-card>
         </v-col>
   
-        <v-col cols="12" md="4">
-          <v-card outlined>
-            <v-card-title>Active Trainings</v-card-title>
-            <v-card-text>
-              <h2 class="text-4xl text-center">{{ activeTrainings }}</h2>
+        <v-col cols="12" md="6">
+          <v-card outlined class="!border-b-2 !border-blue-500 roubl !border-l-2 !flex  justify-center  ">
+            <div  class="flex justify-center items-center m-2 ">
+        <v-icon icon="mdi-transit-connection-variant " size="50"></v-icon>
+    </div>
+    <div>
+
+            <v-card-title class="text-center !text-2xl m-2 !font-bold font-serif ">Active Trainings</v-card-title>
+            <v-card-text class="flex justify-center gap-2">
+              <div class="flex justify-bet gap-2">
+      
+              <h2 class="text-4xl text-center">{{ TrainingData.length}}</h2>
+            </div>
             </v-card-text>
+          </div>
           </v-card>
         </v-col>
-  
-        <v-col cols="12" md="4">
-          <v-card outlined>
-            <v-card-title>Average Participants per Training</v-card-title>
-            <v-card-text>
-              <h2 class="text-4xl text-center">{{ avgParticipants }}</h2>
+
+
+        <v-col cols="12" md="6">
+          <v-card outlined class="!border-b-2 !border-blue-500 roubl !border-l-2 !flex  justify-center  ">
+            <div  class="flex justify-center items-center m-2 ">
+        <v-icon icon="mdi-account-plus " size="50"></v-icon>
+    </div>
+    <div>
+
+            <v-card-title class="text-center !text-2xl m-2 !font-bold font-serif ">Total Guests</v-card-title>
+            <v-card-text class="flex justify-center gap-2">
+              <div class="flex justify-bet gap-2">
+      
+              <h2 class="text-4xl text-center">{{ GuestData.length }}</h2>
+            </div>
             </v-card-text>
+          </div>
+          </v-card>
+         
+        </v-col>
+        <v-col cols="12" md="6">
+        <v-card outlined class="!border-b-2 !border-blue-500 roubl !border-l-2 !flex  justify-center  ">
+            <div  class="flex justify-center items-center m-2 ">
+        <v-icon icon="mdi-account " size="50"></v-icon>
+    </div>
+    <div>
+
+            <v-card-title class="text-center !text-2xl m-2 !font-bold font-serif ">Total Users</v-card-title>
+            <v-card-text class="flex justify-center gap-2">
+              <div class="flex justify-bet gap-2">
+      
+              <h2 class="text-4xl text-center">{{ UserData.length }}</h2>
+            </div>
+            </v-card-text>
+          </div>
           </v-card>
         </v-col>
+
       </v-row>
-  
-      <!-- Reports Section -->
+<!--   
+      <!-- Reports Section --
       <v-row>
         <v-col cols="12" md="6">
           <v-card outlined>
@@ -84,11 +131,14 @@
             </v-card-text>
           </v-card>
         </v-col>
-      </v-row>
+      </v-row> -->
     </v-container>
   </template>
   
   <script>
+import { mapActions } from 'pinia';
+import { useDashboardDataStore } from '@/stores/DashboardDataStore';
+  
   export default {
     data: () => ({
       participants: [
@@ -102,30 +152,47 @@
         { name: "Leadership Skills", venue: "AAU", participants: 50 },
         { name: "Effective Communication", venue: "TASH", participants: 30 },
       ],
+      TrainingData: [],
+      ParticipantData: [],
+      GuestData: [],
+      UserData: [],
+
     }),
-    computed: {
-      totalParticipants() {
-        return this.participants.length;
+    methods: {
+      ...mapActions(useDashboardDataStore, ["fetchTrainingData"]),
+      ...mapActions(useDashboardDataStore, ["fetchParticipantData"]),
+      ...mapActions(useDashboardDataStore, ["fetchGuestData"]),
+      ...mapActions(useDashboardDataStore, ["fetchUserData"]),
+      user() {
+        this.fetchUserData().then((UserData) => {
+          this.UserData = UserData
+        })
       },
-      activeTrainings() {
-        return this.trainings.length;
+      guest() {
+        this.fetchGuestData().then((GuestData) => {
+          this.GuestData = GuestData
+  
+        })
       },
-      avgParticipants() {
-        if (this.trainings.length === 0) return 0;
-        const total = this.trainings.reduce(
-          (sum, training) => sum + training.participants,
-          0
-        );
-        return Math.round(total / this.trainings.length);
+      participant() {
+        this.fetchParticipantData().then((ParticipantData) => {
+          this.ParticipantData = ParticipantData
+  
+        })
       },
-      topParticipants() {
-        return this.participants
-          .sort((a, b) => b.trainings_attended - a.trainings_attended)
-          .slice(0, 5); // Top 5 participants
-      },
-      trainingSummary() {
-        return this.trainings;
-      },
+      Training(){
+        this.fetchTrainingData().then((TrainingData) => {
+          this.TrainingData = TrainingData
+
+        })
+
+      }
+    },
+    mounted() {
+      this.Training();
+      this.participant();
+      this.guest();
+      this.user();
     },
   };
   </script>

@@ -1,5 +1,5 @@
 <template>
-  This is enroolment page
+  This is enrolment page
 </template>
 
 <script>

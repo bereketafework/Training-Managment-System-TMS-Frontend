@@ -29,7 +29,7 @@
 
      
   
-
+          <router-view></router-view>
 
 
 
@@ -44,7 +44,7 @@
     </script> 
     <script>
     import {ref} from'vue'
-    import UserRegistration from '../views/UserRegistration.vue'
+    import UserRegistration from '../views/Users/UserRegistration.vue'
   export default {
     data: () => ({
       items: [
