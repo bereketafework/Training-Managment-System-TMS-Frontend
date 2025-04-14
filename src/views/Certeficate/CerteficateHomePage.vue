@@ -23,9 +23,10 @@
                     chips
                     label="Select Training"
                     :items="trainingList"
-                    item-title="Training_name"
+                    item-title="Training_name"  
                     item-value="id"
                     variant="outlined"
+                    :rules="[required]"  
                   ></v-select>
                 </v-col>
                 <v-col cols="12" sm="8">
@@ -35,7 +36,7 @@
                     color="black darken-2"
                     label="Title"
                     type="text"
-                    required
+                 :rules="[required]"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="20" sm="10">
@@ -46,6 +47,7 @@
                     label="Certificate  Description"
                     v-model="Description"
                     variant="outlined"
+                      :rules="[required]"
                   ></v-textarea>
                 </v-col>
 
@@ -56,6 +58,7 @@
                     label="Issue Date"
                     type="date"
                     variant="outlined"
+                    :rules="issueDateRules"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
@@ -65,6 +68,7 @@
                     label="Expire  Date"
                     type="date"
                     variant="outlined"
+                    :rules="expireDateRules"
                   ></v-text-field>
                 </v-col>
                 <v-card-actions class="flex justify-between !w-[700px]">
@@ -88,89 +92,7 @@
         </v-card>
       </v-overlay>
     </div>
-    <!-- <v-overlay v-model="certificate" class="flex justify-center items-center">
-    <v-container fluid class="bg-white rounded-lg">
-      <primary-button
-        color="white"
-        prepend-icon="mdi-printer-outline"
-        size="large"
-        class="rounded-lg !bg-blue-500 p-1"
-        variant="outlined"
-        name="Print"
-        @click="printCertificate"
-      />
-      <div class="flex flex-col justify-center items-center w-full h-full">
-        <div class="border-2 border-black w-[1300px] h-[700px] p-2 rounded-lg">
-          <div
-            class="border-2 h-[100px] flex flex-row justify-between rounded-lg col-span-3 bg-gray-500"
-          >
-            <div class="flex justify-center items-center">
-              <img
-                src="https://ehr.chs.edu.et/assets/logo-BFYeEqU2.png"
-                class="w-full h-full"
-              />
-            </div>
-            <div>
-              <h1
-                class="text-5xl font-mono flex items-center place-content-center"
-              >
-                Training Managment System
-              </h1>
-            </div>
-            <div class="flex justify-center items-center">
-              <img
-                src="https://ehrs.chs.edu.et/public/logos/institutionlogo-login.png"
-                alt="logo"
-                width="250"
-                max-height="40"
-                class="-mt-1 w-full h-full"
-              />
-            </div>
-          </div>
-          <div class="flex justify-center items-center mt-10">
-            <strong>
-              <h1 class="text-6xl font-mono">{{ trainingList[1
-
-              ].Training_name+" "  }} Certificate{{ }}</h1></strong
-            >
-          </div>
-          <div class="flex justify-center items-center mt-2">To: <strong> Test User</strong></div>
-          <div class="flex m-16 items-center">
-            <!-- <strong>
-              <h1 class="text-2xl font-serif font-normal justify-between">
-                This is to certify that<strong> Test User</strong> has
-                successfully completed <strong>{{ trainingList[1].Training_name  }}</strong> with an
-                attendance percentage of <strong> 100</strong> %.
-              </h1></strong
-            > --
-            {{ trainingList[1].Courses.Course_description }}
-          </div>
-          <div class="flex justify-center items-center mt-10">
-            <strong> <h1 class="text-3xl font-mono">Thank You!!</h1></strong>
-          </div>
-          <div class="flex justify-between mt-10">
-            <strong>
-              <h1 class="text-3xl font-mono">
-                Date: <strong class="underline"> 2023-06-01</strong>
-              </h1></strong
-            > <img
-              src="https://www.stampjam.com/assets/images/templates/t0099/v3.webp"
-              class="h-[100px]"
-            />
-            <strong>
-              <h1 class="text-3xl font-mono">
-                Signature:
-                <strong class="underline"> ------------------</strong>
-              </h1></strong
-            >
-          </div>
-          <div class="flex justify-center items-center">
-           
-          </div>
-        </div>
-      </div>
-    </v-container>
-  </v-overlay> -->
+   
     <div>
       
       <v-toolbar flat>
@@ -277,6 +199,26 @@ export default {
   },
   components: {
     PrimaryButton,
+  },
+  computed: {
+   required(){
+    return (v) => !!v || "This field is required";
+   },
+   issueDateRules() {
+      return [
+        (v) => !!v || "Issue Date is required",
+        (v) => new Date(v) <= new Date() || "Issue Date must be today or earlier",
+      ];
+    },
+    expireDateRules() {
+      return [
+        (v) => !!v || "Expire Date is required",
+        (v) =>
+          new Date(v) >= new Date(this.IssueDate) ||
+          "Expire Date must be after Issue Date",
+      ];
+    },  
+  
   },
   methods: {
     

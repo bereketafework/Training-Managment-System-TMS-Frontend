@@ -2,12 +2,20 @@
   <div class="">
     <div>
       <v-toolbar flat class="overflow-x-auto !bg-neutral-100">
+        
         <v-tabs
           v-model="tab"
           color="primary"
           direction="horizontal"
           class="flex h h-full !justify-between rounded-tl-lg rounded-tr-lg"
         >
+        <v-tab
+        :to="{ name: 'SelectedTraining' }"
+            prepend-icon="mdi-webhook"
+            text="test"
+            value="test"
+            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
+          ></v-tab>
           <v-tab
             prepend-icon="mdi-webhook"
             text="Sessions"
@@ -68,6 +76,11 @@
         </v-tabs>
       </v-toolbar>
     </div>
+    <!-- <div >
+      <div>hey</div>
+      
+      <router-view></router-view>
+    </div> -->
     <div v-if="tab === 'Details'" class="m-4">
       <v-card
         class="!border-[1.5px] !shadow-sm !shadow-slate-600 !rounded-xl flex overflow-hidden !border-blue-500 !border-l-8 h-full"
@@ -221,7 +234,7 @@
       <v-overlay v-model="overlay" class="!flex !justify-center items-center">
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl ml-3">
-            Training Session Form
+            Training Session Registration Form
           </span>
 
           <v-form ref="form" @submit.prevent="submit" class="m-3">
@@ -254,16 +267,19 @@
                     <template v-slot:activator="{ on, attrs }">
                       <v-text-field
                         v-model="form.sessions_start_date"
+                     
                         required
                         label="Session Start Date"
                         variant="outlined"
                         type="datetime-local"
                         v-bind="attrs"
                         v-on="on"
+                        :rules="[startDateRules]"
                       ></v-text-field>
                     </template>
                     <v-date-picker
                       v-model="form.sessions_start_date"
+                      
                       variant="outlined"
                       no-title
                       @input="menu = false"
@@ -385,7 +401,7 @@
       <v-overlay v-model="overlay" class="!flex !justify-center items-center">
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl">
-            Guest Assigning
+            Guest Assigning Form
           </span>
 
           <v-form ref="form" @submit.prevent="assignGuest" class="m-3">
@@ -405,9 +421,9 @@
                     item-title="Topic"
                     item-value="id"
                     v-model="SelectedSessionIdForGuest"
-                    :rules="[rules.required]"
+                  :rules="[rules.required]"
                     multiple
-                    required
+                   
                   ></v-select> </v-col
                 ><v-col cols="20" sm="10">
                   <v-select
@@ -1090,6 +1106,30 @@ export default {
       return (item) =>
         `${item.First_name} ${item.Middle_name} ${item.Last_name}`;
     },
+  startDateRules() {
+      return [
+        (v) => !!v || "Session start date is required.",
+        (v) => new Date(v) >= new Date() || "Start date must be today or later.",
+      ];
+    },
+  endDateRules() {
+      return [
+        (v) => !!v || "Session end date is required.",
+        (v) =>
+          new Date(v) >= new Date(this.form.sessions_start_date) ||
+          "End date must be after the start date.",
+      ];
+    },
+    required() {
+      return [(v) => !!v || "This field is required."];
+    },
+    numberRules() {
+      return [
+        (v) => !!v || "This field is required.",
+        (v) => v > 0 || "Value must be greater than 0.",
+      ];
+    },
+
   },
 
   methods: {

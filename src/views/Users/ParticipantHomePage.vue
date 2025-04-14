@@ -181,11 +181,7 @@
     <!-- Participants List -->
 
     <div>
-      <v-skeleton-loader
-        v-if="loading"
-        type="table,table-heading, table-row"
-        class="mt-4"
-      ></v-skeleton-loader>
+
 
       <v-data-table
         :headers="headers"
@@ -415,7 +411,7 @@ this.fetchParticipant()   },
         console.log(participantId);
       } catch (error) {
         console.error(error);
-        this.snackbarMessage1 = error.response.data;
+        this.snackbarMessage1 = error.response.data.message;
         this.snackbarColor1 = "red";
         this.snackbar1 = true;
         this.loading = false;

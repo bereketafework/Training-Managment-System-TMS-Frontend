@@ -42,21 +42,21 @@ const router = createRouter({
                   component: () =>
                     import("@/views/Training/SelectedTrainingDetails.vue"),
                 },
-                {
-                  path: "TrainingCourse",
-                  name: "TrainingCourse",
+                // {
+                //   path: "TrainingCourse",
+                //   name: "TrainingCourse",
 
-                  component: () =>
-                    import("../views/Training/TrainingAddCourse.vue"),
-                },
+                //   component: () =>
+                //     import("../views/Training/TrainingAddCourse.vue"),
+                // },
 
-                {
-                  path: "Trainingsessions",
-                  name: "TrainingSessionss",
+                // {
+                //   path: "Trainingsessions",
+                //   name: "TrainingSessionss",
 
-                  component: () =>
-                    import("../views/Training/TrainingSessionHomePage.vue"),
-                },
+                //   component: () =>
+                //     import("../views/Training/TrainingSessionHomePage.vue"),
+                // },
               ],
             },
             // {

@@ -329,6 +329,7 @@
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
                           v-model="form.sessions_end_date"
+                          
                           label="Session End Date"
                           readonly
                           v-bind="attrs"
@@ -526,6 +527,22 @@
           );
         });
       },
+      SessionStartDateRules() {
+        return (v)=> {
+        if (!v) return "This field is required";
+        if (isNaN(Date.parse(v))) return "Must be a valid date.";
+        if (new Date(v) < new Date()) return "Date must be in the future.";
+        return true;
+      };
+      },
+      SessionEndDateRules() {
+        return (v) => {
+        if (!v) return "This field is required";
+        if (isNaN(Date.parse(v))) return "Must be a valid date.";
+        if (new Date(v) <= new Date(this.form.StartDate)) return "End Date must be after Start Date.";
+        if (new Date(v) - new Date(this.form.StartDate) < 86400000) return "End Date must be at least one day after Start Date.";
+        return true;
+      };  },
     },
     methods: {
       resetForm() {

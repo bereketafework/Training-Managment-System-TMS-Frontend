@@ -15,6 +15,7 @@
                     color="black darken-2"
                     label="Training Title"
                     required
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
@@ -23,45 +24,49 @@
                     chips
                     label="Training Mode"
                     :items="['Online', 'Face to Face']"
-                    variant="solo-filled"
+           variant="outlined"
                     v-model="form.Mode"
                     :rules="rules.required"
+                    
                   ></v-select>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.StartDate"
-                    :rules="[rules.required, rules.date]"
+                    :rules="[dateRules]"
                     color="black darken-2"
                     label="Training Start Date"
                     type="date"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.EndDate"
-                    :rules="[rules.required, rules.date, rules.endDate]"
+                    :rules="[endDateRules]"
                     color="black darken-2"
                     label="Training End Date"
                     type="date"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.EnrollmentDeadline"
-                    :rules="[rules.required, rules.date]"
+                    :rules="[enrollmentDeadlineRules]"
                     color="black darken-2"
                     label="Enrollment Deadline"
                     type="date"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.Price"
-                    :rules="[rules.required, rules.numeric]"
+                    :rules="[numericRules]"
                     color="black darken-2"
                     label="Price"
-                    type="number"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
@@ -72,7 +77,7 @@
                     :items="Courses"
                     item-title="Course_title"
                     item-value="id"
-                    variant="solo-filled"
+               variant="outlined"
                     v-model="SelectedCourseId"
                     :rules="rules.required"
                   ></v-select>
@@ -84,15 +89,16 @@
                     color="black darken-2"
                     label="Training Location"
                     required
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="6" sm="3">
                   <v-text-field
                     v-model="form.Capacity"
-                    :rules="[rules.required, rules.numeric]"
+                    :rules="[numericRules]"
                     color="black darken-2"
                     label="Capacity"
-                    type="number"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -101,7 +107,7 @@
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
-                  :disabled="!formValid"
+                  
                   text
                   color="primary"
                   type="submit"   >Register</v-btn
@@ -127,6 +133,7 @@
                     color="black darken-2"
                     label="Training Title"
                     required
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
@@ -135,7 +142,7 @@
                     chips
                     label="Training Mode"
                     :items="['Online', 'Face to Face']"
-                    variant="solo-filled"
+                    variant="outlined"
                     v-model="form.ModeUpdate"
                     :rules="rules.required"
                   ></v-select>
@@ -143,37 +150,41 @@
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.StartDateUpdate"
-                    :rules="[rules.required, rules.date]"
+                             :rules="[dateRules]"
                     color="black darken-2"
                     label="Training Start Date"
                     type="date"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.EndDateUpdate"
-                    :rules="[rules.required, rules.date, rules.endDate]"
+                     :rules="[endDateRules]"
                     color="black darken-2"
                     label="Training End Date"
                     type="date"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.EnrollmentDeadlineUpdate"
-                    :rules="[rules.required, rules.date]"
+                      :rules="[enrollmentDeadlineRules]"
                     color="black darken-2"
                     label="Enrollment Deadline"
                     type="date"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.PriceUpdate"
-                    :rules="[rules.required, rules.numeric]"
+                 :rules="[numericRules]"
                     color="black darken-2"
                     label="Price"
                     type="number"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
@@ -184,7 +195,7 @@
                     :items="Courses"
                     item-title="Course_title"
                     item-value="id"
-                    variant="solo-filled"
+                   variant="outlined"
                     v-model="SelectedCourseIdUpdate"
                     :rules="rules.required"
                   ></v-select>
@@ -196,15 +207,17 @@
                     color="black darken-2"
                     label="Training Location"
                     required
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="6" sm="3">
                   <v-text-field
                     v-model="form.CapacityUpdate"
-                    :rules="[rules.required, rules.numeric]"
+                   :rules="[numericRules]"
                     color="black darken-2"
                     label="Capacity"
                     type="number"
+                    variant="outlined"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -384,19 +397,7 @@ export default {
   components: { Cards },
   data: () => ({
     rules: {
-      required: [(v) => !!v || "This field is required."],
-      date: [(v) => !isNaN(Date.parse(v)) || "Must be a valid date."],
-      endDate: [
-        (v) =>
-          !v ||
-          new Date(v) > new Date(this.form.StartDate) ||
-          "End Date must be after Start Date.",
-        (v) =>
-          new Date(v) - new Date(this.form.StartDate) >= 86400000 ||
-          "End Date must be at least one day after Start Date ",
-      ],
-      numeric: [(v) => !isNaN(parseFloat(v)) || "Must be a valid number."],
-    },
+      required: [(v) => !!v || "This field is required."],   },
     formValid: false,
     items: [],
     overlay: false,
@@ -430,7 +431,41 @@ export default {
     session: [],
 
   }),
- 
+ computed: {
+  numericRules() {
+      return (v) => {
+        if (!v) return "This field is required";
+        if (!/^\d+$/.test(v)) return "Only numeric values allowed";
+        return true;
+      };
+    },
+    dateRules() {
+      return (v)=> {
+        if (!v) return "This field is required";
+        if (isNaN(Date.parse(v))) return "Must be a valid date.";
+        if (new Date(v) < new Date()) return "Date must be in the future.";
+        return true;
+      };
+    },
+    endDateRules() {
+      return (v) => {
+        if (!v) return "This field is required";
+        if (isNaN(Date.parse(v))) return "Must be a valid date.";
+        if (new Date(v) <= new Date(this.form.StartDate)) return "End Date must be after Start Date.";
+        if (new Date(v) - new Date(this.form.StartDate) < 86400000) return "End Date must be at least one day after Start Date.";
+        return true;
+      };
+    },
+    enrollmentDeadlineRules() {
+      return (v) => {
+        if (!v) return "This field is required";
+        if (isNaN(Date.parse(v))) return "Must be a valid date.";
+        if (new Date(v) < new Date()) return "Enrollment Deadline must be in the future.";
+        if (new Date(v) >= new Date(this.form.StartDate)) return "Enrollment Deadline must be before Start Date.";
+        return true;
+      };
+    }
+  },
   mounted() {
 
     this.fetchData(); // Fetch data when the component is mounted
@@ -438,6 +473,9 @@ export default {
   this.courseData();
   },
   methods: {
+    validateForm() {
+      return this.$refs.form.validate();
+    },
     goBack() {
       this.overlay = false;
     },

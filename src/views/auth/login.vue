@@ -79,7 +79,9 @@
         <!-- <v-btn text @click="$router.push('/UserRole')">Go to Registration</v-btn> -->
       </v-card-actions>
     </v-card>
-    
+    <v-snackbar v-model="snackbar" color="red" timeout="3000" top>
+      {{ snackbarText }}
+      </v-snackbar>
   </v-container>
 </div>
 </template>
@@ -94,6 +96,8 @@ export default {
   data() {
     return {
       username: '',
+      snackbar: false,
+      snackbarText: '',
       password: ''
     };
   },
@@ -110,7 +114,11 @@ export default {
         // Navigate to the welcome page.
         this.$router.push( "/");
       } catch (error) {
-        alert(error.response?.data?.message || 'Login failed');
+        console.error('Login failed:', error);
+        // alert(error.response?.data?.message || 'Login failed');
+        this.snackbar= true
+        this.snackbarText= error.response?.data.error || 'Login failed';
+
       }
     }
   }
