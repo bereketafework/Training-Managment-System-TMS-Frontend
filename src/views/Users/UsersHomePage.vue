@@ -19,10 +19,10 @@
     </div>
     <router-view/> -->
     <div class="  flex flow-row">
-     <div class="w-28 h-screen flex flex-col  !rounded-md top-0  ">
+     <div class="w-28 h-screen flex flex-col   top-0  ">
 
      
-        <div class=" w-28 gap-2 h-screen !rounded-md !border-r-[2.5px] ">
+        <div class=" w-28 gap-2 h-screen !border-r-[2.5px] ">
           
           <v-list density="compact" nav class=" !w-28 !h-full gap-2">
             

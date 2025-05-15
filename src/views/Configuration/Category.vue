@@ -6,7 +6,7 @@
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >Category Registration Form</span
           >
-          <v-form ref="form" @submit.prevent="createRole" v-model="formValid">
+          <v-form ref="form" @submit.prevent="CreateCategory" v-model="formValid">
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-row">
                 <v-col cols="8" sm="4">
@@ -14,7 +14,8 @@
                     v-model="form.Category"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Role"
+                    label="Category Name *"
+                    variant="outlined"
                     required
                   ></v-text-field>
                 </v-col>
@@ -28,7 +29,7 @@
                   text
                   color="primary"
                   type="submit"
-                  @click="createRole"
+                 
                 >
                   <v-progress-circular
                     v-if="loading"
@@ -44,15 +45,10 @@
       </v-overlay>
     </div>
     <div>
-      <v-skeleton-loader
-        v-if="loading"
-        type="table,table-heading, table-row"
-        class="mt-4"
-      ></v-skeleton-loader>
 
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="Categories"
         :search="searchQuery"
         density="compact"
         sticky
@@ -60,11 +56,10 @@
         <template v-slot:top>
           <v-toolbar flat>
             <v-btn
-              color="blue"
+            color="blue"
               prepend-icon="mdi-plus"
               size="large"
-              class="rounded-lg"
-              variant="outlined"
+              variant="elevated"
                 @click="toggleForm"
               >
                 Create</v-btn
@@ -84,13 +79,7 @@
               single-line
               clearable
             ></v-text-field>
-            <v-btn
-              icon="mdi-filter-outline"
-              color="Primary"
-              size="large"
-              variant="text"
-              @click="toggleFilterDialog"
-            ></v-btn>
+           
           </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
@@ -119,7 +108,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="deleteItem">Delete</v-btn>
+          <v-btn color="red" text @click="DeleteCategory">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -129,10 +118,10 @@
       class="!flex !justify-center items-center"
     >
       <v-card flat class="bg-slate-300">
-        <span class="flex justify-center border-b-[1px] text-3xl p-4"
-          >Role Update Form</span
+        <span class="flex justify-center  border-b-[1px] text-3xl p-4"
+          >Category Update Form</span
         >
-        <v-form ref="form" @submit.prevent="editItem" v-model="formValid">
+        <v-form ref="form" @submit.prevent="UpdateCategory" v-model="formValid">
           <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
             <v-row class="!flex !flex-row">
               <v-col cols="8" sm="4">
@@ -140,7 +129,8 @@
                   v-model="form.CategoryUpdate"
                   :rules="rules.required"
                   color="black darken-2"
-                  label="Name"
+                  label="Category Name *"
+                          variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -154,7 +144,7 @@
                 text
                 color="primary"
                 type="submit"
-                @click="editItem"
+               
               >
                 <v-progress-circular
                   v-if="loading"
@@ -169,21 +159,28 @@
       </v-card>
     </v-overlay>
     <v-snackbar v-model="snackbar1" :color="snackbarColor1">
-      {{ snackbarMessage1 }}
+     {{ snackbarMessage1 }} 
     </v-snackbar>
+
   </div>
 </template>
 <script>
 import { jwtDecode } from "jwt-decode";
 
 import api from "@/service/api";
+import { useCategoryStore } from "@/stores/categoryStore";
+import { mapActions } from 'pinia';
+const categoryStore = useCategoryStore
 export default {
+ 
   data() {
     return {
+      
       headers: [
         { title: "Category", value: "Name" },
         { title: "Actions", value: "actions", sortable: false },
       ],
+      Categories: [],
       loading: false,
       overlayUpdate: false,
       snackbarMessage1: "",
@@ -201,7 +198,9 @@ export default {
       searchQuery: "",
       selectedItem: null,
       formValid: false,
+      
       form: {
+    
         Category: "",
         CategoryUpdate: "",
       },
@@ -209,60 +208,122 @@ export default {
         required: [(v) => !!v || "This field is required."],
       },
       items: [], // Data fetched from the API
+      testData: [],
     };
   },
 
   methods: {
-    async fetchData() {
-      try {
-        const response = await api.get("/category/all");
+...mapActions(useCategoryStore, ["createCategory","updateCategories","deleteCategory","fetchCategories"]),
+Category(){
+  this.fetchCategories()
+  .then((response) => {
+    this.Categories = response.data;
+  })
+ 
+  .catch((error)=>{
+    console.log("error:",error)
+  })  
+},
+CreateCategory(){
 
-        this.items = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
 
-    async createRole() {
-      try {
-        const token = localStorage.getItem("token"); // Adjust if your token is stored elsewhere
+    this.createCategory(this.form.Category)
+    
+    .then((res)=>{
+      this.snackbarMessage1 = "Category Created Successfully"
+      this.snackbarColor1 = "green";
+      this.snackbar1 = true;
+      console.log(res);
 
-        if (token) {
-          try {
-            this.loading = true;
+    }).catch((err)=>{
+      this.snackbarMessage1 = err.response.data.error
+      this.snackbarColor1 = "red";
+      this.snackbar1 = true;
+      console.log(":::: ",err.response.data.error);
+    })
+     .finally(()=> {
+      this.loading = false;
+        this.Category();
+        this.overlay=null
+        this.form.Category=null
+    })
+},
+UpdateCategory() {
+  this.loading = true;
+  this.updateCategories([this.form.CategoryUpdate, this.selectedItem.id])
+    .then((response) => {
+      this.snackbarMessage1 = "Category updated successfully!";
+      this.snackbarColor1 = "green";
+      this.snackbar1 = true;
+      this.overlayUpdate = false;
+      this.Category(); // Refresh the category list
+    })
+    .catch((error) => {
+      this.snackbarMessage1 = error.response?.data || "Error updating category.";
+      this.snackbarColor1 = "red";
+      this.snackbar1 = true;
+    })
+    .finally(() => {
+      this.loading = false;
+        this.overlay = null;
+    });
+    
+},
 
-            const response = await api.post("/category/create", {
-              Name: this.form.Category,
-            });
+DeleteCategory(){
+    this.deleteCategory(this.selectedItem.id)
+ .then((res)=>{
+   this.snackbarMessage1 = "Category Deleted successfully!";
+      this.snackbarColor1 = "green";
+      this.snackbar1 = true;
+      this.deleteDialog = false;
+ }).catch((error)=>{
+ console.error(error);
+      this.snackbarMessage1 = error.response;
+      this.snackbarColor1 = "red";
+      this.snackbar1 = true;
+ }) .finally(()=> {
+      this.loading = false;
+        this.Category();
+    })}
+    ,
+    // async createRole() {
+    //   try {
+    //     const token = localStorage.getItem("token"); // Adjust if your token is stored elsewhere
 
-            this.snackbarMessage1 = "Successfully Created  ";
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-            this.overlay = null;
-            this.fetchData();
-          } catch (error) {
-            console.error("Error decoding token:", error);
-            this.snackbarMessage1 = error.response.data;
-            this.snackbarColor1 = "red";
-            this.snackbar1 = true;
-          }
-        } else {
-          this.snackbarMessage1 = error.response.data;
-          this.snackbarColor1 = "red";
-          this.snackbar1 = true;
-        }
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
+    //     if (token) {
+    //       try {
+    //         this.loading = true;
+
+    //         const response = await api.post("/category/create", {
+    //           Name: this.form.Category,
+    //         });
+
+    //         this.snackbarMessage1 = "Successfully Created  ";
+    //         this.snackbarColor1 = "green";
+    //         this.snackbar1 = true;
+    //         this.overlay = null;
+    //         this.fetchData();
+    //       } catch (error) {
+    //         console.error("Error decoding token:", error);
+    //         this.snackbarMessage1 = error.response.data;
+    //         this.snackbarColor1 = "red";
+    //         this.snackbar1 = true;
+    //       }
+    //     } else {
+    //       this.snackbarMessage1 = error.response.data;
+    //       this.snackbarColor1 = "red";
+    //       this.snackbar1 = true;
+    //     }
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //   } finally {
+    //     this.loading = false;
+    //   }
+    // },
     goBack() {
       this.overlay = false;
       this.overlayUpdate = false;
@@ -370,7 +431,8 @@ export default {
     },
   },
   mounted() {
-    this.fetchData(); // Fetch data when the component is mounted
+    this.Category(); // Fetch data when the component is mounted
+    // this.fetchData(); // Fetch data when the component is mounted
   },
 };
 </script>

@@ -56,44 +56,7 @@
     <router-view/>
   </div>
 </template>
-<!-- <script>
 
-import UserRegistration from '../views/UserRegistration.vue';
-
-export default {
-  data() {
-    return {
-      isUserProfile: false,
-      items: [
-        { title: 'Add User', icon: 'mdi-account-plus', route: '/UserRegistration' },
-        { title: 'Click Me', icon: 'mdi-account', route: '/ClickMe' },
-        { title: 'Click Me', icon: 'mdi-account-plus', route: '/ClickMe' },
-        { title: 'Click Me 2', icon: 'mdi-account-plus', route: '/ClickMe2' },
-      ],
-      loaded: false,
-      loading: false,
-    };
-  },
-  watch: { 
-    '$route'(to) { this.isUserProfile = to.name === 'Users';
-
-     } 
-  }, 
-  created() { this.isUserProfile = this.$route.name === 'Users';
-
-   },
-  methods: {
-    onClick() {
-      this.loading = true;
-      setTimeout(() => {
-        this.loading = false;
-        this.loaded = true;
-      }, 3000);
-    },
-  },
-};
-
-</script> -->
 <script>
 export default {
   data() {

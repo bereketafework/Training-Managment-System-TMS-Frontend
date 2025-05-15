@@ -32,31 +32,76 @@ const router = createRouter({
             },
 
             {
-              path: ":id",
+              path: ":id/sessions",
               name: "TrainingDetails",
               component: () => import("@/views/Training/TrainingDetails.vue"),
               children: [
-                {
-                  path: "details",
-                  name: "SelectedTraining",
-                  component: () =>
-                    import("@/views/Training/SelectedTrainingDetails.vue"),
-                },
                 // {
-                //   path: "TrainingCourse",
-                //   name: "TrainingCourse",
+                //   path: "details",
+                //   name: "TrainingDetailsView",
 
                 //   component: () =>
-                //     import("../views/Training/TrainingAddCourse.vue"),
+                //     import("../views/Training/SelectedTrainingDetails.vue"),
                 // },
+                {
+                  path: "sessions",
+                  name: "TrainingSessions",
+                  component: () =>
+                    import("@/views/Training/TrainingSessionHomePage.vue"),
+                },
+                {
+                  path: "TrainingCourse",
+                  name: "TrainingCourse",
+
+                  component: () =>
+                    import("../views/Training/TrainingAddCourse.vue"),
+                },
 
                 // {
-                //   path: "Trainingsessions",
+                //   path: "sessions",
                 //   name: "TrainingSessionss",
 
                 //   component: () =>
                 //     import("../views/Training/TrainingSessionHomePage.vue"),
                 // },
+
+                {
+                  path: "guests",
+                  name: "TrainingGuestView",
+
+                  component: () =>
+                    import("../views/Users/SelectedTrainingGuestAssign.vue"),
+                },
+                {
+                  path: "teams",
+                  name: "TrainingTeamView",
+
+                  component: () =>
+                    import("../views/Users/SelectedTrainingTeamAssign.vue"),
+                },
+                {
+                  path: "enrollments",
+                  name: "TrainingEnrollmentView",
+
+                  component: () =>
+                    import("../views/Resource/SelectedTrainingEnrollment.vue"),
+                },
+                {
+                  path: "resources",
+                  name: "TrainingResourcesView",
+
+                  component: () =>
+                    import(
+                      "../views/Resource/SelectedTrainingResourceAssign.vue"
+                    ),
+                },
+                {
+                  path: "attendance",
+                  name: "TrainingAttendanceView",
+
+                  component: () =>
+                    import("../views/Users/SelectedTrainingAttendance.vue"),
+                },
               ],
             },
             // {

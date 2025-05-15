@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full h-full ">
+  <div class="flex w-full h-full !font-roboto">
     <div class="w-full h-full flex flex-col justify-between">
       <div class="flex flex-col gap-3 m-4  lg:flex-row ">
         <div
@@ -34,7 +34,7 @@
                 Change Password 
                 
               </div>
-            <div class="w-[300px] h-full gap-4 overflow-hidden flex flex-col justify-center items-center">
+            <div class="w-[300px] h-full gap-2 overflow-hidden flex flex-col justify-center items-center">
              
               <div class="flex gap-2   justify-between w-[300px] ">
              
@@ -69,10 +69,12 @@
               </div>
               
             </div>
-            <div class="text-3xl border-t-2 border-slate-100 w-full rounded-md justify-center flex"> 
-              <button>submit</button>   
-              <button>clear</button>   
-                
+            <div class="text-3xl border-t-2 border-slate-100 w-full rounded-md justify-between flex "> 
+  
+           <primary-button name="submit" color="blue" variant="outlined"/>
+           
+           <primary-button name="clear" color="red" variant="outlined" @click="clearFields"/>
+
               </div>
           </div>
         </div>
@@ -118,6 +120,10 @@
    
     </div>
     </div> -->
+    
+    <v-snackbar v-model="snackbar1" :color="snackbarColor1">
+      {{ snackbarMessage1 }}
+    </v-snackbar>
 </template>
 <script>
 import { useCurrentUserStore } from "../../stores/currentUserData";
@@ -125,8 +131,12 @@ import { jwtDecode } from "jwt-decode";
 const Store = useCurrentUserStore();
 import api from "@/service/api";
 import { storeKey } from "vuex";
+import PrimaryButton from "@/components/PrimaryButton.vue";
 
 export default {
+  components: {
+    PrimaryButton
+  },
   setup() {
     const user = Store.user;
 
@@ -138,6 +148,9 @@ export default {
     Store.ProfileInfo();
   },
   methods: {
+    clearFields() {
+      this.$refs.form.reset();
+    },
     logout() {
       localStorage.removeItem("authToken");
       this.$router.push("/login");

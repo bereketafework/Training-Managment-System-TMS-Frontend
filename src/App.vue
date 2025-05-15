@@ -10,7 +10,7 @@
 </script>
 
 <template>
-<div class="w-full h-full flex flex-row overflow-hidden ">
+<div class="w-full h-full flex flex-row overflow-hidden !font-roboto  ">
   
   <!-- <mybtn class="w-full"/> -->
 

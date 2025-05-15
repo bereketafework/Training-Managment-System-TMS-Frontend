@@ -2,7 +2,7 @@
 <template>
   <div class="w-full">
     <!-- Overlay Section -->
-    <div class="flex flex-row mt-2">
+    <div class="flex flex-row ">
       <v-overlay
         v-model="overlay"
         persistent
@@ -21,7 +21,8 @@
                     v-model="form.Title"
                     :rules="rules.Title"
                     color="black darken-2"
-                    label="Course Title"
+                    label="Course Title *"
+                    variant="outlined"
                     required
                   >
                   </v-text-field>
@@ -30,10 +31,10 @@
                   <v-textarea
                     v-model="form.Description"
                     :rules="rules.Description"
-                    label="Course Description"
+                    label="Course Description *"
                     row-height="30"
                     rows="3"
-                    variant="filled"
+                          variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -45,7 +46,7 @@
                     label="Prerequisites"
                     row-height="20"
                     rows="2"
-                    variant="filled"
+                         variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -54,10 +55,10 @@
                   <v-textarea
                     v-model="form.Objectives"
                     :rules="rules.Objectives"
-                    label="Course Objectives"
+                    label="Course Objectives *"
                     row-height="20"
                     rows="2"
-                    variant="filled"
+                      variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -108,7 +109,8 @@
                     v-model="form.TitleUpdate"
                     :rules="rules.Title"
                     color="black darken-2"
-                    label="Course Title"
+                    label="Course Title *"
+                    variant="outlined"
                     required
                   >
                   </v-text-field>
@@ -117,10 +119,10 @@
                   <v-textarea
                     v-model="form.DescriptionUpdate"
                     :rules="rules.Description"
-                    label="Course Description"
+                    label="Course Description *"
                     row-height="30"
                     rows="3"
-                    variant="filled"
+                       variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -128,10 +130,10 @@
                 <v-col cols="14" sm="10">
                   <v-textarea
                     v-model="form.PrerequisitesUpdate"
-                    label="Prerequisites"
+                    label="Prerequisites     "
                     row-height="20"
                     rows="2"
-                    variant="filled"
+      variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -139,16 +141,16 @@
                 <v-col cols="14" sm="10">
                   <v-textarea
                     v-model="form.ObjectivesUpdate"
-                    label="Course Objectives"
+                    label="Course Objectives  *"
                     row-height="20"
                     rows="2"
-                    variant="filled"
+                        variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
                 </v-col>
                 <v-card-actions>
-                  <v-btn text @click="goBack">Back</v-btn>
+                  <v-btn text @click="gobackUpdate">Back</v-btn>
                   <v-btn text @click="resetForm">Clear</v-btn>
                   <v-spacer></v-spacer>
                   <v-btn text color="primary" type="submit" @click="editItem">
@@ -181,11 +183,10 @@
           <template v-slot:top>
             <v-toolbar flat>
               <v-btn
-                color="blue"
-                prepend-icon="mdi-plus"
-                size="large"
-                class="rounded-lg"
-                variant="outlined"
+              color="blue"
+              prepend-icon="mdi-plus"
+              size="large"
+              variant="elevated"
                 @click="toggleOverlay"
               >
                 Create</v-btn
@@ -207,13 +208,7 @@
                 single-line
                 clearable
               ></v-text-field>
-              <v-btn
-                icon="mdi-filter-outline"
-                color="Primary"
-                size="large"
-                variant="text"
-                @click="toggleFilterDialog"
-              ></v-btn>
+              
             </v-toolbar>
           </template>
           <template v-slot:item.actions="{ item }">
@@ -487,6 +482,9 @@ export default {
 
     goBack() {
       this.overlay = false;
+    },
+    gobackUpdate() {
+      this.overlayUpdate = false;
     },
   },
   mounted() {

@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col w-full h-full">
-    <div class="flex mt-2">
+    <div class="flex ">
       <v-overlay v-model="overlay" persistent class="!flex !justify-center items-center">
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
@@ -14,7 +14,8 @@
                     v-model="form.Category"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Role"
+                    label="Role *"
+                    variant="outlined"
                     required
                   ></v-text-field>
                 </v-col>
@@ -22,11 +23,11 @@
                   <v-select
                     clearable
                     chips
-                    label="Select Category"
+                    label="Select Category *"
                     :items="Courses"
                     item-title="Name"
                     item-value="id"
-                    variant="solo-filled"
+                    variant="outlined"
                     v-model="SelectedCourseId"
                     :rules="rules.required"
                   ></v-select>
@@ -56,11 +57,7 @@
       </v-overlay>
     </div>
     <div>
-      <v-skeleton-loader
-        v-if="loading"
-        type="table,table-heading, table-row"
-        class="mt-4"
-      ></v-skeleton-loader>
+
 
       <v-data-table
         :headers="headers"
@@ -72,11 +69,10 @@
         <template v-slot:top>
           <v-toolbar flat>
             <v-btn
-              color="blue"
+            color="blue"
               prepend-icon="mdi-plus"
               size="large"
-              class="rounded-lg"
-              variant="outlined"
+              variant="elevated"
                 @click="toggleForm"
               >
                 Create</v-btn
@@ -96,13 +92,7 @@
               single-line
               clearable
             ></v-text-field>
-            <v-btn
-              icon="mdi-filter-outline"
-              color="Primary"
-              size="large"
-              variant="text"
-              @click="toggleFilterDialog"
-            ></v-btn>
+          
           </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
@@ -171,7 +161,7 @@
               </v-col>
             </v-row>
             <v-card-actions>
-              <v-btn text @click="goBack">Back</v-btn>
+              <v-btn text @click="gobackUpdate">Back</v-btn>
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
               <v-btn
@@ -245,6 +235,9 @@ export default {
   },
 
   methods: {
+    gobackUpdate() {
+      this.overlayUpdate = false;
+    },
     goBack() {
       this.overlay = false;
     },

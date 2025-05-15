@@ -203,11 +203,7 @@
         
       </div>
       <div>
-      <v-skeleton-loader
-        v-if="loading"
-        type="table,table-heading, table-row"
-        class="mt-4"
-      ></v-skeleton-loader>
+
 
       <v-data-table
         :headers="headers"

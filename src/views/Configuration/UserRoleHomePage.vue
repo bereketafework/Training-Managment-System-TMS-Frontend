@@ -14,7 +14,8 @@
                     v-model="form.Role"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Role"
+                            variant="outlined"
+                    label="Role *"
                     required
                   ></v-text-field>
                 </v-col>
@@ -44,11 +45,7 @@
       </v-overlay>
     </div>
     <div>
-      <v-skeleton-loader
-        v-if="loading"
-        type="table,table-heading, table-row"
-        class="mt-4"
-      ></v-skeleton-loader>
+   
 
       <v-data-table
         :headers="headers"
@@ -57,15 +54,15 @@
         density="compact"
         sticky
         :fixed-header="true"
+        
       >
         <template v-slot:top>
           <v-toolbar flat>
             <v-btn
-              color="blue"
+            color="blue"
               prepend-icon="mdi-plus"
               size="large"
-              class="rounded-lg"
-              variant="outlined"
+              variant="elevated"
                 @click="toggleForm"
               >
                 Create</v-btn
@@ -85,13 +82,7 @@
               single-line
               clearable
             ></v-text-field>
-            <v-btn
-              icon="mdi-filter-outline"
-              color="Primary"
-              size="large"
-              variant="text"
-              @click="toggleFilterDialog"
-            ></v-btn>
+        
           </v-toolbar>
           
         </template>
@@ -142,7 +133,8 @@
                   v-model="form.RoleUpdate"
                   :rules="rules.required"
                   color="black darken-2"
-                  label="Role"
+                          variant="outlined"
+                  label="Role *"
                   required
                 ></v-text-field>
               </v-col>
@@ -152,7 +144,7 @@
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
               <v-btn
-                :disabled="!formValid"
+           
                 text
                 color="primary"
                 type="submit"
@@ -169,43 +161,37 @@
         </v-form>
       </v-card>
     </v-overlay>
-    <!-- Filter Dialog -->
-    <v-dialog
-      v-model="filterDialog"
-      max-width="500px"
-      class="!flex !justify-center !items-center"
-    >
-      <v-card>
-        <v-card-title class="headline">Filter Trainings</v-card-title>
-        <v-card-text>
-          <v-form ref="filterForm" @submit.prevent="applyFilter">
-            <v-container>
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    v-model="filter.Role"
-                    label="Role"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-            </v-container>
-            <v-card-actions>
-              <v-btn text @click="clearFilters">Clear Filters</v-btn>
-              <v-btn type="submit" text color="primary">Apply Filter</v-btn>
-            </v-card-actions>
-          </v-form>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <v-snackbar v-model="snackbar1" :color="snackbarColor1">
+    <div class="flex flex-wrap justify-start gap-4 mt-4">
+      <!-- <MiniCard
+        v-for="item in paginatedItems"
+        :key="item.id"
+        :name="item.Role"
+        :Subname="item.CreatedBy.Username"
+        :item="item"
+        SubnameHeader="Created By"
+        SubnameHeader1="Created At"
+       :showDeleteDialog="showDeleteDialog"
+        
+      /> -->
+    </div>
+    <!-- <v-pagination
+      v-model="currentPage"
+      :length="pageCount"
+      class="mt-4"
+      color="primary"
+    ></v-pagination> -->
+
+    <v-snackbar v-model="snackbar1" :color="snackbarColor1" :timeout="timeout">
       {{ snackbarMessage1 }}
     </v-snackbar>
+   
   </div>
 </template>
 <script>
 import { jwtDecode } from "jwt-decode";
-
+import dayjs from "dayjs";
 import api from "@/service/api";
+import MiniCard from "@/components/MiniCard.vue";
 export default {
   data() {
     return {
@@ -215,7 +201,7 @@ export default {
         { title: "Actions", value: "actions", sortable: false },
       ],
       loading: false,
-
+      timeout: 4000,
       overlayUpdate: false,
       snackbarMessage1: "",
       snackbarColor1: "",
@@ -230,7 +216,7 @@ export default {
       deleteIndex: null,
       editIndex: null,
       currentPage: 1,
-      itemsPerPage: 10,
+      itemsPerPage: this.calculateItemsPerPage(),
       searchQuery: "",
       selectedItem: null,
       formValid: false,
@@ -249,6 +235,9 @@ export default {
       items: [], // Data fetched from the API
     };
   },
+  components: {
+    MiniCard,
+  },
   computed: {
     Search() {
       let results = this.items;
@@ -266,6 +255,14 @@ export default {
     paginatedTraining() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       return this.filteredTraining.slice(start, start + this.itemsPerPage);
+    }, 
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.items.slice(start, end);
+    },
+    pageCount() {
+      return Math.ceil(this.items.length / this.itemsPerPage);
     },
   },
   methods: {
@@ -302,7 +299,7 @@ export default {
               Role: this.form.Role,
             });
 
-            this.snackbarMessage1 = "Successfully Created  ";
+            this.snackbarMessage1 = "Role has been created successfully!";
             this.snackbarColor1 = "green";
             this.snackbar1 = true;
             this.overlay = null;
@@ -337,27 +334,12 @@ export default {
       this.$refs.form.reset();
       this.editIndex = null;
     },
-    submit() {
-      if (!this.form.Role) {
-        this.snackbarError = true;
-        this.snackbarMessageError = "Role is required.";
-        return;
-      }
-      if (this.editIndex !== null) {
-        Object.assign(this.items[this.editIndex], this.form);
-        this.snackbarMessage = "Training updated successfully!";
-      } else {
-        this.items.push({ ...this.form });
-        this.snackbarMessage = "Training added successfully!";
-      }
-      this.snackbar = true;
-      this.resetForm();
-      this.overlay = false;
-    },
+    
     selectItem(item) {
       this.overlayUpdate = true;
       this.selectedItem = item;
       this.form.RoleUpdate = item.Role;
+      console.log(this.selectedItem.id);
     },
 
     async editItem() {
@@ -367,7 +349,7 @@ export default {
               `/userrole/update/${this.selectedItem.id}`,{
                 Role: this.form.RoleUpdate,
               });
-            this.snackbarMessage1 = response.data.message;
+            this.snackbarMessage1 = "Role has been Updated successfully!";
             this.snackbarColor1 = "green";
             this.snackbar1 = true;
             this.overlayUpdate = false;
@@ -427,9 +409,29 @@ export default {
         this.loading = false;
       }
     },
+    showDeleteDialog(item) {
+      this.deleteDialog = true;
+      this.selectedItem = item;
+      console.log(this.selectedItem.id);
+    },
+    calculateItemsPerPage() {
+      const width = window.innerWidth;
+      if (width >= 1200) return 12; // Large screens
+      if (width >= 992) return 8;   // Medium screens
+      if (width >= 768) return 6;   // Small screens
+      return 4;                     // Extra small screens
+    },
+    handleResize() {
+      this.itemsPerPage = this.calculateItemsPerPage();
+    },
   },
   mounted() {
     this.fetchData(); // Fetch data when the component is mounted
+    window.addEventListener("resize", this.handleResize);
   },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.handleResize);
+  },
+
 };
 </script>

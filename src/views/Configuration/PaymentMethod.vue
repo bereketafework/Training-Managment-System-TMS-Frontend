@@ -15,7 +15,8 @@
                     v-model="form.PaymentMethod"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Payment Method"
+                    label="Payment Method *"
+                            variant="outlined"
                     required
                   ></v-text-field>
                 </v-col>
@@ -45,11 +46,7 @@
       </v-overlay>
     </div>
     <div>
-      <v-skeleton-loader
-        v-if="loading"
-        type="table,table-heading, table-row"
-        class="mt-4"
-      ></v-skeleton-loader>
+
 
       <v-data-table
         :headers="headers"
@@ -61,11 +58,10 @@
         <template v-slot:top>
           <v-toolbar flat>
             <v-btn
-              color="blue"
+            color="blue"
               prepend-icon="mdi-plus"
               size="large"
-              class="rounded-lg"
-              variant="outlined"
+              variant="elevated"
                 @click="toggleForm"
               >
                 Create</v-btn
@@ -85,13 +81,7 @@
               single-line
               clearable
             ></v-text-field>
-            <v-btn
-              icon="mdi-filter-outline"
-              color="Primary"
-              size="large"
-              variant="text"
-              @click="toggleFilterDialog"
-            ></v-btn>
+            
           </v-toolbar>
           
         </template>
@@ -142,7 +132,8 @@
                   v-model="form.PaymentMethodupdate"
                   :rules="rules.required"
                   color="black darken-2"
-                  label="Payment Method"
+                  label="Payment Method *"
+                          variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -152,7 +143,7 @@
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
               <v-btn
-                :disabled="!formValid"
+           
                 text
                 color="primary"
                 type="submit"
@@ -261,7 +252,7 @@ export default {
               Methods: this.form.PaymentMethod,
             });
 
-            this.snackbarMessage1 = "Successfully Created  ";
+            this.snackbarMessage1 = "Payment Method Created successfully!";
             this.snackbarColor1 = "green";
             this.snackbar1 = true;
             this.overlay = null;
@@ -311,7 +302,7 @@ export default {
               `/paymentmethod/update/${this.selectedItem.id}`,{
                 Methods: this.form.PaymentMethodupdate,
               });
-            this.snackbarMessage1 = response.data.message;
+            this.snackbarMessage1 ="Payment Method Updated successfully!";
             this.snackbarColor1 = "green";
             this.snackbar1 = true;
             this.overlayUpdate = false;
@@ -348,7 +339,7 @@ export default {
               {},
             );
 
-            this.snackbarMessage1 = "Role Deleted successfully!";
+            this.snackbarMessage1 = "Payment Method Deleted successfully!";
             this.snackbarColor1 = "green";
             this.snackbar1 = true;
 

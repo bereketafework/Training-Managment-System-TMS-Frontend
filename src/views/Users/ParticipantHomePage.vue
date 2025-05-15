@@ -1,6 +1,6 @@
 <template>
   <div class="w-full">
-    <div class="flex flex-row mt-2">
+    <div class="flex flex-row ">
       <!-- Overlay with Form -->
       <v-overlay v-model="overlay" class="!flex !justify-center items-center" :persistent="true">
         <v-card flat class="bg-slate-300">
@@ -21,7 +21,7 @@
                     :rules="rules.required"
                     color="black darken-2"
                     variant="outlined"
-                    label="First Name"
+                    label="First Name *"
                     required
                   ></v-text-field>
                 </v-col>
@@ -30,7 +30,7 @@
                     v-model="form.middle_name"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Middle Name"
+                    label="Middle Name *"
                     variant="outlined"
                     required
                   ></v-text-field>
@@ -40,7 +40,7 @@
                     v-model="form.last_name"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Last Name"
+                    label="Last Name *"
                     variant="outlined"
                     required
                   ></v-text-field>
@@ -48,9 +48,9 @@
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.email"
-                    :rules="[rules.required, rules.email]"
+                       :rules="[emailRule]"
                     color="black darken-2"
-                    label="Email"
+                    label="Email *"
                     type="email"
                     variant="outlined"
                   ></v-text-field>
@@ -58,12 +58,23 @@
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.phone"
-                    :rules="[rules.required, rules.numeric]"
+                     :rules="[numericRule]"
                     color="black darken-2"
-                    label="Phone"
+                    label="Phone *"
                     variant="outlined"
-                    type="number"
+                   type="number"
                   ></v-text-field>
+                </v-col>
+             
+                <v-col cols="8" sm="4">
+                  <v-select
+                    label="Training Mode *"
+                    :items="['Male', 'Female']"
+           variant="outlined"
+                    v-model="form.Gender"
+                    :rules="rules.required"
+                    
+                  ></v-select>
                 </v-col>
               </v-row>
               <v-card-actions>
@@ -107,7 +118,7 @@
                     v-model="form.first_nameUpdate"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="First Name"
+                    label="First Name *"
                     variant="outlined"
                     required
                   ></v-text-field>
@@ -117,7 +128,7 @@
                     v-model="form.middle_nameUpdate"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Middle Name"
+                    label="Middle Name *"
                     variant="outlined"
                     required
                   ></v-text-field>
@@ -127,7 +138,7 @@
                     v-model="form.last_nameUpdate"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Last Name"
+                    label="Last Name *"
                     variant="outlined"
                     required
                   ></v-text-field>
@@ -135,9 +146,9 @@
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.emailUpdate"
-                    :rules="[rules.required, rules.email]"
+                    :rules="[emailRule]"
                     color="black darken-2"
-                    label="Email"
+                    label="Email *"
                     variant="outlined"
                     type="email"
                   ></v-text-field>
@@ -145,20 +156,30 @@
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.phoneUpdate"
-                    :rules="[rules.required, rules.numeric]"
+                    :rules="[phoneRules]"
                     color="black darken-2"
-                    label="Phone"
+                    label="Phone *"
                     variant="outlined"
-                    type="number"
+                 
                   ></v-text-field>
+                </v-col>
+                <v-col cols="8" sm="4">
+                  <v-select
+                    label="Training Mode *"
+                    :items="['Male', 'Female']"
+           variant="outlined"
+                    v-model="form.GenderUpdate"
+                    :rules="rules.required"
+                    
+                  ></v-select>
                 </v-col>
               </v-row>
               <v-card-actions>
-                <v-btn text @click="goBack">Back</v-btn>
+                <v-btn text @click="goBackUpdate">Back</v-btn>
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
-                  :disabled="!formValid"
+                  
                   text
                   color="primary"
                   type="submit"
@@ -195,8 +216,7 @@
             color="blue"
               prepend-icon="mdi-plus"
               size="large"
-              class=" rounded-lg"
-              variant="outlined"
+              variant="elevated"
               @click="toggleForm"
             >
               Create</v-btn
@@ -216,13 +236,7 @@
               single-line
               clearable
             ></v-text-field>
-            <v-btn
-              icon="mdi-filter-outline"
-              color="Primary"
-              size="large"
-              variant="text"
-              @click="toggleFilterDialog"
-            ></v-btn>
+           
           </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
@@ -341,6 +355,7 @@ export default {
       { title: "First Name", value: "First_name" },
       { title: "Middle Name", value: "Middle_name" },
       { title: "Last name", value: "Last_name" },
+      { title: "Gender", value: "Gender" },
       { title: "Email", value: "Email" },
       { title: "Phone", value: "Phone" },
       { title: "Actions", value: "actions", sortable: false },
@@ -351,11 +366,13 @@ export default {
       last_name: "",
       email: "",
       phone: "",
+      Gender: "",
       first_nameUpdate: "",
       middle_nameUpdate: "",
       last_nameUpdate: "",
       emailUpdate: "",
       phoneUpdate: "",
+      GenderUpdate: "",
     },
     filter: {
       first_name: "",
@@ -377,8 +394,26 @@ export default {
         this.form.middle_name &&
         this.form.last_name &&
         this.form.email &&
-        this.form.phone
+        this.form.phone &&
+        this.form.Gender
       );
+    },
+
+    emailRule(){
+      return (v) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(v) || "Must be a valid email.";
+      };
+
+    },
+    phoneRules() {
+      return (v) => {
+        if (!v) return "This field is required";
+        if (!/^\d+$/.test(v)) return "Only numeric values allowed";
+        if (!v.startsWith("09")) return "Phone number must start with '09...'";
+        if ( v.length < 10|| v.length > 10) return "Phone number must be 10 digits long";
+        return true;
+      };
     },
    
   },
@@ -403,12 +438,11 @@ this.fetchParticipant()   },
             Participant_id: Participant_id,
           });
         }
-        this.snackbarMessage1 = "Successfully Created ";
+        this.snackbarMessage1 = "successfully Enrolled!";
         this.snackbarColor1 = "green";
         this.snackbar1 = true;
-        this.overlay = null;
+        this.overlayenroll = false;
         this.resetForm();
-        console.log(participantId);
       } catch (error) {
         console.error(error);
         this.snackbarMessage1 = error.response.data.message;
@@ -417,7 +451,7 @@ this.fetchParticipant()   },
         this.loading = false;
       } finally {
         this.loading = false;
-        this.fetchEnrollment();
+        
       }
     },
 
@@ -434,7 +468,7 @@ this.fetchParticipant()   },
           `/participant/delete/${this.selectedItem.id}`,
           {},
         );
-        this.snackbarMessage1 = "participant Deleted successfully!";
+        this.snackbarMessage1 = "participant has been Deleted successfully!";
         this.snackbarColor1 = "green";
         this.snackbar1 = true;
 
@@ -471,9 +505,10 @@ this.fetchParticipant()   },
             Last_name: this.form.last_nameUpdate,
             Email: this.form.emailUpdate,
             Phone: this.form.phoneUpdate,
+            Gender: this.form.GenderUpdate,
           },
         );
-        this.snackbarMessage1 = response.data.message;
+        this.snackbarMessage1 ="Participant has been Updated successfully!";
         this.snackbarColor1 = "green";
         this.snackbar1 = true;
         this.overlayUpdate = false;
@@ -497,13 +532,15 @@ this.fetchParticipant()   },
           Last_name: this.form.last_name,
           Email: this.form.email,
           Phone: this.form.phone,
+          Gender: this.form.Gender,
         });
 
-        this.snackbarMessage1 = "Successfully Created ";
+        this.snackbarMessage1 = "Participant has been Created successfully!";
         this.snackbarColor1 = "green";
         this.snackbar1 = true;
         this.overlay = null;
         this.fetchData();
+        this.resetForm();
       } catch (error) {
         console.error(error);
         this.snackbarMessage1 = error.response.data || error.response.message;
@@ -543,6 +580,9 @@ this.fetchParticipant()   },
     },
     goBack() {
       this.overlay = false;
+    },
+    goBackUpdate() {
+      this.overlayUpdate = false;
     },
     resetForm() {
       this.$refs.form.reset();

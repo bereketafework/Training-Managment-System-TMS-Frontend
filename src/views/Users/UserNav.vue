@@ -2,7 +2,7 @@
   <!-- Navigation Buttons -->
   <div class="w-full h-full">
     <div class="w-full">
-      <v-card class="flex-col flex">
+      <v-card class="flex-col flex !rounded-none">
         <div class="flex flex-row justify-between">
           <div>
             <v-btn

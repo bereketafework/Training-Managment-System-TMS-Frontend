@@ -1,213 +1,160 @@
 <template>
-  <div class="">
-    <div>
-      <v-toolbar flat class="overflow-x-auto !bg-neutral-100">
-        
-        <v-tabs
-          v-model="tab"
-          color="primary"
-          direction="horizontal"
-          class="flex h h-full !justify-between rounded-tl-lg rounded-tr-lg"
-        >
-        <!-- <v-tab
-        :to="{ name: 'SelectedTraining' }"
-            prepend-icon="mdi-webhook"
-            text="test"
-            value="test"
-            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab>
-          <v-tab
-        :to="{ name: 'TrainingCourse' }"
-            prepend-icon="mdi-webhook"
-            text="test1"
-            value="test"
-            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab> -->
-          <v-tab
-        :to="{ name: 'TrainingSessions' }"
-            prepend-icon="mdi-webhook"
-            text="Sessions"
-            value="Sessions"
-            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab>
-         
 
-          <v-tab
-            :to="{ name: 'TrainingGuestView' }"
-            prepend-icon="mdi-account-box-plus-outline"
-            text="Guest"
-            value="Guest"
-            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab>
 
-          <v-tab
-            :to="{ name: 'TrainingTeamView' }"
-            prepend-icon="mdi-account-multiple"
-            text="Team"
-            value="Team"
-            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab>
-          <v-tab
-            :to="{ name: 'TrainingEnrollmentView' }"
-            prepend-icon="mdi-account-reactivate"
-            text="Enrollments"
-            value="Enrollments"
-            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab>
-          <!-- <v-tab
-            prepend-icon="mdi-account-cash"
-            text="Sponsor"
-            value="Sponsor"
-           class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab>
-          <v-tab
-            prepend-icon="mdi-cash-fast"
-            text="Allwoance"
-            value="Allwoance"
-           class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab> -->
-          <v-tab
-            :to="{ name: 'TrainingResourcesView' }"
-            prepend-icon="mdi-bag-personal"
-            text="resource"
-            value="resource"
-            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab>
-          <v-tab
-            :to="{ name: 'TrainingAttendanceView' }"
-            prepend-icon="mdi-account-multiple-check-outline"
-            text="attendance"
-            value="attendance"
-            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab>
-          <!-- <v-tab
-            
-            prepend-icon="mdi-eye"
-            text="Details"
-            value="Details"
-            class="border-b-2 border-transparent px-5 py-2 cursor-pointer rounded-t-lg hover:bg-blue-50 !border-blue-500"
-          ></v-tab> -->
-    
-        </v-tabs>
-      </v-toolbar>
-    </div>
-    <div >
-      
-      <router-view></router-view>
-    </div>
-    <div v-if="tab === 'Details'" class="pt-[5px] !rounded-lg">
-      <v-card
-        class="!border-[1.5px] !shadow-sm !shadow-slate-600 !rounded-xl flex overflow-hidden !border-blue-500 !border-l-8 h-full"
-        v-for="item in items"
-        :key="item"
+  <div class="!rounded-lg">
+      <v-data-table
+        :headers="headersResource"
+        :items="ResourceAllocationList"
+        :search="searchQuery"
+        density="compact"
       >
-        <div>
-          <div class="flex justify-end">
-            <!-- <h2
-              class="top-0 flex justify-center border-t-0 w-fit border-l-0 border-[1px] text-sm mr-2 rounded-b-md border-black bg-green-400 h-fit p-[1px]"
+        <template v-slot:top>
+          <v-toolbar flat>
+            <v-btn
+              color="blue"
+              prepend-icon="mdi-plus"
+              size="large"
+              class="rounded-lg"
+              variant="outlined"
+              @click="toggleForm"
             >
-              <p class="m-[1px] flex flex-row justify-start items-center">
-                {{ item.Training_mode }}
-              </p>
-            </h2> -->
-            <h2
-              class="top-0 flex justify-center border-t-0 w-20 border-r-0 border-[1px] ml-2 rounded-b-md border-blue-500 h-fit p-[1px]"
+              Add</v-btn
             >
-              <p class="m-[1px] flex flex-row justify-start items-center">
-                Details
-              </p>
-            </h2>
-          </div>
-          <div>
-            <p class="m-2">
-              <strong>Training Name:</strong> {{ item.Training_name }}
-            </p>
-          </div>
-          <div class="flex flow-row justify-between m-2">
-            <p><strong>Location:</strong>{{ item.Training_location }}</p>
-            <p><strong>Capacity:</strong> {{ item.Capacity }}</p>
-            <p>
-              <strong>Cost:</strong> {{ item.Cost }}
-              <span class="font-bold">ETB</span>
-            </p>
-          </div>
-          <div class="flex flex-col justify-between m-2">
-            <p>
-              <strong> Descriptions:</strong>
-              {{ item.Courses.Course_description }}
-            </p>
-            <p>
-              <strong> Objectives:</strong>
-              {{ item.Courses.Course_objective }}
-            </p>
-          </div>
-          <div class="flex flow-row justify-between m-2">
-            <p>
-              <strong>Created by:</strong> {{ item.CreatedBy.First_name }}
-              {{ item.CreatedBy.Middle_name }} {{ item.CreatedBy.Last_name }}
-            </p>
+            <v-toolbar-title class="flex justify-center items-center !text-4xl">
+              List of Resources
+            </v-toolbar-title>
+            <v-text-field
+              class="bg-transparent"
+              v-model="searchQuery"
+              append-inner-icon="mdi-magnify"
+              color="primary"
+              density="comfortable"
+              label="Search"
+              variant="outlined"
+              hide-details
+              single-line
+              clearable
+            ></v-text-field>
+            <v-btn
+              icon="mdi-filter-outline"
+              color="Primary"
+              size="large"
+              variant="text"
+              @click="toggleFilterDialog"
+            ></v-btn>
+          </v-toolbar>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-dots-vertical"
+                variant="text"
+                color="gray-lighten-2"
+              ></v-btn>
+            </template>
+            <v-list>
+              <v-list-item @click="selectItem(item)">Edit</v-list-item>
+              <v-list-item @click="confirmDelete(item)">Delete</v-list-item>
+            </v-list>
+          </v-menu>
+        </template></v-data-table
+      >
+      <v-overlay v-model="overlay" class="!flex !justify-center items-center">
+        <v-card flat class="bg-slate-300">
+          <span class="flex justify-center border-b-[1px] text-3xl">
+            Resource Assigning
+          </span>
 
-            <p>
-              <strong>Created at:</strong>
-              {{ formatDate(item.Courses.Created_at) }}
-            </p>
+          <v-form ref="form" @submit.prevent="ResourceAllocation" class="m-3">
+            <v-container
+              fluid
+              class="border-[1px] border-gray-200 !flex !w-[800px] !rounded-lg"
+            >
+              <v-row>
+                <v-col cols="20" sm="10">
+                  <v-select
+                    class="w-[700px]"
+                    clearable
+                    chips
+                    label="Select Session"
+                    :items="SessionList"
+                    item-title="Topic"
+                    item-value="id"
+                    variant="outlined"
+                    v-model="SelectedSessionIdForResource"
+                     :rules="required"
+                    multiple
+                  ></v-select> </v-col
+                ><v-col cols="20" sm="10">
+                  <v-select
+                    class="w-[700px]"
+                    clearable
+                    chips
+                    label="Select Resource"
+                    :items="ResourceList"
+                    item-title="Name"
+                    item-value="id"
+                    variant="outlined"
+                    v-model="SelectedResourceId"
+                     :rules="required"
+                  ></v-select>
+                </v-col>
+                <v-col cols="8" sm="4">
+                  <v-text-field
+                    v-model="form.Quantity"
+                    
+                    variant="outlined"
+                    color="black darken-2"
+                    label="Quantity"
+                    :rules="numberRules"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="8" sm="4">
+                  <v-text-field
+                    v-model="form.SingleCost"
+                    :rules="numberRules"
+                    color="black darken-2"
+                    variant="outlined"
+                    label="Single Cost"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="8" sm="4">
+                  <v-text-field
+                    v-model="form.Provider"
+                   :rules="required"
+                    color="black darken-5"
+                    variant="outlined"
+                    label="Provider"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-card-actions class="flex justify-between !w-[700px]">
+                  <div>
+                    <v-btn text @click="goBack">Back</v-btn>
+                    <v-btn text @click="resetForm">Clear</v-btn>
+                  </div>
 
-            <p>
-              <strong>{{ assignGuestList.length }}:</strong>
-
-              {{ assignGuestList.length > 1 ? "Guests" : "Guest" }}
-            </p>
-
-            <div>
-              <strong class="m-3">Enrollment</strong>
-              <div class="relative flex justify-center items-center">
-                <v-progress-circular
-                  :model-value="(EnrollmentList.length / item.Capacity) * 100"
-                  color="green"
-                  size="40"
-                  width="20"
-                >
-                </v-progress-circular>
-                <span
-                  class="absolute text-[10px] font-bold"
-                  style="color: var(--v-primary-base)"
-                >
-                  {{
-                    Math.round((EnrollmentList.length / item.Capacity) * 100)
-                  }}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- <h2 class="flex flex-row border-blue-500 p-10 rounded-tr-md rounded-bl-lg px-3 py-1 text-whit border-[1px] border-b-[2px] border-t-0 border-r-0 border--500 shadow"> Training Name: <h4> {{  item.Training_name  }}</h4></h2> -->
-      </v-card>
+                  <v-btn text color="primary" type="submit" variant="outlined">
+                    <v-progress-circular
+                      v-if="loading"
+                      indeterminate
+                      size="20"
+                    ></v-progress-circular>
+                    Assign
+                  </v-btn>
+                </v-card-actions>
+              </v-row>
+            </v-container>
+          </v-form>
+        </v-card>
+      </v-overlay>
     </div>
-   
-    <v-snackbar v-model="snackbar1" :color="snackbarColor1">
-      {{ snackbarMessage1 }}
-    </v-snackbar>
-  </div>
 </template>
+
 <script>
-
-
-export default {
-  data() {
-    return {
-
-      items: [],
-      tab: "",
-    };
-  },
-}
-
-
-
-</script>
-
-
-<!-- <script>
 import api from "@/service/api";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -250,7 +197,7 @@ export default {
       GuestList: [],
       SelectedGuestId: [],
       training: null,
-     tab: "",
+      tab: "",
       loading: false,
       form: {
         training_id: "",
@@ -792,6 +739,8 @@ export default {
     this.fetchEnrollment();
   },
 };
-</script> -->
+</script>
 
-<style></style>
+<style>
+
+</style>

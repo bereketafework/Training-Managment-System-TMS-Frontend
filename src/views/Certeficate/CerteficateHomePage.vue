@@ -21,7 +21,7 @@
                     class="w-[700px]"
                     clearable
                     chips
-                    label="Select Training"
+                    label="Select Training *"
                     :items="trainingList"
                     item-title="Training_name"  
                     item-value="id"
@@ -34,7 +34,7 @@
                     v-model="Title"
                     variant="outlined"
                     color="black darken-2"
-                    label="Title"
+                    label="Title *"
                     type="text"
                  :rules="[required]"
                   ></v-text-field>
@@ -44,7 +44,7 @@
                     class="w-[700px]"
                     clearable
                     chips
-                    label="Certificate  Description"
+                    label="Certificate  Description *"
                     v-model="Description"
                     variant="outlined"
                       :rules="[required]"
@@ -55,7 +55,7 @@
                   <v-text-field
                     v-model="IssueDate"
                     color="black darken-2"
-                    label="Issue Date"
+                    label="Issue Date *"
                     type="date"
                     variant="outlined"
                     :rules="issueDateRules"
@@ -65,7 +65,7 @@
                   <v-text-field
                     v-model="ExpireDate"
                     color="black darken-2"
-                    label="Expire  Date"
+                    label="Expire  Date *"
                     type="date"
                     variant="outlined"
                     :rules="expireDateRules"
@@ -97,11 +97,10 @@
       
       <v-toolbar flat>
         <primary-button
-          color="blue"
-          prepend-icon="mdi-plus"
-          size="large"
-          class="rounded-lg"
-          variant="outlined"
+        color="blue"
+              prepend-icon="mdi-plus"
+              size="large"
+              variant="elevated"
           name="Create Certificate"
           @click="handleClick"
         >
@@ -121,13 +120,7 @@
           single-line
           clearable
         ></v-text-field>
-        <v-btn
-          icon="mdi-filter-outline"
-          color="Primary"
-          size="large"
-          variant="text"
-          @click="toggleFilterDialog"
-        ></v-btn>
+        
       </v-toolbar>
     </div>
     <v-data-table
@@ -254,7 +247,7 @@ export default {
           this.loading = false;
           this.overlay = false;
           this.refresh();
-          this.certificate = true;
+          this.certificate = false;
           return Promise.resolve(response.data);
         })
         .catch((error) => {

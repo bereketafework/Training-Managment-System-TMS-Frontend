@@ -17,6 +17,7 @@ export const useAuthStore = defineStore("auth", {
     },
     checkTokenExpiration() {
       const token = this.token || localStorage.getItem("token");
+      const router = useRouter(); // Ensure router is accessible
       if (token) {
         try {
           const decodedToken = jwtDecode(token);
@@ -24,13 +25,16 @@ export const useAuthStore = defineStore("auth", {
           if (decodedToken.exp < currentTime) {
             // Token is expired
             this.logout();
+            router.push("/login"); // Redirect to login page
           }
         } catch (error) {
           console.error("Error decoding token:", error);
           this.logout(); // Logout if token is invalid
+          router.push("/login"); // Redirect to login page
         }
       } else {
         this.logout(); // Logout if no token is found
+        router.push("/login"); // Redirect to login page
       }
     },
   },

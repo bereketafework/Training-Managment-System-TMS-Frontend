@@ -16,7 +16,7 @@
                   v-model="form.first_nameUpdate"
                   variant="outlined"
                   :rules="[rules.required]"
-                  label="First Name"
+                  label="First Name *"
                   required
                 ></v-text-field>
               </v-col>
@@ -27,7 +27,7 @@
                   v-model="form.middle_nameUpdate"
                   variant="outlined"
                   :rules="[rules.required]"
-                  label="Middle Name"
+                  label="Middle Name *"
                   required
                 ></v-text-field>
               </v-col>
@@ -38,7 +38,7 @@
                   v-model="form.last_nameUpdate"
                   variant="outlined"
                   :rules="[rules.required]"
-                  label="Last Name"
+                  label="Last Name *"
                   required
                 ></v-text-field>
               </v-col>
@@ -49,7 +49,7 @@
                   v-model="form.emailUpdate"
                   variant="outlined"
                   :rules="[rules.required, rules.email]"
-                  label="Email"
+                  label="Email *"
                   required
                 ></v-text-field>
               </v-col>
@@ -60,7 +60,7 @@
                   v-model="form.phoneUpdate"
                   variant="outlined"
                   :rules="[rules.required, rules.numeric]"
-                  label="Phone Number"
+                  label="Phone Number *"
                   type="number"
                   required
                 ></v-text-field>
@@ -71,7 +71,7 @@
                 <v-text-field
                   v-model="form.companyUpdate"
                   :rules="[rules.required]"
-                  label="Company"
+                  label="Company *"
                   variant="outlined"
                   required
                 ></v-text-field>
@@ -80,7 +80,7 @@
           </v-container>
 
           <v-card-actions>
-            <v-btn text @click="goBack">Back</v-btn>
+            <v-btn text @click="UpdateGoBack">Back</v-btn>
             <v-btn text @click="resetForm">Clear</v-btn>
             <v-spacer></v-spacer>
             <v-btn
@@ -114,7 +114,7 @@
                   v-model="form.first_name"
                   variant="outlined"
                   :rules="rules.required"
-                  label="First Name"
+                  label="First Name *"
                 
                 ></v-text-field>
               </v-col>
@@ -125,7 +125,7 @@
                   v-model="form.middle_name"
                   variant="outlined"
                  :rules="rules.required"
-                  label="Middle Name"
+                  label="Middle Name *"
                
                 ></v-text-field>
               </v-col>
@@ -136,7 +136,7 @@
                   v-model="form.last_name"
                   variant="outlined"
                   :rules="rules.required"
-                  label="Last Name"
+                  label="Last Name *"
                   required
                 ></v-text-field>
               </v-col>
@@ -147,7 +147,7 @@
                   v-model="form.email"
                   variant="outlined"
                   :rules="[emailRules]"
-                  label="Email"
+                  label="Email *"
                  
                 ></v-text-field>
               </v-col>
@@ -157,8 +157,8 @@
                 <v-text-field
                   v-model="form.phone"
                   variant="outlined"
-                  :rules="[numericRules]"
-                  label="Phone Number"
+              :rules="[phoneRules]"
+                  label="Phone Number *"
                   type="number"
                   required
                 ></v-text-field>
@@ -170,7 +170,7 @@
                   v-model="form.username"
                   variant="outlined"
                   :rules="rules.required"
-                  label="Username"
+                  label="Username *"
                   required
                 ></v-text-field>
               </v-col>
@@ -182,7 +182,7 @@
                   :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                   :rules="[validatePassword]"
                   :type="showPassword ? 'text' : 'password'"
-                  label="Password"
+                  label="Password *"
                   hint="At least 8 characters"
                   variant="outlined"
                   required
@@ -197,7 +197,7 @@
                   :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'"
                   :rules="[rules.required, passwordMatchRule]"
                   :type="showConfirmPassword ? 'text' : 'password'"
-                  label="Confirm Password"
+                  label="Confirm Password *"
                   hint="Must match the password"
                   variant="outlined"
                   required
@@ -210,7 +210,7 @@
                 <v-text-field
                   v-model="form.company"
                   :rules="rules.required"
-                  label="Company"
+                  label="Company *"
                   variant="outlined"
                   required
                 ></v-text-field>
@@ -250,8 +250,7 @@
              color="blue"
               prepend-icon="mdi-plus"
               size="large"
-              class="rounded-lg"
-              variant="outlined"
+              variant="elevated"
               @click="toggleForm"
             >
           
@@ -269,6 +268,7 @@
               hide-details
               single-line
               clearable
+      
             ></v-text-field>
           </v-toolbar>
         </template>
@@ -334,8 +334,6 @@ export default {
         password: "",
         confirmPassword: "",
         company: "",
-
-
         first_nameUpdate: "",
         middle_nameUpdate: "",
         last_nameUpdate: "",
@@ -364,6 +362,15 @@ export default {
     };
   },
   computed: {
+    phoneRules() {
+      return (v) => {
+        if (!v) return "This field is required";
+        if (!/^\d+$/.test(v)) return "Only numeric values allowed";
+        if (!v.startsWith("09")) return "Phone number must start with '09...'";
+        if ( v.length < 10|| v.length > 10) return "Phone number must be 10 digits long";
+        return true;
+      };
+    },
     numericRules() {
       return (v) => {
         if (!v) return "This field is required";
@@ -385,6 +392,12 @@ export default {
         return true;
       };
     },
+    passwordMatchRule() {
+      return () =>
+
+        this.form.password === this.form.confirmPassword ||
+        "Passwords must match.";
+    },
     formIsValid() {
       return (
         this.form.first_name &&
@@ -398,12 +411,7 @@ export default {
         this.passwordMatchRule()
       );
     },
-    passwordMatchRule() {
-      return () =>
-
-        this.form.password === this.form.confirmPassword ||
-        "Passwords must match.";
-    },
+    
   },
   methods: {
     selectItem(item) {
@@ -430,7 +438,7 @@ export default {
             Phone: this.form.phoneUpdate,
           },
         );
-        this.snackbarMessage1 = response.data.message;
+        this.snackbarMessage1 = "User has been Updated successfully!";
         this.snackbarColor1 = "green";
         this.snackbar1 = true;
         this.overlayUpdate = false;
@@ -481,6 +489,9 @@ export default {
     goBack() {
       this.overlay = false;
     },
+    UpdateGoBack() {
+      this.overlayUpdate = false;
+    },
     resetForm() {
       this.$refs.form.reset();
     },
@@ -496,7 +507,7 @@ export default {
           Password: this.form.password,
           Company: this.form.company
         });
-        this.snackbarMessage1 = "Successfully Created ";
+        this.snackbarMessage1 = "User has been Created Successfully! ";
         this.snackbarColor1 = "green";
         this.snackbar1 = true;
         this.overlay = null;

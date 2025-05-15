@@ -1,7 +1,5 @@
-import TrainingDetails from "@/views/Training/TrainingDetails.vue";
 import api from "../service/api";
 import { defineStore } from "pinia";
-import { all } from "axios";
 
 export const useTrainingStore = defineStore("training", {
   state: () => ({

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-row mt-2">
+    <div class="flex flex-row ">
       <v-overlay v-model="overlay" persistent class="!flex !justify-center items-center w">
         <v-card flat class="bg-slate-300">
           <v-form ref="form" @submit.prevent="createTraining" v-model="formValid">
@@ -13,16 +13,15 @@
                     v-model="form.Title"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Training Title"
+                    label="Training Title *"
                     required
                     variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-select
-                    clearable
-                    chips
-                    label="Training Mode"
+                    
+                    label="Training Mode *"
                     :items="['Online', 'Face to Face']"
            variant="outlined"
                     v-model="form.Mode"
@@ -35,7 +34,7 @@
                     v-model="form.StartDate"
                     :rules="[dateRules]"
                     color="black darken-2"
-                    label="Training Start Date"
+                    label="Training Start Date *"
                     type="date"
                     variant="outlined"
                   ></v-text-field>
@@ -45,7 +44,7 @@
                     v-model="form.EndDate"
                     :rules="[endDateRules]"
                     color="black darken-2"
-                    label="Training End Date"
+                    label="Training End Date  *"
                     type="date"
                     variant="outlined"
                   ></v-text-field>
@@ -55,7 +54,7 @@
                     v-model="form.EnrollmentDeadline"
                     :rules="[enrollmentDeadlineRules]"
                     color="black darken-2"
-                    label="Enrollment Deadline"
+                    label="Enrollment Deadline *"
                     type="date"
                     variant="outlined"
                   ></v-text-field>
@@ -65,15 +64,15 @@
                     v-model="form.Price"
                     :rules="[numericRules]"
                     color="black darken-2"
-                    label="Price"
+                    label="Price *"
+                    type="number"
                     variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-select
-                    clearable
-                    chips
-                    label="Select Course"
+                   
+                    label="Select Course *"
                     :items="Courses"
                     item-title="Course_title"
                     item-value="id"
@@ -87,7 +86,7 @@
                     v-model="form.Location"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Training Location"
+                    label="Training Location *"
                     required
                     variant="outlined"
                   ></v-text-field>
@@ -97,7 +96,8 @@
                     v-model="form.Capacity"
                     :rules="[numericRules]"
                     color="black darken-2"
-                    label="Capacity"
+                    label="Capacity   *"
+                    type="number"
                     variant="outlined"
                   ></v-text-field>
                 </v-col>
@@ -131,16 +131,15 @@
                     v-model="form.TitleUpdate"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Training Title"
+                    label="Training Title *"
                     required
                     variant="outlined"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-select
-                    clearable
-                    chips
-                    label="Training Mode"
+                  
+                    label="Training Mode *"
                     :items="['Online', 'Face to Face']"
                     variant="outlined"
                     v-model="form.ModeUpdate"
@@ -150,9 +149,9 @@
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.StartDateUpdate"
-                             :rules="[dateRules]"
+                    :rules="[dateRules]"
                     color="black darken-2"
-                    label="Training Start Date"
+                    label="Training Start Date *"
                     type="date"
                     variant="outlined"
                   ></v-text-field>
@@ -162,7 +161,7 @@
                     v-model="form.EndDateUpdate"
                      :rules="[endDateRules]"
                     color="black darken-2"
-                    label="Training End Date"
+                    label="Training End Date *"
                     type="date"
                     variant="outlined"
                   ></v-text-field>
@@ -172,7 +171,7 @@
                     v-model="form.EnrollmentDeadlineUpdate"
                       :rules="[enrollmentDeadlineRules]"
                     color="black darken-2"
-                    label="Enrollment Deadline"
+                    label="Enrollment Deadline *"
                     type="date"
                     variant="outlined"
                   ></v-text-field>
@@ -182,16 +181,14 @@
                     v-model="form.PriceUpdate"
                  :rules="[numericRules]"
                     color="black darken-2"
-                    label="Price"
+                    label="Price *"
                     type="number"
                     variant="outlined"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" sm="6">
+                <!-- <v-col cols="12" sm="6">
                   <v-select
-                    clearable
-                    chips
-                    label="Select Course"
+                    label="Select Course  *"
                     :items="Courses"
                     item-title="Course_title"
                     item-value="id"
@@ -199,13 +196,13 @@
                     v-model="SelectedCourseIdUpdate"
                     :rules="rules.required"
                   ></v-select>
-                </v-col>
+                </v-col> -->
                 <v-col cols="8" sm="3">
                   <v-text-field
                     v-model="form.LocationUpdate"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Training Location"
+                    label="Training Location *"
                     required
                     variant="outlined"
                   ></v-text-field>
@@ -215,7 +212,7 @@
                     v-model="form.CapacityUpdate"
                    :rules="[numericRules]"
                     color="black darken-2"
-                    label="Capacity"
+                    label="Capacity *"
                     type="number"
                     variant="outlined"
                   ></v-text-field>
@@ -226,7 +223,7 @@
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
-                  :disabled="!formValid"
+                 
                   text
                   color="primary"
                   type="submit"
@@ -244,8 +241,7 @@
             color="blue"
               prepend-icon="mdi-plus"
               size="large"
-              class="rounded-lg"
-              variant="outlined"
+              variant="elevated"
               @click="toggleForm"
             >
               Create</v-btn
@@ -265,13 +261,7 @@
               single-line
               clearable
             ></v-text-field>
-            <v-btn
-              icon="mdi-filter-outline"
-              color="Primary"
-              size="large"
-              variant="text"
-              @click="toggleFilterDialog"
-            ></v-btn>
+          
           </v-toolbar>
 
   <div class="!flex mt-3 w-full h-full">
@@ -355,7 +345,7 @@
             @click="itemDetails(item)"
             >
               View Details
-              <v-icon end>mdi-chevron-right</v-icon>
+              <v-icon end>mdi-eye</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -488,9 +478,7 @@ export default {
     async courseData() {
       try {
         const response = await api.get("/course/all");
-
         this.Courses = response.data;
-   
       } catch (error) {
         console.error(error);
         this.snackbarMessage1 = error.response.data;
@@ -526,7 +514,7 @@ this.selectedItem=item;
          this.form.EnrollmentDeadlineUpdate= item.Enrolment_deadline
        this.form.CapacityUpdate=item.Capacity
            this.form.PriceUpdate=item.Cost
-           console.log(this.selectedItem)
+           
 },
 async  editItem() {
       try{  
@@ -543,7 +531,7 @@ async  editItem() {
           Cost: this.form.PriceUpdate,
          });
           
-          this.snackbarMessage1 =response.data.message;
+          this.snackbarMessage1 =" Training Updated Successfully";
           this.snackbarColor1 = 'green';
           this.snackbar1 = true;
           this.overlayUpdate = false;
@@ -568,7 +556,7 @@ this.selectedItem=item;
       try{  
         this.loading = true;
         const response = await api.post(`/training/delete/${this.selectedItem.id}`,{});
-            this.snackbarMessage1 = response.data;
+            this.snackbarMessage1 = "Training Deleted Successfully";
           this.snackbarColor1 = 'green';
           this.snackbar1 = true;
           this.deleteDialog = false;
@@ -608,7 +596,6 @@ this.selectedItem=item;
           };
         });
 
-        console.log(this.items); // Log the updated items with durations
       } catch (error) {
         console.error(error);
         this.snackbarMessage1 = error.response?.data || "An error occurred";
@@ -664,7 +651,7 @@ this.selectedItem=item;
           Cost: this.form.Price,
         });
 
-        this.snackbarMessage1 = "Successfully Created ";
+        this.snackbarMessage1 = "Tarining Successfully Created ";
         this.snackbarColor1 = "green";
         this.snackbar1 = true;
         this.overlay = null;

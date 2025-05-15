@@ -2,7 +2,7 @@
   <!-- Navigation Buttons -->
   <div class="w-full h-full flex flex-col overflow-hidden">
     <div class="w-full">
-      <v-card class="flex-col flex">
+      <v-card class="flex-col flex  !rounded-none">
         <v-btn
           class="m-2"
           color="blue"

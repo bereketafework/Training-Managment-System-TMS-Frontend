@@ -81,65 +81,27 @@
         </v-col>
 
       </v-row>
-<!--   
-      <!-- Reports Section --
-      <v-row>
-        <v-col cols="12" md="6">
-          <v-card outlined>
-            <v-card-title>Top Participants by Training</v-card-title>
-            <v-card-text>
-              <v-table density="compact">
-                <thead>
-                  <tr>
-                    <th class="text-left">First Name</th>
-                    <th class="text-left">Last Name</th>
-                    <th class="text-left">Trainings Attended</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(participant, index) in topParticipants" :key="index">
-                    <td>{{ participant.first_name }}</td>
-                    <td>{{ participant.last_name }}</td>
-                    <td>{{ participant.trainings_attended }}</td>
-                  </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-          </v-card>
-        </v-col>
-  
-        <v-col cols="12" md="6">
-          <v-card outlined>
-            <v-card-title>Training Summary</v-card-title>
-            <v-card-text>
-              <v-table density="compact">
-                <thead>
-                  <tr>
-                    <th class="text-left">Training Name</th>
-                    <th class="text-left">Venue</th>
-                    <th class="text-left">Participants</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(training, index) in trainingSummary" :key="index">
-                    <td>{{ training.name }}</td>
-                    <td>{{ training.venue }}</td>
-                    <td>{{ training.participants }}</td>
-                  </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row> -->
+
+      <div> 
+        
+      </div>
+      
+      <!-- <MiniCard
+    
+     v-for="UserData in UserData" :key="UserData.id" 
+     :name=UserData.First_name /> -->
     </v-container>
   </template>
   
   <script>
 import { mapActions } from 'pinia';
 import { useDashboardDataStore } from '@/stores/DashboardDataStore';
-  
+import Chart from 'chart.js/auto';
+import MiniCard from '@/components/MiniCard.vue';
   export default {
+    components: {
+    MiniCard
+    },
     data: () => ({
       participants: [
         // Example participant data
