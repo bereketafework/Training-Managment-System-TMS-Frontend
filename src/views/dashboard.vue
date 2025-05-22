@@ -98,6 +98,8 @@ import { mapActions } from 'pinia';
 import { useDashboardDataStore } from '@/stores/DashboardDataStore';
 import Chart from 'chart.js/auto';
 import MiniCard from '@/components/MiniCard.vue';
+import { useUserStore } from '@/stores/userStore';
+
   export default {
     components: {
     MiniCard
@@ -124,10 +126,11 @@ import MiniCard from '@/components/MiniCard.vue';
       ...mapActions(useDashboardDataStore, ["fetchTrainingData"]),
       ...mapActions(useDashboardDataStore, ["fetchParticipantData"]),
       ...mapActions(useDashboardDataStore, ["fetchGuestData"]),
-      ...mapActions(useDashboardDataStore, ["fetchUserData"]),
+      // ...mapActions(useDashboardDataStore, ["fetchUserData"]),
+      ...mapActions(useUserStore,["allUsers"]),
       user() {
-        this.fetchUserData().then((UserData) => {
-          this.UserData = UserData
+        this.allUsers().then((res) => {
+          this.UserData = res.data
         })
       },
       guest() {

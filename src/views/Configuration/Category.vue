@@ -84,7 +84,7 @@
         </template>
         <template v-slot:item.actions="{ item }">
           <v-menu>
-            <template v-slot:activator="{ props }">
+            <template v-slot:activator="{ props }"> 
               <v-btn
                 v-bind="props"
                 icon="mdi-dots-vertical"
@@ -177,7 +177,7 @@ export default {
     return {
       
       headers: [
-        { title: "Category", value: "Name" },
+        { title: "Category", value: "Name"},
         { title: "Actions", value: "actions", sortable: false },
       ],
       Categories: [],

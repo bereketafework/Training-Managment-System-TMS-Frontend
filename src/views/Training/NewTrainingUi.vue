@@ -3,7 +3,7 @@
     <div class="flex flex-row ">
       <v-overlay v-model="overlay" persistent class="!flex !justify-center items-center w">
         <v-card flat class="bg-slate-300">
-          <v-form ref="form" @submit.prevent="createTraining" v-model="formValid">
+          <v-form ref="form" @submit.prevent="trainingCreate" v-model="formValid">
             <span class="flex justify-center border-b-[1px] text-3xl ">Training Registration Form</span>
            
               <v-container fluid  class="border-[1px] border-gray-200 !w-[900px]"  >
@@ -123,7 +123,7 @@
 <div class="flex flex-row mt-2">
       <v-overlay v-model="overlayUpdate" class="!flex !justify-center items-center">
         <v-card flat class="bg-slate-300">
-          <v-form ref="form" @submit.prevent="editItem" v-model="formValid">
+          <v-form ref="form" @submit.prevent="trainingUpdate" v-model="formValid">
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-row">
                 <v-col cols="8" sm="4">
@@ -268,13 +268,13 @@
     
    <v-row>
       <v-col
- v-for="(item,index) in items" :key="index"
+ v-for="(training,id) in allTrainings" :key="id"
         cols="12"
         md="6"
         lg="4"
       >
         <v-card
-        @click="itemDetails(item)"
+       
           color="grey-lighten-5"
           class="h-full w-full flex flex-col border-2 border-gray-200  "
           :elevation="2"
@@ -282,38 +282,38 @@
         >
           <v-card-item>
             <div class="d-flex justify-space-between align-start mb-2">
-              <v-card-title>{{ item.Training_name }} </v-card-title>
+              <v-card-title>{{ training.Training_name }} </v-card-title>
               <v-chip
-          :color="item.Training_mode == 'Online' ? 'green' : 'blue'"
+          :color="training.Training_mode == 'Online' ? 'green' : 'blue'"
                 size="small"
                 class="text-capitalize"
               >
-                 {{ item.Training_mode}}
+                 {{ training.Training_mode}}
               </v-chip>
             
             </div>
             
             <v-card-text>
-              <p class="mb-4 text-body-1"> {{ item.Courses.Course_description }} </p>
+              <p class="mb-4 text-body-1"> {{ training.Courses.Course_description }} </p>
 
               <div class="d-flex align-center mb-2">
                 <v-icon size="small" class="mr-2">mdi-clock-outline</v-icon>
                 <span class="text-body-2">
-                  Duration: {{ item.durationInDays }} days 
+                  Duration: {{ training.durationInDays }} days 
                 </span>
               </div>
 
               <div class="d-flex align-center mb-2">
                 <v-icon size="small" class="mr-2">mdi-calendar</v-icon>
                 <span class="text-body-2">
-                  Starts: {{ item.Training_start_date }}
+                  Starts: {{ training.Training_start_date }}
                 </span>
               </div>
 
               <div class="d-flex align-center mb-4">
                 <v-icon size="small" class="mr-2">mdi-map-marker-radius-outline</v-icon>
                 <span class="text-body-2">
-                 {{ item.Training_location }}
+                 {{ training.Training_location }}
                 </span>
               </div>
               
@@ -333,8 +333,8 @@
               ></v-btn>
             </template>
             <v-list>
-              <v-list-item @click="selectItem(item)">Edit</v-list-item>
-              <v-list-item @click="confirmDelete(item)">Delete</v-list-item>
+              <v-list-item @click="selectItem(training)">Edit</v-list-item>
+              <v-list-item @click="confirmDelete(training)">Delete</v-list-item>
             </v-list>
           </v-menu>
        
@@ -342,7 +342,7 @@
             <v-btn
               variant="text"
               color="primary"
-            @click="itemDetails(item)"
+              @click="trainingDetails(training)"
             >
               View Details
               <v-icon end>mdi-eye</v-icon>
@@ -359,7 +359,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="deleteItem">Delete</v-btn>
+          <v-btn color="red" text @click="trainingDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -378,6 +378,8 @@ import Cards from '@/components/Cards.vue';
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { useTrainingStore } from "@/stores/TrainingStore";
+import { mapActions } from "pinia";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -390,6 +392,7 @@ export default {
       required: [(v) => !!v || "This field is required."],   },
     formValid: false,
     items: [],
+    allTrainings:[],
     overlay: false,
     overlayUpdate:false,
     snackbar: false,
@@ -401,6 +404,7 @@ export default {
     Courses: [],
     SelectedCourseId: null,
     SelectedCourseIdupdate: null,
+    searchQuery: "",
     form: {
       Title: "",
       Mode: "",
@@ -419,7 +423,7 @@ export default {
 
     },
     session: [],
-
+    drawers: false,
   }),
  computed: {
   numericRules() {
@@ -457,7 +461,7 @@ export default {
     }
   },
   mounted() {
-
+this.fetchedTraining();
     this.fetchData(); // Fetch data when the component is mounted
   this.fetchSession();
   this.courseData();
@@ -516,62 +520,62 @@ this.selectedItem=item;
            this.form.PriceUpdate=item.Cost
            
 },
-async  editItem() {
-      try{  
-        this.loading = true;
-         const response = await api.post(`/training/update/${this.selectedItem.id}`, {
-          Course_id: this.SelectedCourseIdUpdate,
-          Training_name: this.form.TitleUpdate,
-          Training_mode: this.form.ModeUpdate,
-          Training_location: this.form.LocationUpdate,
-          Training_start_date: this.form.StartDateUpdate,
-          Training_end_date: this.form.EndDateUpdate,
-          Enrolment_deadline: this.form.EnrollmentDeadlineUpdate,
-          Capacity: this.form.CapacityUpdate,
-          Cost: this.form.PriceUpdate,
-         });
+// async  editItem() {
+//       try{  
+//         this.loading = true;
+//          const response = await api.post(`/training/update/${this.selectedItem.id}`, {
+//           Course_id: this.SelectedCourseIdUpdate,
+//           Training_name: this.form.TitleUpdate,
+//           Training_mode: this.form.ModeUpdate,
+//           Training_location: this.form.LocationUpdate,
+//           Training_start_date: this.form.StartDateUpdate,
+//           Training_end_date: this.form.EndDateUpdate,
+//           Enrolment_deadline: this.form.EnrollmentDeadlineUpdate,
+//           Capacity: this.form.CapacityUpdate,
+//           Cost: this.form.PriceUpdate,
+//          });
           
-          this.snackbarMessage1 =" Training Updated Successfully";
-          this.snackbarColor1 = 'green';
-          this.snackbar1 = true;
-          this.overlayUpdate = false;
-          this.fetchData();
+//           this.snackbarMessage1 =" Training Updated Successfully";
+//           this.snackbarColor1 = 'green';
+//           this.snackbar1 = true;
+//           this.overlayUpdate = false;
+//           this.fetchData();
 
-  }catch (error) {
-          console.error(error);
-          this.snackbarMessage1 = error.response.data;
-            this.snackbarColor1 = 'red';
-            this.snackbar1 = true;
-            this.overlayUpdate = false;
-        }
-        finally {
-          this.loading = false;
-        }},
+//   }catch (error) {
+//           console.error(error);
+//           this.snackbarMessage1 = error.response.data;
+//             this.snackbarColor1 = 'red';
+//             this.snackbar1 = true;
+//             this.overlayUpdate = false;
+//         }
+//         finally {
+//           this.loading = false;
+//         }},
     confirmDelete(item) {
       this.deleteDialog = true;
 this.selectedItem=item;
 
     },
-    async  deleteItem() {
-      try{  
-        this.loading = true;
-        const response = await api.post(`/training/delete/${this.selectedItem.id}`,{});
-            this.snackbarMessage1 = "Training Deleted Successfully";
-          this.snackbarColor1 = 'green';
-          this.snackbar1 = true;
-          this.deleteDialog = false;
-          this.fetchData();
-  }
+  //   async  deleteItem() {
+  //     try{  
+  //       this.loading = true;
+  //       const response = await api.post(`/training/delete/${this.selectedItem.id}`,{});
+  //           this.snackbarMessage1 = "Training Deleted Successfully";
+  //         this.snackbarColor1 = 'green';
+  //         this.snackbar1 = true;
+  //         this.deleteDialog = false;
+  //         this.fetchData();
+  // }
 
-         catch (error) {
-          console.error(error);
-          this.snackbarMessage1 = error.response.data;
-            this.snackbarColor1 = 'red';
-            this.snackbar1 = true;
-        }
-        finally {
-          this.loading = false;
-        }},
+  //        catch (error) {
+  //         console.error(error);
+  //         this.snackbarMessage1 = error.response.data;
+  //           this.snackbarColor1 = 'red';
+  //           this.snackbar1 = true;
+  //       }
+  //       finally {
+  //         this.loading = false;
+  //       }},
        
 
     async fetchData() {
@@ -580,7 +584,7 @@ this.selectedItem=item;
         this.items = response.data;
 
         // Iterate over each item to calculate durations
-        this.items = this.items.map((item) => {
+        this.allTrainings = this.allTrainings.map((item) => {
           const startDate = dayjs(item.Training_start_date).tz("Africa/Nairobi");
           const endDate = dayjs(item.Training_end_date).tz("Africa/Nairobi");
 
@@ -629,43 +633,152 @@ this.selectedItem=item;
       }
     },
       
+...mapActions(useTrainingStore,  ["createTraining","allTraining","updateTraining","deleteTraining","selectedTrainingDetail"]),
+trainingDetails(item) {
+    this.selectedTrainingDetail(item.id)
+      .then((response) => {
+        console.log(response)
+         this.$router.push({ 
+      name: 'TrainingDetails', 
+      params: { id: item.id } // Now 'item' is defined
+    });
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  },
+fetchedTraining(){
+  this.allTraining()
+.then((response)=>{
+this.allTrainings= response.data
+  console.log(response.data)
+})
+  .catch((error)=>{
+    console.log("Error:",error)
+  })
+},
 
-    async createTraining() {
-      if (!this.validateDates()) {
-        this.snackbarMessageerror =
-          "Please ensure all dates are valid and End Date is at least one day after Start Date.";
+trainingDelete(){
+this.deleteTraining(this.selectedItem.id)
+.then((response)=>{
+          this.snackbarMessage1 = "Training Deleted Successfully"
+      this.snackbarColor1 = "green";
+      this.snackbar1 = true;
+
+})
+.catch((error)=>{
+})
+.finally(()=>{
+this.fetchedTraining()
+this.deleteDialog=false
+})
+},
+
+trainingCreate(){
+   if (!this.validateDates()) {
+        this.snackbarMessage1 =
+          "Please ensure all data are Correct.";
         this.snackbar = true;
         return;
       }
-      try {
-        this.loading = true;
-        const response = await api.post("/training/create", {
-          Course_id: this.SelectedCourseId,
-          Training_name: this.form.Title,
-          Training_mode: this.form.Mode,
-          Training_location: this.form.Location,
-          Training_start_date: this.form.StartDate,
-          Training_end_date: this.form.EndDate,
-          Enrolment_deadline: this.form.EnrollmentDeadline,
-          Capacity: this.form.Capacity,
-          Cost: this.form.Price,
-        });
+     this.createTraining([
+       this.form.Title,
+        this.form.Mode,
+       this.form.Location,
+          this.form.StartDate,
+  this.form.EndDate,
+       this.form.EnrollmentDeadline,
+         this.form.Capacity,
+          this.form.Price,
+          this.SelectedCourseId,
+ ] )
+      .then((res)=>{
+          this.snackbarMessage1 = "Category Created Successfully"
+      this.snackbarColor1 = "green";
+      this.snackbar1 = true;
+this.overlay = null;
+      })
+      .catch((error)=>{
+         this.snackbarMessage1 = error.response.data.error
+      this.snackbarColor1 = "red";
+      this.snackbar1 = true;
+        console.log("error",error)
+      })
+      .finally(()=>{
+this.fetchedTraining()
+this.overlay=false
+})
+},
 
-        this.snackbarMessage1 = "Tarining Successfully Created ";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlay = null;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-        this.loading = false;
-      } finally {
-        this.loading = false;
-      }
-    },
+
+trainingUpdate(){
+     this.updateTraining([
+    this.selectedItem.id,
+         this.form.TitleUpdate,
+         this.form.ModeUpdate,
+      this.form.LocationUpdate,
+          this.form.StartDateUpdate,
+          this.form.EndDateUpdate,
+      this.form.EnrollmentDeadlineUpdate,
+         this.form.CapacityUpdate,
+        this.form.PriceUpdate,
+        this.SelectedCourseIdUpdate,
+ ])
+      .then((response)=>{
+          this.snackbarMessage1 = "Category Update Successfully"
+      this.snackbarColor1 = "green";
+      this.snackbar1 = true;
+this.overlay = null;
+
+console.log(response)
+      })
+      .catch((error)=>{
+         this.snackbarMessage1 = error.response.data.error
+      this.snackbarColor1 = "red";
+      this.snackbar1 = true;
+        console.log("error",error)
+      })
+      .finally(()=> {
+this.overlayUpdate=false
+this.fetchedTraining()
+    })
+},
+    // async createTraining() {
+    //   if (!this.validateDates()) {
+    //     this.snackbarMessageerror =
+    //       "Please ensure all dates are valid and End Date is at least one day after Start Date.";
+    //     this.snackbar = true;
+    //     return;
+    //   }
+    //   try {
+    //     this.loading = true;
+    //     const response = await api.post("/training/create", {
+    //       Course_id: this.SelectedCourseId,
+    //       Training_name: this.form.Title,
+    //       Training_mode: this.form.Mode,
+    //       Training_location: this.form.Location,
+    //       Training_start_date: this.form.StartDate,
+    //       Training_end_date: this.form.EndDate,
+    //       Enrolment_deadline: this.form.EnrollmentDeadline,
+    //       Capacity: this.form.Capacity,
+    //       Cost: this.form.Price,
+    //     });
+
+    //     this.snackbarMessage1 = "Tarining Successfully Created ";
+    //     this.snackbarColor1 = "green";
+    //     this.snackbar1 = true;
+    //     this.overlay = null;
+    //     this.fetchData();
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //     this.loading = false;
+    //   } finally {
+    //     this.loading = false;
+    //   }
+    // },
     async itemDetails(item) { // Add parameter here
 
     this.$router.push({ 

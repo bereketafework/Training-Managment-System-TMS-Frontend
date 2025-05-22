@@ -1,13 +1,16 @@
 <template>
   <div class="w-full">
     <!-- Overlay with Form -->
-    <v-overlay v-model="overlayUpdate" class="!flex !justify-center items-center">
+    <v-overlay
+      v-model="overlayUpdate"
+      class="!flex !justify-center items-center"
+    >
       <v-card flat class="w-full">
         <span class="flex justify-center border-b-[1px] text-3xl">
           User Information Update Form
         </span>
 
-        <v-form ref="form" @submit.prevent="editItem" variant="outlined">
+        <v-form ref="form" @submit.prevent="userUpdate" variant="outlined">
           <v-container fluid>
             <v-row>
               <!-- First Name -->
@@ -83,13 +86,7 @@
             <v-btn text @click="UpdateGoBack">Back</v-btn>
             <v-btn text @click="resetForm">Clear</v-btn>
             <v-spacer></v-spacer>
-            <v-btn
-
-              text
-              color="primary"
-              type="submit"
-              variant="outlined"
-            >
+            <v-btn text color="primary" type="submit" variant="outlined">
               Update
             </v-btn>
           </v-card-actions>
@@ -97,17 +94,19 @@
       </v-card>
     </v-overlay>
 
-
-    <v-overlay v-model="overlay" persistent class="!flex !justify-center items-center">
+    <v-overlay
+      v-model="overlay"
+      persistent
+      class="!flex !justify-center items-center"
+    >
       <v-card flat class="w-full">
         <span class="flex justify-center border-b-[1px] text-3xl">
           User Registration Form
         </span>
 
-        <v-form ref="form" @submit.prevent="createUser" variant="outlined">
+        <v-form ref="form" @submit.prevent="userCreate" variant="outlined">
           <v-container flat>
             <v-row>
-              
               <!-- First Name -->
               <v-col cols="8" sm="4">
                 <v-text-field
@@ -115,7 +114,6 @@
                   variant="outlined"
                   :rules="rules.required"
                   label="First Name *"
-                
                 ></v-text-field>
               </v-col>
 
@@ -124,9 +122,8 @@
                 <v-text-field
                   v-model="form.middle_name"
                   variant="outlined"
-                 :rules="rules.required"
+                  :rules="rules.required"
                   label="Middle Name *"
-               
                 ></v-text-field>
               </v-col>
 
@@ -148,7 +145,6 @@
                   variant="outlined"
                   :rules="[emailRules]"
                   label="Email *"
-                 
                 ></v-text-field>
               </v-col>
 
@@ -157,7 +153,7 @@
                 <v-text-field
                   v-model="form.phone"
                   variant="outlined"
-              :rules="[phoneRules]"
+                  :rules="[phoneRules]"
                   label="Phone Number *"
                   type="number"
                   required
@@ -234,26 +230,25 @@
           </v-card-actions>
         </v-form>
       </v-card>
-      </v-overlay>
+    </v-overlay>
 
     <!-- User List -->
     <div>
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="allUsersList"
         :search="searchQuery"
         density="compact"
       >
         <template v-slot:top>
           <v-toolbar flat>
-             <v-btn
-             color="blue"
+            <v-btn
+              color="blue"
               prepend-icon="mdi-plus"
               size="large"
               variant="elevated"
               @click="toggleForm"
             >
-          
               Create
             </v-btn>
             <v-toolbar-title class="flex justify-center items-center !text-4xl">
@@ -268,7 +263,6 @@
               hide-details
               single-line
               clearable
-      
             ></v-text-field>
           </v-toolbar>
         </template>
@@ -289,17 +283,17 @@
         </template>
       </v-data-table>
       <v-dialog v-model="deleteDialog" max-width="500px">
-      <v-card>
-        <v-card-title class="headline"
-          >Are you sure you want to delete?</v-card-title
-        >
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="deleteItem">Delete</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        <v-card>
+          <v-card-title class="headline"
+            >Are you sure you want to delete?</v-card-title
+          >
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text @click="deleteDialog = false">Cancel</v-btn>
+            <v-btn color="red" text @click="userDetele">Delete</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
     <v-snackbar v-model="snackbar1" :color="snackbarColor1">
       {{ snackbarMessage1 }}
@@ -309,12 +303,14 @@
 
 <script>
 import api from "@/service/api";
+import { useUserStore } from "@/stores/userStore";
+import { mapActions } from "pinia";
 
 export default {
   components: {
     name: "primary-button",
   },
-  
+
   data() {
     return {
       overlay: false,
@@ -340,7 +336,7 @@ export default {
         emailUpdate: "",
         phoneUpdate: "",
         companyUpdate: "",
-        
+
       },
       rules: {
         required: [(v) => !!v || "This field is required."],
@@ -352,6 +348,7 @@ export default {
         ],
       },
       items: [],
+      allUsersList:[],
       headers: [
         { title: "First Name", value: "First_name" },
         { title: "Middle Name", value: "Middle_name" },
@@ -411,9 +408,98 @@ export default {
         this.passwordMatchRule()
       );
     },
-    
+
   },
   methods: {
+    ...mapActions(useUserStore,(["allUsers","createUser","updateUser","deleteUser","searchUser"])),
+    userDetails(){
+      this.searchUser(this.selectedItem.id)
+       .then((res)=>{
+        console.table(res.data)
+             })
+             .catch((err)=>{
+
+             }) .finally(()=>{
+
+})
+    },
+    userDetele(){
+      this.deleteUser(this.selectedItem.id)
+ .then((res)=>{
+this.snackbarMessage1="User has Been Deleted Succesfully!"
+this.snackbarColor1="green"
+this.snackbar1=true
+             })
+             .catch((err)=>{
+this.snackbarMessage1=err.response.data.error||"Error"
+this.snackbarColor1="red"
+this.snackbar1=true
+             }) 
+             .finally(()=>{
+  this.deleteDialog=false
+  this.users();
+})
+    },
+    userUpdate(){
+      this.updateUser([
+      this.selectedItem.id,  
+      this.form.first_nameUpdate,
+             this.form.middle_nameUpdate,
+          this.form.last_nameUpdate,
+             this.form.emailUpdate,
+             this.form.phoneUpdate])
+             .then((res)=>{
+this.snackbarMessage1="User has Been Created Succesfully!"
+this.snackbarColor1="green"
+this.snackbar1=true
+             })
+             .catch((err)=>{
+this.snackbarMessage1=err.response.data.error||"Error"
+this.snackbarColor1="red"
+this.snackbar1=true
+             })
+              .finally(()=>{
+  this.overlayUpdate=false
+  this.resetForm()
+  this.users()
+})
+
+    },
+    userCreate(){
+this.createUser( [ this.form.first_name,
+           this.form.middle_name,
+           this.form.last_name,
+          this.form.email,
+        this.form.phone,
+           this.form.username,
+          this.form.password,
+         this.form.company])
+         .then((res)=>{
+
+          this.snackbarMessage1="User has Been Created Succesfully!"
+this.snackbarColor1="green"
+this.snackbar1=true
+         })
+         .catch((err)=>{
+           this.snackbarMessage1=err.response.data.error||"Error"
+this.snackbarColor1="red"
+this.snackbar1=true
+
+         })
+         .finally(()=>{
+  this.overlay=false
+  this.resetForm()
+  this.users()
+})
+    },
+    users(){
+this.allUsers().then((res)=>{
+  this.allUsersList=res.data
+
+}).catch((err)=>{
+  console.log(err)
+})
+    },
     selectItem(item) {
       this.overlayUpdate = true;
       this.selectedItem = item;
@@ -423,7 +509,7 @@ export default {
       this.form.emailUpdate = item.Email;
       this.form.phoneUpdate = item.Phone;
       this.form.companyUpdate = item.Company;
-   
+
     },
     async editItem() {
       try {
@@ -452,7 +538,7 @@ export default {
         this.loading = false;
       }
     },
-    
+
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
@@ -495,35 +581,35 @@ export default {
     resetForm() {
       this.$refs.form.reset();
     },
-    async createUser() {
-      try {
-        const response = await api.post("/user/create", {
-          First_name: this.form.first_name,
-          Middle_name: this.form.middle_name,
-          Last_name: this.form.last_name,
-          Email: this.form.email,
-          Phone: this.form.phone,
-          Username: this.form.username,
-          Password: this.form.password,
-          Company: this.form.company
-        });
-        this.snackbarMessage1 = "User has been Created Successfully! ";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlay = null;
-        this.resetForm();
-        this.overlay = false;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-        this.loading = false;
-      } finally {
-        this.loading = false;
-        this.fetchData();
-      }
-    },
+    // async createUser() {
+    //   try {
+    //     const response = await api.post("/user/create", {
+    //       First_name: this.form.first_name,
+    //       Middle_name: this.form.middle_name,
+    //       Last_name: this.form.last_name,
+    //       Email: this.form.email,
+    //       Phone: this.form.phone,
+    //       Username: this.form.username,
+    //       Password: this.form.password,
+    //       Company: this.form.company
+    //     });
+    //     this.snackbarMessage1 = "User has been Created Successfully! ";
+    //     this.snackbarColor1 = "green";
+    //     this.snackbar1 = true;
+    //     this.overlay = null;
+    //     this.resetForm();
+    //     this.overlay = false;
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //     this.loading = false;
+    //   } finally {
+    //     this.loading = false;
+    //     this.fetchData();
+    //   }
+    // },
     async fetchData() {
       try {
         const response = await api.get("/user/all");
@@ -532,11 +618,12 @@ export default {
         console.error(error);
       }
     },
- 
+
   },
   mounted() {
-    this.fetchData();
-    
+    // this.fetchData();
+    this.users()
+
   },
 };
 </script>

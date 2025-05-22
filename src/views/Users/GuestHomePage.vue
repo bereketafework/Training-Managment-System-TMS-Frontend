@@ -23,7 +23,7 @@
         <span class="flex justify-center border-b-[1px] text-3xl p-4"
           >Guest Registration Form</span
         >
-        <v-form ref="form" @submit.prevent="createGuest" v-model="formValid">
+        <v-form ref="form" @submit.prevent="guestCreate" v-model="formValid">
           <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
             <v-row class="!flex !flex-row">
               <v-col cols="8" sm="4">
@@ -101,7 +101,7 @@
         <span class="flex justify-center border-b-[1px] text-3xl p-4"
           >Guest Update Form</span
         >
-        <v-form ref="form" @submit.prevent="editItem" v-model="formValid">
+        <v-form ref="form" @submit.prevent="guestUpdate" v-model="formValid">
           <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
             <v-row class="!flex !flex-row">
               <v-col cols="8" sm="4">
@@ -176,7 +176,7 @@
 
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="Guests"
         :search="searchQuery"
         density="compact"
       >
@@ -236,7 +236,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="deleteItem">Delete</v-btn>
+          <v-btn color="red" text @click="guestDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -248,6 +248,8 @@
 </template>
 <script>
 import api from "@/service/api";
+import { useGuestStore } from "@/stores/guestStore";
+import { mapActions } from "pinia";
 export default {
   data: () => ({
     overlay: false,
@@ -293,6 +295,7 @@ export default {
       { title: "Actions", value: "actions", sortable: false },
     ],
     items: [],
+    Guests:[],
     Courses: [],
     SelectedCourseId: null,
     SelectedCourseIdupdate: null,
@@ -310,10 +313,81 @@ export default {
    
   },
   mounted() {
-    this.fetchData(); // Fetch data when the component is mounted
+    // this.fetchData(); // Fetch data when the component is mounted
     this.courseData();
+    this.guests()
   },
   methods: {
+...mapActions(useGuestStore,["allGuest","createGuest","updateGuest","deleteGuest"]),
+guestDelete(){
+this.deleteGuest(this.selectedItem.id)
+.then((res)=>{
+this.snackbarMessage1="Guest Deleted Succesfully!"
+this.snackbarColor1="green"
+this.snackbar1=true
+}).catch((err)=>{
+ this.snackbarMessage1="Error Deleting "
+this.snackbarColor1="red"
+this.snackbar1=true
+}).finally(()=>{
+this.deleteDialog=false 
+this.guests()
+})
+},
+guestUpdate(){
+this.updateGuest([this.selectedItem.id,this.form.first_nameUpdate,this.form.middle_nameUpdate,this.form.last_nameUpdate,this.form.qualificationUpdate,this.form.phoneUpdate])
+ .then((res)=>{
+this.snackbarMessage1="Guest Data Updated Succesfully!",res
+this.snackbarColor1="green"
+this.snackbar1=true
+  })
+  .catch((err)=>{
+    this.snackbarMessage1="Error Updating "
+this.snackbarColor1="red"
+this.snackbar1=true
+    console.error(err)
+  })
+  .finally(()=>{
+    this.overlayUpdate=false
+    this.guests()
+     this.resetForm() 
+  })
+},
+guestCreate(){
+  this.createGuest([this.form.first_name,this.form.middle_name,this.form.last_name,this.form.qualification,this.form.phone])
+  .then((res)=>{
+this.snackbarMessage1="Guest Created Succesfully!",res
+this.snackbarColor1="green"
+this.snackbar1=true
+  })
+  .catch((err)=>{
+    this.snackbarMessage1=err.response.data.error||"Error Creating Guest "
+this.snackbarColor1="red"
+this.snackbar1=true
+    console.error("Error",err)
+  })
+  .finally(()=>{
+   this.overlay=false
+    this.guests()
+     this.resetForm() 
+  })
+},
+  guests(){
+    this.allGuest()
+    .then((res)=>{
+      this.Guests= res.data
+ })
+    .catch((err)=>{
+this.snackbarMessage1=err.response.data
+this.snackbarColor1="green"
+this.snackbar1=true
+      console.log("Error:",err)
+    })
+  },
+
+
+
+
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
@@ -382,32 +456,32 @@ export default {
       }
     },
 
-    async createGuest() {
-      try {
-        this.loading = true;
-        const response = await api.post("/guest/create", {
-          First_name: this.form.first_name,
-          Middle_name: this.form.middle_name,
-          Last_name: this.form.last_name,
-          Qualification: this.form.qualification,
-          Phone: this.form.phone,
-        });
+    // async createGuest() {
+    //   try {
+    //     this.loading = true;
+    //     const response = await api.post("/guest/create", {
+    //       First_name: this.form.first_name,
+    //       Middle_name: this.form.middle_name,
+    //       Last_name: this.form.last_name,
+    //       Qualification: this.form.qualification,
+    //       Phone: this.form.phone,
+    //     });
 
-        this.snackbarMessage1 = " Guest has been  Created Successfully! ";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlay = null;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data || error.response.message;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-        this.loading = false;
-      } finally {
-        this.loading = false;
-      }
-    },
+    //     this.snackbarMessage1 = " Guest has been  Created Successfully! ";
+    //     this.snackbarColor1 = "green";
+    //     this.snackbar1 = true;
+    //     this.overlay = null;
+    //     this.fetchData();
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data || error.response.message;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //     this.loading = false;
+    //   } finally {
+    //     this.loading = false;
+    //   }
+    // },
 
     async fetchData() {
       try {

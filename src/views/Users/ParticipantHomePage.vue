@@ -10,7 +10,7 @@
          
           <v-form
             ref="form"
-            @submit.prevent="createParticipant"
+            @submit.prevent="participantCreate"
             v-model="formValid"
           >
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
@@ -110,7 +110,7 @@
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >Participant Update Form</span
           >
-          <v-form ref="form" @submit.prevent="editItem" v-model="formValid">
+          <v-form ref="form" @submit.prevent="participantUpdate" v-model="formValid">
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-row">
                 <v-col cols="8" sm="4">
@@ -206,7 +206,7 @@
 
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="allParticipants"
         :search="searchQuery"
         density="compact"
       >
@@ -317,7 +317,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="deleteItem">Delete</v-btn>
+          <v-btn color="red" text @click="participantDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -330,6 +330,8 @@
 
 <script>
 import api from "@/service/api";
+import { useParticipantStore } from "@/stores/participantStore";
+import { mapActions } from "pinia";
 export default {
   data: () => ({
     loading: false,
@@ -349,7 +351,7 @@ export default {
     currentPage: 1,
     itemsPerPage: 5,
     searchQuery: "",
-    formValid: false,
+    // formValid: false,
     items: [],
     headers: [
       { title: "First Name", value: "First_name" },
@@ -385,7 +387,7 @@ export default {
       email: [(v) => /.+@.+\..+/.test(v) || "Must be a valid email."],
       numeric: [(v) => !isNaN(parseFloat(v)) || "Must be a valid number."],
     },
-    participants: [],
+    allParticipants: [],
   }),
   computed: {
     formValid() {
@@ -418,10 +420,78 @@ export default {
    
   },
   mounted() {
-    this.fetchData(); // Fetch data when the component is mounted
+    // this.fetchData();
+    this.participants() // Fetch data when the component is mounted
   
-this.fetchParticipant()   },
+// this.fetchParticipant()  
+ },
   methods: {
+    ...mapActions(useParticipantStore,(["allParticipant","updateParticipant","createParticipant","deleteParticipant","searchParticipant"])),
+    participantDetails(){
+this.searchParticipant(this.selectedItem.id)
+.then((res)=>{
+
+})
+  .catch((err)=>{})  },
+participantDelete(){
+this.deleteParticipant(this.selectedItem.id)
+.then((res)=>{
+this.snackbarMessage1="Participant has Been Deleted Succesfully!",res
+this.snackbarColor1="green"
+this.snackbar1=true
+}).catch((err)=>{
+ this.snackbarMessage1="Error Deleting "
+this.snackbarColor1="red"
+this.snackbar1=true
+}).finally(()=>{
+  this.deleteDialog=false
+  this.participants()
+})
+},
+
+participantCreate(){
+  this.createParticipant(this.form.first_name,this.form.middle_name,this.form.last_name,this.form.email,this.form.phone,this.form.Gender)
+  .then((res)=>{
+this.snackbarMessage1="Participant has Been Created Succesfully!",res
+this.snackbarColor1="green"
+this.snackbar1=true
+  }).catch((err)=>{
+ this.snackbarMessage1="Error Creating "
+this.snackbarColor1="red"
+this.snackbar1=true
+  }).finally(()=>{
+  this.overlay=false
+  this.participants()
+})
+},
+
+
+    participantUpdate(){
+this.updateParticipant([this.selectedItem.id,this.form.first_nameUpdate,this.form.middle_nameUpdate,this.form.last_nameUpdate,this.form.emailUpdate,this.form.phoneUpdate,this.form.GenderUpdate])
+.then((res)=>{
+this.snackbarMessage1="Participant Data Updated Succesfully!",res
+this.snackbarColor1="green"
+this.snackbar1=true
+}).catch((err)=>{
+   this.snackbarMessage1="Error Updating "
+this.snackbarColor1="red"
+this.snackbar1=true
+    console.error(err)
+}).finally(()=>{
+  this.overlayUpdate=false
+  this.participants()
+})
+    },
+    participants(){
+  this.allParticipant()
+  .then((res)=>{
+    this.allParticipants= res.data
+  })
+  .catch((err)=>{})
+    },
+
+
+
     confirmenroll(item) {
       this.overlayenroll = true;
       this.selectedItem = item;
