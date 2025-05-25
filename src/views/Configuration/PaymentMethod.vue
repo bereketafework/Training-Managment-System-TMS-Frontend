@@ -1,13 +1,20 @@
-
 <template>
   <div class="flex flex-col w-full h-full">
     <div class="flex mt-2">
-      <v-overlay v-model="overlay" persistent class="!flex !justify-center items-center">
+      <v-overlay
+        v-model="overlay"
+        persistent
+        class="!flex !justify-center items-center"
+      >
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >Payment Method Registration Form</span
           >
-          <v-form ref="form" @submit.prevent="createRole" v-model="formValid">
+          <v-form
+            ref="form"
+            @submit.prevent="PaymentMethodCreate"
+            v-model="formValid"
+          >
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-row">
                 <v-col cols="8" sm="4">
@@ -16,7 +23,7 @@
                     :rules="rules.required"
                     color="black darken-2"
                     label="Payment Method *"
-                            variant="outlined"
+                    variant="outlined"
                     required
                   ></v-text-field>
                 </v-col>
@@ -30,7 +37,6 @@
                   text
                   color="primary"
                   type="submit"
-                  @click="createRole"
                 >
                   <v-progress-circular
                     v-if="loading"
@@ -46,11 +52,9 @@
       </v-overlay>
     </div>
     <div>
-
-
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="paymentMethodList"
         :search="searchQuery"
         density="compact"
         sticky
@@ -58,14 +62,14 @@
         <template v-slot:top>
           <v-toolbar flat>
             <v-btn
-            color="blue"
+              color="blue"
               prepend-icon="mdi-plus"
               size="large"
               variant="elevated"
-                @click="toggleForm"
-              >
-                Create</v-btn
-              >
+              @click="toggleForm"
+            >
+              Create</v-btn
+            >
             <v-toolbar-title class="flex justify-center items-center !text-4xl">
               List of Payment Method
             </v-toolbar-title>
@@ -81,9 +85,7 @@
               single-line
               clearable
             ></v-text-field>
-            
           </v-toolbar>
-          
         </template>
         <template v-slot:item.actions="{ item }">
           <v-menu>
@@ -111,7 +113,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="deleteItem">Delete</v-btn>
+          <v-btn color="red" text @click="paymentMethodDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -124,7 +126,11 @@
         <span class="flex justify-center border-b-[1px] text-3xl p-4"
           >Payment Method Update Form</span
         >
-        <v-form ref="form" @submit.prevent="editItem" v-model="formValid">
+        <v-form
+          ref="form"
+          @submit.prevent="paymentMethodUpdateInfo"
+          v-model="formValid"
+        >
           <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
             <v-row class="!flex !flex-row">
               <v-col cols="8" sm="4">
@@ -133,7 +139,7 @@
                   :rules="rules.required"
                   color="black darken-2"
                   label="Payment Method *"
-                          variant="outlined"
+                  variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -142,13 +148,7 @@
               <v-btn text @click="goBack">Back</v-btn>
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
-              <v-btn
-           
-                text
-                color="primary"
-                type="submit"
-                @click="editItem"
-              >
+              <v-btn text color="primary" type="submit">
                 <v-progress-circular
                   v-if="loading"
                   indeterminate
@@ -167,7 +167,7 @@
       max-width="500px"
       class="!flex !justify-center !items-center"
     >
-  </v-dialog>
+    </v-dialog>
     <v-snackbar v-model="snackbar1" :color="snackbarColor1">
       {{ snackbarMessage1 }}
     </v-snackbar>
@@ -177,6 +177,8 @@
 import { jwtDecode } from "jwt-decode";
 
 import api from "@/service/api";
+import { mapActions } from "pinia";
+import { usePaymentMethodStore } from "@/stores/paymentMethodStore";
 export default {
   data() {
     return {
@@ -217,10 +219,94 @@ export default {
       training: [],
 
       items: [], // Data fetched from the API
+      paymentMethodList: [],
     };
   },
-  
+
   methods: {
+    ...mapActions(usePaymentMethodStore, [
+      "allPaymentMethod",
+      "createPaymentMethod",
+      "deletepaymentmethod",
+      "detailspaymentmethod",
+      "updatepaymentmethod",
+    ]),
+    paymentMethodDetails() {
+      this.detailspaymentmethod(this.selectedItem.id)
+        .then((res) => {})
+        .catch((err) => {})
+        .finally(() => {});
+    },
+    paymentMethodDelete() {
+      this.deletepaymentmethod(this.selectedItem.id)
+        .then((res) => {
+          this.snackbarMessage1 =
+            "Payment Method has Been Deleted Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data.error || err.response.data || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          (this.deleteDialog = false), this.PaymentMethods();
+        });
+    },
+    paymentMethodUpdateInfo() {
+      this.updatepaymentmethod([
+        this.selectedItem.id,
+        this.form.PaymentMethodupdate,
+      ])
+        .then((res) => {
+          this.snackbarMessage1 =
+            "Payment Method has Been Updated Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data.error || err.response.data || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          (this.overlayUpdate = false), this.PaymentMethods();
+          this.resetForm();
+        });
+    },
+    PaymentMethodCreate() {
+      this.createPaymentMethod(this.form.PaymentMethod)
+        .then((res) => {
+          this.snackbarMessage1 =
+            "Payment Method has Been Created Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data.error || err.response.data || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          (this.overlay = false), this.PaymentMethods();
+          this.resetForm();
+        });
+    },
+    PaymentMethods() {
+      this.allPaymentMethod()
+        .then((res) => {
+          this.paymentMethodList = res.data;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        });
+    },
     goBack() {
       this.overlay = false;
       this.overlayUpdate = false;
@@ -245,10 +331,8 @@ export default {
         if (token) {
           try {
             this.loading = true;
-            
 
             const response = await api.post("/paymentmethod/create", {
-         
               Methods: this.form.PaymentMethod,
             });
 
@@ -287,28 +371,28 @@ export default {
       this.$refs.form.reset();
       this.editIndex = null;
     },
-    
+
     selectItem(item) {
       this.overlayUpdate = true;
       this.selectedItem = item;
       this.form.PaymentMethodupdate = item.Methods;
-     
     },
 
     async editItem() {
       try {
-            this.loading = true;
-            const response = await api.post(
-              `/paymentmethod/update/${this.selectedItem.id}`,{
-                Methods: this.form.PaymentMethodupdate,
-              });
-            this.snackbarMessage1 ="Payment Method Updated successfully!";
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-            this.overlayUpdate = false;
-            this.fetchData();
-          }
-       catch (error) {
+        this.loading = true;
+        const response = await api.post(
+          `/paymentmethod/update/${this.selectedItem.id}`,
+          {
+            Methods: this.form.PaymentMethodupdate,
+          },
+        );
+        this.snackbarMessage1 = "Payment Method Updated successfully!";
+        this.snackbarColor1 = "green";
+        this.snackbar1 = true;
+        this.overlayUpdate = false;
+        this.fetchData();
+      } catch (error) {
         console.error(error);
         this.snackbarMessage1 = error.response.data;
         this.snackbarColor1 = "red";
@@ -364,7 +448,8 @@ export default {
     },
   },
   mounted() {
-    this.fetchData(); // Fetch data when the component is mounted
+    // this.fetchData(); // Fetch data when the component is mounted
+    this.PaymentMethods();
   },
 };
 </script>

@@ -9,7 +9,7 @@
             Certificate Creation Form
           </span>
 
-          <v-form ref="form" @submit.prevent="createCertificate" class="m-3">
+          <v-form ref="form" @submit.prevent="certificateCreate" class="m-3">
             <v-container
               fluid
               class="border-[1px] border-gray-200 !flex !w-[800px] !rounded-lg"
@@ -23,10 +23,10 @@
                     chips
                     label="Select Training *"
                     :items="trainingList"
-                    item-title="Training_name"  
+                    item-title="Training_name"
                     item-value="id"
                     variant="outlined"
-                    :rules="[required]"  
+                    :rules="[required]"
                   ></v-select>
                 </v-col>
                 <v-col cols="12" sm="8">
@@ -36,7 +36,7 @@
                     color="black darken-2"
                     label="Title *"
                     type="text"
-                 :rules="[required]"
+                    :rules="[required]"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="20" sm="10">
@@ -47,7 +47,7 @@
                     label="Certificate  Description *"
                     v-model="Description"
                     variant="outlined"
-                      :rules="[required]"
+                    :rules="[required]"
                   ></v-textarea>
                 </v-col>
 
@@ -92,21 +92,20 @@
         </v-card>
       </v-overlay>
     </div>
-   
+
     <div>
-      
       <v-toolbar flat>
         <primary-button
-        color="blue"
-              prepend-icon="mdi-plus"
-              size="large"
-              variant="elevated"
+          color="blue"
+          prepend-icon="mdi-plus"
+          size="large"
+          variant="elevated"
           name="Create Certificate"
           @click="handleClick"
         >
         </primary-button>
         <v-toolbar-title class="flex justify-center items-center !text-4xl">
-          List of Certificate  
+          List of Certificate
         </v-toolbar-title>
         <v-text-field
           class="bg-transparent"
@@ -120,40 +119,36 @@
           single-line
           clearable
         ></v-text-field>
-        
       </v-toolbar>
     </div>
     <v-data-table
-    
-        :headers="headers"
-        :items="allCertificate"
-        :search="searchQuery"
-        density="compact"
-       
-      >
-    
+      :headers="headers"
+      :items="CertificateList"
+      :search="searchQuery"
+      density="compact"
+    >
       <template v-slot:item.actions="{ item }">
-          <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn
-                v-bind="props"
-                icon="mdi-dots-vertical"
-                variant="text"
-                color="gray-lighten-2"
-              ></v-btn>
-            </template>
-            <v-list>
-              <v-list-item @click="certeficateView(item)">View</v-list-item>
-              <!-- <v-list-item @click="selectItem(item)">Edit</v-list-item>
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-dots-vertical"
+              variant="text"
+              color="gray-lighten-2"
+            ></v-btn>
+          </template>
+          <v-list>
+            <v-list-item @click="certeficateView(item)">View</v-list-item>
+            <!-- <v-list-item @click="selectItem(item)">Edit</v-list-item>
               <v-list-item @click="confirmDelete(item)">Delete</v-list-item> -->
-            </v-list>
-          </v-menu>
-        </template>
-        
+          </v-list>
+        </v-menu>
+      </template>
     </v-data-table>
-      
   </div>
-
+  <div>     <v-snackbar v-model="snackbar1" :color="snackbarColor1">
+      {{ snackbarMessage1 }}
+    </v-snackbar></div>
 </template>
 
 <script>
@@ -161,6 +156,7 @@ import api from "@/service/api.js";
 import { mapActions } from "pinia";
 import PrimaryButton from "../../components/PrimaryButton.vue";
 import { useTrainingStore } from "@/stores/TrainingStore";
+import {useCertificateStore} from"@/stores/certificateStore";
 import { h } from "vue";
 import { all } from "axios";
 import router from "@/router";
@@ -171,12 +167,12 @@ export default {
     return {
       headers: [
         { title: "Title", value: "Title" },
-  
+
         { title: "Issue Date", value: "Issue_date" },
         { title: "Expire Date", value: "Expire_date" },
         { title: "Action", value: "actions", sortable: false },
       ],
-      allCertificate: [],
+      CertificateList: [],
       certificate: false,
       loading: false,
       Title: "",
@@ -210,59 +206,88 @@ export default {
           new Date(v) >= new Date(this.IssueDate) ||
           "Expire Date must be after Issue Date",
       ];
-    },  
-  
+    },
+
   },
   methods: {
-    
+    ...mapActions(useCertificateStore,(["Certificates","createCertificate"])),
+    certificateCreate(){
+      console.warn(this.selectedTrainingId)
+      this.createCertificate([this.selectedTrainingId,this.Title,this.Description,this.IssueDate,this.ExpireDate])
+      .then((res)=>{
+        this.snackbarMessage1="Certificate has Been Created Succesfully!"
+this.snackbarColor1="green"
+this.snackbar1=true
+      }).catch((err)=>{
+        this.snackbarMessage1=err.response.data.error||"Error"
+this.snackbarColor1="red"
+this.snackbar1=true
+      }).finally(()=>{
+  this.overlay=false
+  this.allcerteficates()
+})
+    },
+
+
+     allcerteficates(){
+    this.Certificates().then((res)=>{
+      this.CertificateList = res.data;
+    }).catch((err)=>{
+    console.error("Error:",err)
+    })
+    },
+
+
+
     certeficateView(item) {
       this.selectedParticipant = item;
-  router.push({ name: "CertificateView", params: { id: item.id } });
+     router.push({ name: "CertificateView", params: { id: item.id } });
     },
-    Certificates() {
-      return api
-        .get("/certificate/all")
-        .then((response) => {
-          this.allCertificate = response.data;
-       
-          return response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
+    // Certificates() {
+    //   return api
+    //     .get("/certificate/all")
+    //     .then((response) => {
+    //       this.allCertificate = response.data;
+
+    //       return Promise.resolve(response)
+    //     })
+    //     .catch((error) => {
+    //       console.log(error);
+    //       return Promise.reject(error)
+    //     });
+    // },
     resetForm() {
       this.$refs.form.reset();
     },
-    createCertificate() {
-      return api
-        .post("/certificate/create", {
-          Training_id: this.selectedTrainingId,
-          Title: this.Title,
-          Description: this.Description,
-          Issue_date: this.IssueDate,
-          Expire_date: this.ExpireDate,
-        })
-        .then((response) => {
-          this.loading = false;
-          this.overlay = false;
-          this.refresh();
-          this.certificate = false;
-          return Promise.resolve(response.data);
-        })
-        .catch((error) => {
-          this.loading = false;
-          return Promise.reject(error);
-        });
-    },
-    ...mapActions(useTrainingStore, ["fetchTrainings"]),
+    // createCertificate() {
+    //   return api
+    //     .post("/certificate/create", {
+    //       Training_id: this.selectedTrainingId,
+    //       Title: this.Title,
+    //       Description: this.Description,
+    //       Issue_date: this.IssueDate,
+    //       Expire_date: this.ExpireDate,
+    //     })
+    //     .then((response) => {
+    //       this.loading = false;
+    //       this.overlay = false;
+    //       this.refresh();
+    //       this.certificate = false;
+    //       return Promise.resolve(response.data);
+    //     })
+    //     .catch((error) => {
+    //       this.loading = false;
+    //       return Promise.reject(error);
+    //     });
+    
+    ...mapActions(useTrainingStore, ["allTraining"]),
     refresh() {
-      this.fetchTrainings()
-        .then((trainings) => {
-          this.trainingList = trainings;
+      this.allTraining()
+        .then((response) => {
+          this.trainingList = response.data;
           console.log(this.trainingList);
           this.Certificates();
-         
+
         })
         .catch((error) => {
           console.log(error);
@@ -294,11 +319,9 @@ export default {
   },
   mounted() {
     this.refresh();
-    this.Certificates();
-
+    this.allcerteficates();
     // ListTraining.fetchTrainings();
   },
 };
 </script>
 
-<style></style>

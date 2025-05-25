@@ -1,7 +1,11 @@
 <template>
   <div class="flex flex-col w-full h-full">
     <div class="flex mt-2">
-      <v-overlay v-model="overlay" persistent class="!flex !justify-center items-center">
+      <v-overlay
+        v-model="overlay"
+        persistent
+        class="!flex !justify-center items-center"
+      >
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >Role Registration Form</span
@@ -14,7 +18,7 @@
                     v-model="form.Role"
                     :rules="rules.required"
                     color="black darken-2"
-                            variant="outlined"
+                    variant="outlined"
                     label="Role *"
                     required
                   ></v-text-field>
@@ -45,28 +49,25 @@
       </v-overlay>
     </div>
     <div>
-   
-
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="userRoleList"
         :search="searchQuery"
         density="compact"
         sticky
         :fixed-header="true"
-        
       >
         <template v-slot:top>
           <v-toolbar flat>
             <v-btn
-            color="blue"
+              color="blue"
               prepend-icon="mdi-plus"
               size="large"
               variant="elevated"
-                @click="toggleForm"
-              >
-                Create</v-btn
-              >
+              @click="toggleForm"
+            >
+              Create</v-btn
+            >
             <v-toolbar-title class="flex justify-center items-center !text-4xl">
               List of Roles
             </v-toolbar-title>
@@ -82,9 +83,7 @@
               single-line
               clearable
             ></v-text-field>
-        
           </v-toolbar>
-          
         </template>
         <template v-slot:item.actions="{ item }">
           <v-menu>
@@ -112,7 +111,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="deleteItem">Delete</v-btn>
+          <v-btn color="red" text @click="userRoleDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -125,7 +124,7 @@
         <span class="flex justify-center border-b-[1px] text-3xl p-4"
           >Role Update Form</span
         >
-        <v-form ref="form" @submit.prevent="editItem" v-model="formValid">
+        <v-form ref="form" @submit.prevent="userRoleUpdate" v-model="formValid">
           <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
             <v-row class="!flex !flex-row">
               <v-col cols="8" sm="4">
@@ -133,7 +132,7 @@
                   v-model="form.RoleUpdate"
                   :rules="rules.required"
                   color="black darken-2"
-                          variant="outlined"
+                  variant="outlined"
                   label="Role *"
                   required
                 ></v-text-field>
@@ -143,12 +142,7 @@
               <v-btn text @click="goBack">Back</v-btn>
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
-              <v-btn
-           
-                text
-                color="primary"
-                type="submit"
-              >
+              <v-btn text color="primary" type="submit">
                 <v-progress-circular
                   v-if="loading"
                   indeterminate
@@ -184,7 +178,6 @@
     <v-snackbar v-model="snackbar1" :color="snackbarColor1" :timeout="timeout">
       {{ snackbarMessage1 }}
     </v-snackbar>
-   
   </div>
 </template>
 <script>
@@ -192,6 +185,8 @@ import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
 import api from "@/service/api";
 import MiniCard from "@/components/MiniCard.vue";
+import { mapActions } from "pinia";
+import { useUserRoleStore } from "@/stores/userRoleStore";
 export default {
   data() {
     return {
@@ -233,6 +228,7 @@ export default {
       training: [],
 
       items: [], // Data fetched from the API
+      userRoleList: [],
     };
   },
   components: {
@@ -255,7 +251,7 @@ export default {
     paginatedTraining() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       return this.filteredTraining.slice(start, start + this.itemsPerPage);
-    }, 
+    },
     paginatedItems() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
@@ -266,6 +262,83 @@ export default {
     },
   },
   methods: {
+    ...mapActions(useUserRoleStore, [
+      "allUserRole",
+      "createUserRole",
+      "updateUserRole",
+      "deleteUserRole",
+      "detailsUserRole",
+    ]),
+    userRoleDetails() {
+      this.detailsUserRole(this.selectedItem.id)
+        .then((res) => {})
+        .catch((err) => {});
+    },
+    userRoleDelete() {
+      this.deleteUserRole(this.selectedItem.id)
+        .then((res) => {
+          this.snackbarMessage1 = "UserRole has Been Deleted Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data || err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          (this.deleteDialog = false), this.userRoles();
+        });
+    },
+
+    userRoleUpdate() {
+      this.updateUserRole([this.selectedItem.id, this.form.RoleUpdate])
+        .then((res) => {
+          this.snackbarMessage1 = "UserRole has Been Updated Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data || err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          (this.overlayUpdate = false), this.userRoles();
+        });
+    },
+    userRoleCreate() {
+      this.createUserRole(this.form.Role)
+        .then((res) => {
+          this.snackbarMessage1 = "UserRole has Been Created Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data.error || err.response.data || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          (this.overlay = false), this.userRoles();
+          this.resetForm();
+        });
+    },
+    userRoles() {
+      this.allUserRole()
+        .then((res) => {
+          this.userRoleList = res.data;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data || err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        });
+    },
     goBack() {
       this.overlay = false;
       this.overlayUpdate = false;
@@ -334,7 +407,7 @@ export default {
       this.$refs.form.reset();
       this.editIndex = null;
     },
-    
+
     selectItem(item) {
       this.overlayUpdate = true;
       this.selectedItem = item;
@@ -344,18 +417,19 @@ export default {
 
     async editItem() {
       try {
-            this.loading = true;
-            const response = await api.post(
-              `/userrole/update/${this.selectedItem.id}`,{
-                Role: this.form.RoleUpdate,
-              });
-            this.snackbarMessage1 = "Role has been Updated successfully!";
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-            this.overlayUpdate = false;
-            this.fetchData();
-          }
-       catch (error) {
+        this.loading = true;
+        const response = await api.post(
+          `/userrole/update/${this.selectedItem.id}`,
+          {
+            Role: this.form.RoleUpdate,
+          },
+        );
+        this.snackbarMessage1 = "Role has been Updated successfully!";
+        this.snackbarColor1 = "green";
+        this.snackbar1 = true;
+        this.overlayUpdate = false;
+        this.fetchData();
+      } catch (error) {
         console.error(error);
         this.snackbarMessage1 = error.response.data;
         this.snackbarColor1 = "red";
@@ -417,21 +491,21 @@ export default {
     calculateItemsPerPage() {
       const width = window.innerWidth;
       if (width >= 1200) return 12; // Large screens
-      if (width >= 992) return 8;   // Medium screens
-      if (width >= 768) return 6;   // Small screens
-      return 4;                     // Extra small screens
+      if (width >= 992) return 8; // Medium screens
+      if (width >= 768) return 6; // Small screens
+      return 4; // Extra small screens
     },
     handleResize() {
       this.itemsPerPage = this.calculateItemsPerPage();
     },
   },
   mounted() {
-    this.fetchData(); // Fetch data when the component is mounted
+    // this.fetchData(); // Fetch data when the component is mounted
+    this.userRoles();
     window.addEventListener("resize", this.handleResize);
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.handleResize);
   },
-
 };
 </script>

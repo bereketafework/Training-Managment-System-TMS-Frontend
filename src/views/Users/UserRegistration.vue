@@ -447,7 +447,8 @@ this.snackbar1=true
              this.form.middle_nameUpdate,
           this.form.last_nameUpdate,
              this.form.emailUpdate,
-             this.form.phoneUpdate])
+             this.form.phoneUpdate,
+            this.form.companyUpdate])
              .then((res)=>{
 this.snackbarMessage1="User has Been Created Succesfully!"
 this.snackbarColor1="green"

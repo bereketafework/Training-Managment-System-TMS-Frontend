@@ -26,9 +26,7 @@ export const useCurrentUserStore = defineStore("currentUser", {
           const decodedToken = jwtDecode(token);
 
           const userId = decodedToken.id;
-          const response = await api.post("/user/search", {
-            id: userId,
-          });
+          const response = await api.post(`/user/search/${userId}`, {});
           this.me = response.data;
           this.First_name = this.me[0].First_name;
           this.Last_name = this.me[0].Last_name;

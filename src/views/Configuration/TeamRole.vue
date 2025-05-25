@@ -1,12 +1,20 @@
 <template>
   <div class="flex flex-col w-full h-full">
     <div class="flex mt-2">
-      <v-overlay v-model="overlay" persistent class="!flex !justify-center items-center">
+      <v-overlay
+        v-model="overlay"
+        persistent
+        class="!flex !justify-center items-center"
+      >
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >TeamRole Registration Form</span
           >
-          <v-form ref="form" @submit.prevent="createRole" v-model="formValid">
+          <v-form
+            ref="form"
+            @submit.prevent="teamRoleCreate"
+            v-model="formValid"
+          >
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-row">
                 <v-col cols="8" sm="4">
@@ -15,7 +23,7 @@
                     :rules="rules.required"
                     color="black darken-2"
                     label="Role *"
-                            variant="outlined"
+                    variant="outlined"
                     required
                   ></v-text-field>
                 </v-col>
@@ -29,7 +37,6 @@
                   text
                   color="primary"
                   type="submit"
-                  @click="createRole"
                 >
                   <v-progress-circular
                     v-if="loading"
@@ -45,11 +52,9 @@
       </v-overlay>
     </div>
     <div>
-
-
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="TeamRoleList"
         :search="searchQuery"
         density="compact"
         sticky
@@ -57,14 +62,14 @@
         <template v-slot:top>
           <v-toolbar flat>
             <v-btn
-            color="blue"
+              color="blue"
               prepend-icon="mdi-plus"
               size="large"
               variant="elevated"
-                @click="toggleForm"
-              >
-                Create</v-btn
-              >
+              @click="toggleForm"
+            >
+              Create</v-btn
+            >
             <v-toolbar-title class="flex justify-center items-center !text-4xl">
               List of Team Roles
             </v-toolbar-title>
@@ -80,9 +85,7 @@
               single-line
               clearable
             ></v-text-field>
-            
           </v-toolbar>
-          
         </template>
         <template v-slot:item.actions="{ item }">
           <v-menu>
@@ -110,7 +113,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="deleteItem">Delete</v-btn>
+          <v-btn color="red" text @click="teamRoleDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -123,7 +126,11 @@
         <span class="flex justify-center border-b-[1px] text-3xl p-4"
           >Team Role Update Form</span
         >
-        <v-form ref="form" @submit.prevent="editItem" v-model="formValid">
+        <v-form
+          ref="form"
+          @submit.prevent="teamRoleUpdateInfo"
+          v-model="formValid"
+        >
           <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
             <v-row class="!flex !flex-row">
               <v-col cols="8" sm="4">
@@ -132,7 +139,7 @@
                   :rules="rules.required"
                   color="black darken-2"
                   label="Role *"
-                          variant="outlined"
+                  variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -141,12 +148,7 @@
               <v-btn text @click="goBackUpdate">Back</v-btn>
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
-              <v-btn
-               
-                text
-                color="primary"
-                type="submit"
-              >
+              <v-btn text color="primary" type="submit">
                 <v-progress-circular
                   v-if="loading"
                   indeterminate
@@ -165,7 +167,6 @@
       max-width="500px"
       class="!flex !justify-center !items-center"
     >
-     
     </v-dialog>
     <v-snackbar v-model="snackbar1" :color="snackbarColor1">
       {{ snackbarMessage1 }}
@@ -176,6 +177,8 @@
 import { jwtDecode } from "jwt-decode";
 
 import api from "@/service/api";
+import { mapActions } from "pinia";
+import { useTeamRoleStore } from "@/stores/teamRoleStore";
 export default {
   data() {
     return {
@@ -213,6 +216,7 @@ export default {
       },
 
       items: [], // Data fetched from the API
+      TeamRoleList: [],
     };
   },
   computed: {
@@ -235,6 +239,83 @@ export default {
     },
   },
   methods: {
+    ...mapActions(useTeamRoleStore, [
+      "allTeamRole",
+      "createTeamRole",
+      "deleteTeamRole",
+      "detailsTeamRole",
+      "updateTeamRole",
+    ]),
+
+    teamRoleDetails() {
+      this.detailsTeamRole(this.selectedItem.id)
+        .then((res) => {})
+        .catch((err) => {})
+        .finally(() => {});
+    },
+    teamRoleDelete() {
+      this.deleteTeamRole(this.selectedItem.id)
+        .then((res) => {
+          this.snackbarMessage1 = "Team Role has Been Deleted Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data || err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          (this.deleteDialog = false), this.teamRoles();
+        });
+    },
+    teamRoleCreate() {
+      this.createTeamRole(this.form.TeamRole)
+        .then((res) => {
+          this.snackbarMessage1 = "Team Role has Been Created Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data || err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          (this.overlay = false), this.teamRoles();
+        });
+    },
+    teamRoleUpdateInfo() {
+      this.updateTeamRole([this.selectedItem.id, this.form.TeamRoleUpdate])
+        .then((res) => {
+          this.snackbarMessage1 = "Team Role has Been Updated Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data || err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          (this.overlayUpdate = false), this.teamRoles();
+        });
+    },
+    teamRoles() {
+      this.allTeamRole()
+        .then((res) => {
+          this.TeamRoleList = res.data;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data || err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        });
+    },
     goBackUpdate() {
       this.overlayUpdate = false;
       this.resetForm();
@@ -328,18 +409,19 @@ export default {
 
     async editItem() {
       try {
-            this.loading = true;
-            const response = await api.post(
-              `/teamrole/update/${this.selectedItem.id}`,{
-                Team_role: this.form.TeamRoleUpdate,
-              });
-            this.snackbarMessage1 = response.data.message;
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-            this.overlayUpdate = false;
-            this.fetchData();
-          }
-       catch (error) {
+        this.loading = true;
+        const response = await api.post(
+          `/teamrole/update/${this.selectedItem.id}`,
+          {
+            Team_role: this.form.TeamRoleUpdate,
+          },
+        );
+        this.snackbarMessage1 = response.data.message;
+        this.snackbarColor1 = "green";
+        this.snackbar1 = true;
+        this.overlayUpdate = false;
+        this.fetchData();
+      } catch (error) {
         console.error(error);
         this.snackbarMessage1 = error.response.data;
         this.snackbarColor1 = "red";
@@ -394,7 +476,8 @@ export default {
     },
   },
   mounted() {
-    this.fetchData(); // Fetch data when the component is mounted
+    // this.fetchData(); // Fetch data when the component is mounted
+    this.teamRoles();
   },
 };
 </script>

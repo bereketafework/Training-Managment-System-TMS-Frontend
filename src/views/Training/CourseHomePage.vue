@@ -1,8 +1,7 @@
-
 <template>
   <div class="w-full">
     <!-- Overlay Section -->
-    <div class="flex flex-row ">
+    <div class="flex flex-row">
       <v-overlay
         v-model="overlay"
         persistent
@@ -13,7 +12,7 @@
             Course Registration Form
           </span>
 
-          <v-form ref="form" @submit.prevent="submit">
+          <v-form ref="form" @submit.prevent="courseCreate">
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-col !col-span-2">
                 <v-col cols="14" sm="10">
@@ -34,7 +33,7 @@
                     label="Course Description *"
                     row-height="30"
                     rows="3"
-                          variant="outlined"
+                    variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -46,7 +45,7 @@
                     label="Prerequisites"
                     row-height="20"
                     rows="2"
-                         variant="outlined"
+                    variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -58,7 +57,7 @@
                     label="Course Objectives *"
                     row-height="20"
                     rows="2"
-                      variant="outlined"
+                    variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -72,18 +71,15 @@
                     text
                     color="primary"
                     type="submit"
-                    @click="createCourse"
                   >
-                  <template v-if="loading">
-    <v-progress-circular
-      indeterminate
-      size="20"
-      color="primary"
-    ></v-progress-circular>
-  </template>
-  <template v-else>
-    Register
-  </template>
+                    <template v-if="loading">
+                      <v-progress-circular
+                        indeterminate
+                        size="20"
+                        color="primary"
+                      ></v-progress-circular>
+                    </template>
+                    <template v-else> Register </template>
                   </v-btn>
                 </v-card-actions>
               </v-row>
@@ -101,7 +97,7 @@
             Course Data Update Form
           </span>
 
-          <v-form ref="form" @submit.prevent="submit">
+          <v-form ref="form" @submit.prevent="courseUpdate">
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-col !col-span-2">
                 <v-col cols="14" sm="10">
@@ -122,7 +118,7 @@
                     label="Course Description *"
                     row-height="30"
                     rows="3"
-                       variant="outlined"
+                    variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -133,7 +129,7 @@
                     label="Prerequisites     "
                     row-height="20"
                     rows="2"
-      variant="outlined"
+                    variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -144,7 +140,7 @@
                     label="Course Objectives  *"
                     row-height="20"
                     rows="2"
-                        variant="outlined"
+                    variant="outlined"
                     auto-grow
                   >
                   </v-textarea>
@@ -153,17 +149,15 @@
                   <v-btn text @click="gobackUpdate">Back</v-btn>
                   <v-btn text @click="resetForm">Clear</v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn text color="primary" type="submit" @click="editItem">
+                  <v-btn text color="primary" type="submit">
                     <template v-if="loading">
-    <v-progress-circular
-      indeterminate
-      size="20"
-      color="primary"
-    ></v-progress-circular>
-  </template>
-  <template v-else>
-    Update
-  </template>
+                      <v-progress-circular
+                        indeterminate
+                        size="20"
+                        color="primary"
+                      ></v-progress-circular>
+                    </template>
+                    <template v-else> Update </template>
                   </v-btn>
                 </v-card-actions>
               </v-row>
@@ -176,17 +170,17 @@
       <div>
         <v-data-table
           :headers="headers"
-          :items="items"
+          :items="CourseList"
           :search="searchQuery"
           density="compact"
         >
           <template v-slot:top>
             <v-toolbar flat>
               <v-btn
-              color="blue"
-              prepend-icon="mdi-plus"
-              size="large"
-              variant="elevated"
+                color="blue"
+                prepend-icon="mdi-plus"
+                size="large"
+                variant="elevated"
                 @click="toggleOverlay"
               >
                 Create</v-btn
@@ -208,7 +202,6 @@
                 single-line
                 clearable
               ></v-text-field>
-              
             </v-toolbar>
           </template>
           <template v-slot:item.actions="{ item }">
@@ -242,19 +235,16 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-        <v-btn color="red" text @click="deleteItem">
+        <v-btn color="red" text @click="courseDelete">
           <template v-if="loading">
-    <v-progress-circular
-      indeterminate
-      size="20"
-      color="primary"
-    ></v-progress-circular>
-  </template>
-  <template v-else>
-    Delete
-  </template>
-  </v-btn
-        >
+            <v-progress-circular
+              indeterminate
+              size="20"
+              color="primary"
+            ></v-progress-circular>
+          </template>
+          <template v-else> Delete </template>
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -265,7 +255,9 @@
 </template>
 <script>
 import api from "@/service/api";
+import { useCourseStore } from "@/stores/courseStore";
 import { jwtDecode } from "jwt-decode";
+import { mapActions } from "pinia";
 export default {
   data: () => ({
     headers: [
@@ -303,6 +295,7 @@ export default {
       Objectives: [(val) => !!val || "This field is required"],
     },
     courses: [],
+    CourseList: [],
     menuItems: [{ title: "Edit" }, { title: "Delete" }],
     location: "end",
     page: 1,
@@ -313,71 +306,138 @@ export default {
     formIsValid() {
       return this.form.Title && this.form.Description && this.form.Objectives;
     },
-    pageCount() {
-      return Math.ceil(this.filteredCourses.length / this.itemsPerPage);
-    },
-    filteredCourses() {
-      const start = (this.page - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.filtered.slice(start, end);
-    },
-    filtered() {
-      return this.courses.filter((course) => {
-        return (
-          (!this.filterForm.Title ||
-            course.Title.includes(this.filterForm.Title)) &&
-          (!this.filterForm.Description ||
-            course.Description.includes(this.filterForm.Description)) &&
-          (course.Title.includes(this.searchQuery) ||
-            course.Description.includes(this.searchQuery))
-        );
-      });
-    },
   },
   methods: {
-    async createCourse() {
-      try {
-        const token = localStorage.getItem("token"); 
-
-        if (token) {
-          try {
-            this.loading = true;
-            const decodedToken = jwtDecode(token);
-
-            const userId = decodedToken.id;
-
-            const response = await api.post("/course/create", {
-              Course_title: this.form.Title,
-              Course_description: this.form.Description,
-              Course_objective: this.form.Objectives,
-              Prerequests: this.form.Prerequisites,
-            });
-
-            this.snackbarMessage1 = "Successfully Created ";
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-            this.overlay = null;
-            this.fetchData();
-          } catch (error) {
-            console.error("Error decoding token:", error);
-            this.snackbarMessage1 = error.response.data;
-            this.snackbarColor1 = "red";
-            this.snackbar1 = true;
-          }
-        } else {
-          this.snackbarMessage1 = error.response.data;
+    ...mapActions(useCourseStore, [
+      "allCourse",
+      "createCourse",
+      "updateCourse",
+      "deleteCourse",
+      "detailsCourse",
+    ]),
+    courseDetails() {
+      this.detailsCourse(this.selectedItem.id)
+        .then(() => {})
+        .catch((err) => {});
+    },
+    courseDelete() {
+      this.deleteCourse(this.selectedItem.id)
+        .then((res) => {
+          this.snackbarMessage1 = "Course has Been Deleted Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = err.response.data.error || "Error";
           this.snackbarColor1 = "red";
           this.snackbar1 = true;
-        }
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
+        })
+        .finally(() => {
+          this.course();
+          this.deleteDialog = false;
+        });
     },
+    courseUpdate() {
+      this.updateCourse([
+        this.selectedItem.id,
+        this.form.TitleUpdate,
+        this.form.PrerequisitesUpdate,
+        this.form.DescriptionUpdate,
+        this.form.ObjectivesUpdate,
+      ])
+        .then((res) => {
+          this.snackbarMessage1 = "Course has Been Updated Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          this.course();
+          this.overlayUpdate = false;
+          this.resetForm();
+        });
+    },
+    courseCreate() {
+      this.createCourse([
+        this.form.Title,
+        this.form.Prerequests,
+        this.form.Description,
+        this.form.Objectives,
+      ])
+        .then((res) => {
+          this.snackbarMessage1 = "Course has Been Created Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          this.course();
+          this.overlay = false;
+          this.resetForm();
+        });
+    },
+    course() {
+      this.allCourse()
+        .then((res) => {
+          this.CourseList = res.data;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        });
+    },
+    // async createCourse() {
+    //   try {
+    //     const token = localStorage.getItem("token");
+
+    //     if (token) {
+    //       try {
+    //         this.loading = true;
+    //         const decodedToken = jwtDecode(token);
+
+    //         const userId = decodedToken.id;
+
+    //         const response = await api.post("/course/create", {
+    //           Course_title: this.form.Title,
+    //           Course_description: this.form.Description,
+    //           Course_objective: this.form.Objectives,
+    //           Prerequests: this.form.Prerequisites,
+    //         });
+
+    //         this.snackbarMessage1 = "Successfully Created ";
+    //         this.snackbarColor1 = "green";
+    //         this.snackbar1 = true;
+    //         this.overlay = null;
+    //         this.fetchData();
+    //       } catch (error) {
+    //         console.error("Error decoding token:", error);
+    //         this.snackbarMessage1 = error.response.data;
+    //         this.snackbarColor1 = "red";
+    //         this.snackbar1 = true;
+    //       }
+    //     } else {
+    //       this.snackbarMessage1 = error.response.data;
+    //       this.snackbarColor1 = "red";
+    //       this.snackbar1 = true;
+    //     }
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //   } finally {
+    //     this.loading = false;
+    //   }
+    // },
     async fetchData() {
       try {
         const response = await api.get("/course/all");
@@ -461,7 +521,6 @@ export default {
 
     resetForm() {
       this.$refs.form.reset();
-      this.editIndex = null;
     },
     submit() {
       if (this.selectedIndex === -1) {
@@ -475,9 +534,7 @@ export default {
       this.resetForm();
     },
     toggleOverlay() {
-      this.overlay = !this.overlay;
-      this.resetForm();
-      this.selectedIndex = -1;
+      this.overlay = true;
     },
 
     goBack() {
@@ -488,7 +545,8 @@ export default {
     },
   },
   mounted() {
-    this.fetchData(); 
+    // this.fetchData();
+    this.course();
   },
 };
 </script>

@@ -6,15 +6,15 @@
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >Resource Registration Form</span
           >
-          <v-form ref="form" @submit.prevent="createRole" v-model="formValid">
+          <v-form ref="form" @submit.prevent="resourceCreate" v-model="formValid">
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-row">
                 <v-col cols="8" sm="4">
                   <v-text-field
-                    v-model="form.Category"
+                    v-model="form.Name"
                     :rules="rules.required"
                     color="black darken-2"
-                    label="Role *"
+                    label="Name *"
                     variant="outlined"
                     required
                   ></v-text-field>
@@ -28,7 +28,7 @@
                     item-title="Name"
                     item-value="id"
                     variant="outlined"
-                    v-model="SelectedCourseId"
+                    v-model="SelectedCategoryId"
                     :rules="rules.required"
                   ></v-select>
                 </v-col>
@@ -61,7 +61,7 @@
 
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="resourceList"
         :search="searchQuery"
         density="compact"
         sticky
@@ -121,7 +121,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="deleteItem">Delete</v-btn>
+          <v-btn color="red" text @click="resourceDelete">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -134,15 +134,16 @@
         <span class="flex justify-center border-b-[1px] text-3xl p-4"
           >Resource Update Form</span
         >
-        <v-form ref="form" @submit.prevent="editItem" v-model="formValid">
+        <v-form ref="form" @submit.prevent="resourceUpdate" v-model="formValid">
           <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
             <v-row class="!flex !flex-row">
               <v-col cols="8" sm="4">
                 <v-text-field
-                  v-model="form.CategoryUpdate"
+                  v-model="form.NameUpdate"
                   :rules="rules.required"
                   color="black darken-2"
                   label="Name"
+                   variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -154,8 +155,8 @@
                   :items="Courses"
                   item-title="Name"
                   item-value="id"
-                  variant="solo-filled"
-                  v-model="SelectedCourseIdupdate"
+                   variant="outlined"
+                  v-model="SelectedCategoryIdUpdate"
                   :rules="rules.required"
                 ></v-select>
               </v-col>
@@ -169,7 +170,7 @@
                 text
                 color="primary"
                 type="submit"
-                @click="editItem"
+
               >
                 <v-progress-circular
                   v-if="loading"
@@ -193,6 +194,8 @@ import { jwtDecode } from "jwt-decode";
 
 import api from "@/service/api";
 import router from "@/router";
+import { mapActions } from 'pinia';
+import { useResourceStore } from "@/stores/resourceStore";
 export default {
   data() {
     return {
@@ -220,21 +223,94 @@ export default {
       selectedItem: null,
       formValid: false,
       Courses: [],
-      SelectedCourseId: null,
-      SelectedCourseIdupdate: null,
+      SelectedCategoryId: null,
+     SelectedCategoryIdUpdate: null,
       form: {
-        Category: "",
-        CategoryUpdate: "",
+        Name: "",
+        NameUpdate: "",
       },
       rules: {
         required: [(v) => !!v || "This field is required."],
       },
       items: [],
+      resourceList:[],
       // Data fetched from the API
     };
   },
 
   methods: {
+    ...mapActions(useResourceStore,(["allResource","createResource","updateResource","deleteResource","detailResource"])),
+    resourceDetail(){
+      this.detailResource(this.selectedItem.id)
+      .then((res)=>{})
+      .catch((err)=>{})
+    },
+    resourceDelete(){
+this.deleteResource(this.selectedItem.id)
+.then((res)=>{
+this.snackbarMessage1="Resource has Been Deleted Succesfully!"
+this.snackbarColor1="green"
+this.snackbar1=true
+})
+.catch((err)=>{
+this.snackbarMessage1=err.response.data.error||"Error"
+this.snackbarColor1="red"
+this.snackbar1=true
+})
+.finally(()=>{
+  this.deleteDialog=false
+  this.resources()
+})
+    },
+    resourceUpdate(){
+      this.updateResource([this.selectedItem.id,this.form.NameUpdate,this.SelectedCategoryIdUpdate])
+      .then((res)=>{
+        
+this.snackbarMessage1="Resource has Been Updated Succesfully!"
+this.snackbarColor1="green"
+this.snackbar1=true
+      })
+      .catch((err)=>{
+        
+this.snackbarMessage1=err.response.data.error||"Error"
+this.snackbarColor1="red"
+this.snackbar1=true
+      })
+      .finally(()=>{
+  this.overlayUpdate=false
+  this.resetForm()
+  this.resources()
+})
+    },
+    resourceCreate(){
+      this.createResource([this.form.Name,this.SelectedCategoryId])
+      .then((res)=>{
+this.snackbarMessage1="User has Been Created Succesfully!"
+this.snackbarColor1="green"
+this.snackbar1=true
+      })
+      .catch((err)=>{
+        
+this.snackbarMessage1=err.response.data.error||"Error"
+this.snackbarColor1="red"
+this.snackbar1=true
+      })
+      .finally(()=>{
+  this.overlay=false
+  this.resetForm()
+  this.resources()
+})
+    },
+    resources (){
+      this.allResource()
+      .then((res)=>{
+        this.resourceList = res.data
+      })
+      .catch((err)=>{
+        console.error(err)
+      })
+
+    },
     gobackUpdate() {
       this.overlayUpdate = false;
     },
@@ -311,7 +387,8 @@ export default {
     },
     resetForm() {
       this.form = {
-        Role: "",
+        Name: "",
+        NameUpdate:""
       };
       this.$refs.form.reset();
       this.editIndex = null;
@@ -336,8 +413,8 @@ export default {
     selectItem(item) {
       this.overlayUpdate = true;
       this.selectedItem = item;
-      this.form.CategoryUpdate = item.Name;
-      this.SelectedCourseIdupdate = item.Category_id;
+      this.form.NameUpdate = item.Name;
+      this.SelectedCategoryIdUpdate = item.Category_id;
     },
 
     async editItem() {
@@ -396,8 +473,10 @@ export default {
     },
   },
   mounted() {
-    this.fetchData(); // Fetch data when the component is mounted
+    // this.fetchData(); // Fetch data when the component is mounted
     this.courseData();
+    this.resources();
+
   },
 };
 </script>
