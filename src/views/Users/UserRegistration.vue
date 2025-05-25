@@ -313,6 +313,8 @@ export default {
 
   data() {
     return {
+      snackbar1:false,
+      snackbarColor1:"",
       overlay: false,
       overlayUpdate: false,
       selectedItem: null,
@@ -347,7 +349,6 @@ export default {
           (v) => v.length >= 8 || "Password must be at least 8 characters.",
         ],
       },
-      items: [],
       allUsersList:[],
       headers: [
         { title: "First Name", value: "First_name" },
@@ -512,63 +513,13 @@ this.allUsers().then((res)=>{
       this.form.companyUpdate = item.Company;
 
     },
-    async editItem() {
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/user/update/${this.selectedItem.id}`,
-          {
-            First_name: this.form.first_nameUpdate,
-            Middle_name: this.form.middle_nameUpdate,
-            Last_name: this.form.last_nameUpdate,
-            Email: this.form.emailUpdate,
-            Phone: this.form.phoneUpdate,
-          },
-        );
-        this.snackbarMessage1 = "User has been Updated successfully!";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlayUpdate = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
+    
 
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
     },
-    async deleteItem() {
-      if (!this.confirmDelete) return;
-
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/user/delete/${this.selectedItem.id}`,
-          {},
-        );
-        this.snackbarMessage1 = "User Deleted successfully!";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-
-        this.deleteDialog = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-        this.deleteDialog = false;
-      } finally {
-        this.loading = false;
-      }
-    },
+   
 
     toggleForm() {
       this.overlay = !this.overlay;
@@ -582,47 +533,10 @@ this.allUsers().then((res)=>{
     resetForm() {
       this.$refs.form.reset();
     },
-    // async createUser() {
-    //   try {
-    //     const response = await api.post("/user/create", {
-    //       First_name: this.form.first_name,
-    //       Middle_name: this.form.middle_name,
-    //       Last_name: this.form.last_name,
-    //       Email: this.form.email,
-    //       Phone: this.form.phone,
-    //       Username: this.form.username,
-    //       Password: this.form.password,
-    //       Company: this.form.company
-    //     });
-    //     this.snackbarMessage1 = "User has been Created Successfully! ";
-    //     this.snackbarColor1 = "green";
-    //     this.snackbar1 = true;
-    //     this.overlay = null;
-    //     this.resetForm();
-    //     this.overlay = false;
-    //   } catch (error) {
-    //     console.error(error);
-    //     this.snackbarMessage1 = error.response.data;
-    //     this.snackbarColor1 = "red";
-    //     this.snackbar1 = true;
-    //     this.loading = false;
-    //   } finally {
-    //     this.loading = false;
-    //     this.fetchData();
-    //   }
-    // },
-    async fetchData() {
-      try {
-        const response = await api.get("/user/all");
-        this.items = response.data;
-      } catch (error) {
-        console.error(error);
-      }
-    },
+    
 
   },
   mounted() {
-    // this.fetchData();
     this.users()
 
   },

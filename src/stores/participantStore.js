@@ -27,7 +27,7 @@ export const useParticipantStore = defineStore("participant", {
     createParticipant([FirstName, MiddleName, LastName, Email, Phone, Gender]) {
       return api
         .post("/participant/create", {
-          Firts_name: FirstName,
+          First_name: FirstName,
           Middle_name: MiddleName,
           Last_name: LastName,
           Email: Email,
@@ -39,6 +39,7 @@ export const useParticipantStore = defineStore("participant", {
         })
         .catch((err) => {
           console.log("Error:", err);
+          return Promise.reject(err);
         });
     },
 

@@ -65,7 +65,6 @@ export default {
 
         .then((response) => {
           this.certificateData = response.data;
-          console.log(this.certificateData);
           return response.data;
           
         })

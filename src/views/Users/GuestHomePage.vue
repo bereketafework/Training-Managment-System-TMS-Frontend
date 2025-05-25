@@ -1,6 +1,6 @@
 <template>
   <div class="w-full">
-    <div class="flex flex-row ">
+    <div class="flex flex-row">
       <!-- Button to toggle overlay -->
       <!-- <v-btn color="blue" icon="mdi-plus" size="large" variant="text" @click="toggleForm"></v-btn> -->
 
@@ -42,7 +42,7 @@
                   :rules="rules.required"
                   color="black darken-2"
                   label="Middle Name *"
-                    variant="outlined"
+                  variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -52,7 +52,7 @@
                   :rules="rules.required"
                   color="black darken-2"
                   label="Last Name *"
-                    variant="outlined"
+                  variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -61,7 +61,7 @@
                   v-model="form.qualification"
                   color="black darken-2"
                   label="Qualification"
-                    variant="outlined"
+                  variant="outlined"
                 ></v-text-field>
               </v-col>
               <v-col cols="8" sm="4">
@@ -71,7 +71,7 @@
                   color="black darken-2"
                   label="Phone *"
                   type="number"
-                    variant="outlined"
+                  variant="outlined"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -110,7 +110,7 @@
                   :rules="rules.required"
                   color="black darken-2"
                   label="First Name"
-                    variant="outlined"
+                  variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -120,7 +120,7 @@
                   :rules="rules.required"
                   color="black darken-2"
                   label="Middle Name"
-                    variant="outlined"
+                  variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -130,7 +130,7 @@
                   :rules="rules.required"
                   color="black darken-2"
                   label="Last Name"
-                    variant="outlined"
+                  variant="outlined"
                   required
                 ></v-text-field>
               </v-col>
@@ -139,7 +139,7 @@
                   v-model="form.qualificationUpdate"
                   color="black darken-2"
                   label="Qualification"
-                    variant="outlined"
+                  variant="outlined"
                 ></v-text-field>
               </v-col>
               <v-col cols="8" sm="4">
@@ -147,7 +147,7 @@
                   v-model="form.phoneUpdate"
                   :rules="[rules.required, rules.numeric]"
                   color="black darken-2"
-                    variant="outlined"
+                  variant="outlined"
                   label="Phone *"
                   type="number"
                 ></v-text-field>
@@ -172,8 +172,6 @@
     </v-overlay>
 
     <div>
-
-
       <v-data-table
         :headers="headers"
         :items="Guests"
@@ -206,7 +204,6 @@
               single-line
               clearable
             ></v-text-field>
-            
           </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
@@ -252,18 +249,12 @@ import { useGuestStore } from "@/stores/guestStore";
 import { mapActions } from "pinia";
 export default {
   data: () => ({
+    selectedItem: "",
+    snackbar1: false,
+    snackbarColor1: "",
     overlay: false,
     overlayUpdate: false,
-    snackbar: false,
-    snackbarMessage: "",
-    snackbarError: false,
-    snackbarMessageError: "",
     deleteDialog: false,
-    filterDialog: false,
-    deleteIndex: null,
-    editIndex: null,
-    currentPage: 1,
-    itemsPerPage: 5,
     searchQuery: "",
     formValid: false,
     form: {
@@ -278,9 +269,6 @@ export default {
       qualificationUpdate: "",
       phoneUpdate: "",
     },
-    filter: {
-      qualification: "",
-    },
     rules: {
       required: [(v) => !!v || "This field is required."],
       email: [(v) => /.+@.+\..+/.test(v) || "Must be a valid email."],
@@ -294,11 +282,7 @@ export default {
       { title: "Phone", value: "Phone" },
       { title: "Actions", value: "actions", sortable: false },
     ],
-    items: [],
-    Guests:[],
-    Courses: [],
-    SelectedCourseId: null,
-    SelectedCourseIdupdate: null,
+    Guests: [],
   }),
   computed: {
     phoneRules() {
@@ -306,115 +290,107 @@ export default {
         if (!v) return "This field is required";
         if (!/^\d+$/.test(v)) return "Only numeric values allowed";
         if (!v.startsWith("09")) return "Phone number must start with '09...'";
-        if ( v.length < 10|| v.length > 10) return "Phone number must be 10 digits long";
+        if (v.length < 10 || v.length > 10)
+          return "Phone number must be 10 digits long";
         return true;
       };
     },
-   
   },
   mounted() {
-    // this.fetchData(); // Fetch data when the component is mounted
-    this.courseData();
-    this.guests()
+    this.guests();
   },
   methods: {
-...mapActions(useGuestStore,["allGuest","createGuest","updateGuest","deleteGuest"]),
-guestDelete(){
-this.deleteGuest(this.selectedItem.id)
-.then((res)=>{
-this.snackbarMessage1="Guest Deleted Succesfully!"
-this.snackbarColor1="green"
-this.snackbar1=true
-}).catch((err)=>{
- this.snackbarMessage1="Error Deleting "
-this.snackbarColor1="red"
-this.snackbar1=true
-}).finally(()=>{
-this.deleteDialog=false 
-this.guests()
-})
-},
-guestUpdate(){
-this.updateGuest([this.selectedItem.id,this.form.first_nameUpdate,this.form.middle_nameUpdate,this.form.last_nameUpdate,this.form.qualificationUpdate,this.form.phoneUpdate])
- .then((res)=>{
-this.snackbarMessage1="Guest Data Updated Succesfully!",res
-this.snackbarColor1="green"
-this.snackbar1=true
-  })
-  .catch((err)=>{
-    this.snackbarMessage1="Error Updating "
-this.snackbarColor1="red"
-this.snackbar1=true
-    console.error(err)
-  })
-  .finally(()=>{
-    this.overlayUpdate=false
-    this.guests()
-     this.resetForm() 
-  })
-},
-guestCreate(){
-  this.createGuest([this.form.first_name,this.form.middle_name,this.form.last_name,this.form.qualification,this.form.phone])
-  .then((res)=>{
-this.snackbarMessage1="Guest Created Succesfully!",res
-this.snackbarColor1="green"
-this.snackbar1=true
-  })
-  .catch((err)=>{
-    this.snackbarMessage1=err.response.data.error||"Error Creating Guest "
-this.snackbarColor1="red"
-this.snackbar1=true
-    console.error("Error",err)
-  })
-  .finally(()=>{
-   this.overlay=false
-    this.guests()
-     this.resetForm() 
-  })
-},
-  guests(){
-    this.allGuest()
-    .then((res)=>{
-      this.Guests= res.data
- })
-    .catch((err)=>{
-this.snackbarMessage1=err.response.data
-this.snackbarColor1="green"
-this.snackbar1=true
-      console.log("Error:",err)
-    })
-  },
-
-
-
+    ...mapActions(useGuestStore, [
+      "allGuest",
+      "createGuest",
+      "updateGuest",
+      "deleteGuest",
+    ]),
+    guestDelete() {
+      this.deleteGuest(this.selectedItem.id)
+        .then((res) => {
+          this.snackbarMessage1 = "Guest Deleted Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = "Error Deleting ";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          this.deleteDialog = false;
+          this.guests();
+        });
+    },
+    guestUpdate() {
+      this.updateGuest([
+        this.selectedItem.id,
+        this.form.first_nameUpdate,
+        this.form.middle_nameUpdate,
+        this.form.last_nameUpdate,
+        this.form.qualificationUpdate,
+        this.form.phoneUpdate,
+      ])
+        .then((res) => {
+          (this.snackbarMessage1 = "Guest Data Updated Succesfully!"), res;
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = "Error Updating ";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+          console.error(err);
+        })
+        .finally(() => {
+          this.overlayUpdate = false;
+          this.guests();
+          this.resetForm();
+        });
+    },
+    guestCreate() {
+      this.createGuest([
+        this.form.first_name,
+        this.form.middle_name,
+        this.form.last_name,
+        this.form.qualification,
+        this.form.phone,
+      ])
+        .then((res) => {
+          (this.snackbarMessage1 = "Guest Created Succesfully!"), res;
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 =
+            err.response.data.error || "Error Creating Guest ";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+          console.error("Error", err);
+        })
+        .finally(() => {
+          this.overlay = false;
+          this.guests();
+          this.resetForm();
+        });
+    },
+    guests() {
+      this.allGuest()
+        .then((res) => {
+          this.Guests = res.data;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = err.response.data;
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+          console.log("Error:", err);
+        });
+    },
 
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
-    },
-    async deleteItem() {
-      if (!this.confirmDelete) return;
-
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/guest/delete/${this.selectedItem.id}`,
-          {},
-        );
-        this.snackbarMessage1 = "Guest Deleted successfully!";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-
-        this.deleteDialog = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
     },
 
     selectItem(item) {
@@ -428,86 +404,6 @@ this.snackbar1=true
       this.form.phoneUpdate = item.Phone;
     },
 
-    async editItem() {
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/guest/update/${this.selectedItem.id}`,
-          {
-            First_name: this.form.first_nameUpdate,
-            Middle_name: this.form.middle_nameUpdate,
-            Last_name: this.form.last_nameUpdate,
-            Email: this.form.emailUpdate,
-            Phone: this.form.phoneUpdate,
-          },
-        );
-        this.snackbarMessage1 =  "Guest has been Updated successfully!",
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlayUpdate = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    // async createGuest() {
-    //   try {
-    //     this.loading = true;
-    //     const response = await api.post("/guest/create", {
-    //       First_name: this.form.first_name,
-    //       Middle_name: this.form.middle_name,
-    //       Last_name: this.form.last_name,
-    //       Qualification: this.form.qualification,
-    //       Phone: this.form.phone,
-    //     });
-
-    //     this.snackbarMessage1 = " Guest has been  Created Successfully! ";
-    //     this.snackbarColor1 = "green";
-    //     this.snackbar1 = true;
-    //     this.overlay = null;
-    //     this.fetchData();
-    //   } catch (error) {
-    //     console.error(error);
-    //     this.snackbarMessage1 = error.response.data || error.response.message;
-    //     this.snackbarColor1 = "red";
-    //     this.snackbar1 = true;
-    //     this.loading = false;
-    //   } finally {
-    //     this.loading = false;
-    //   }
-    // },
-
-    async fetchData() {
-      try {
-        const response = await api.get("/guest/all");
-        this.items = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
-    async courseData() {
-      try {
-        const response = await api.get("/session/all");
-
-        this.Courses = response.data;
-        console.log(this.SelectedCourseId);
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
-
     toggleForm() {
       this.overlay = !this.overlay;
     },
@@ -519,32 +415,6 @@ this.snackbar1=true
     },
     resetForm() {
       this.$refs.form.reset();
-    },
-    // submit() {
-    //   if (this.editIndex !== null) {
-    //     // Update participant
-    //     this.participants.splice(this.editIndex, 1, { ...this.form });
-    //     this.snackbarMessage = "Participant updated successfully!";
-    //   } else {
-    //     // Add new participant
-    //     this.participants.push({ ...this.form });
-    //     this.snackbarMessage = "Participant registered successfully!";
-    //   }
-    //   this.snackbar = true;
-    //   this.overlay = false;
-    //   this.editIndex = null;
-    //   this.resetForm();
-    // },
-    toggleFilterDialog() {
-      this.filterDialog = !this.filterDialog;
-    },
-    clearFilters() {
-      this.filter = {
-        qualification: "",
-      };
-    },
-    applyFilter() {
-      this.filterDialog = false;
     },
   },
 };

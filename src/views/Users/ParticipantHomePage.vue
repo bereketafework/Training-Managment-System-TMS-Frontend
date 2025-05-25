@@ -1,13 +1,17 @@
 <template>
   <div class="w-full">
-    <div class="flex flex-row ">
+    <div class="flex flex-row">
       <!-- Overlay with Form -->
-      <v-overlay v-model="overlay" class="!flex !justify-center items-center" :persistent="true">
+      <v-overlay
+        v-model="overlay"
+        class="!flex !justify-center items-center"
+        :persistent="true"
+      >
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >Participant Registration Form</span
           >
-         
+
           <v-form
             ref="form"
             @submit.prevent="participantCreate"
@@ -48,7 +52,7 @@
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.email"
-                       :rules="[emailRule]"
+                    :rules="[emailRule]"
                     color="black darken-2"
                     label="Email *"
                     type="email"
@@ -58,22 +62,21 @@
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.phone"
-                     :rules="[numericRule]"
+                    :rules="[numericRule]"
                     color="black darken-2"
                     label="Phone *"
                     variant="outlined"
-                   type="number"
+                    type="number"
                   ></v-text-field>
                 </v-col>
-             
+
                 <v-col cols="8" sm="4">
                   <v-select
-                    label="Training Mode *"
+                    label="Gender *"
                     :items="['Male', 'Female']"
-           variant="outlined"
+                    variant="outlined"
                     v-model="form.Gender"
                     :rules="rules.required"
-                    
                   ></v-select>
                 </v-col>
               </v-row>
@@ -92,7 +95,6 @@
                     v-if="loading"
                     indeterminate
                     size="20"
-                
                   ></v-progress-circular>
                   Register</v-btn
                 >
@@ -110,7 +112,11 @@
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >Participant Update Form</span
           >
-          <v-form ref="form" @submit.prevent="participantUpdate" v-model="formValid">
+          <v-form
+            ref="form"
+            @submit.prevent="participantUpdate"
+            v-model="formValid"
+          >
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-row">
                 <v-col cols="8" sm="4">
@@ -160,17 +166,15 @@
                     color="black darken-2"
                     label="Phone *"
                     variant="outlined"
-                 
                   ></v-text-field>
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-select
                     label="Training Mode *"
                     :items="['Male', 'Female']"
-           variant="outlined"
+                    variant="outlined"
                     v-model="form.GenderUpdate"
                     :rules="rules.required"
-                    
                   ></v-select>
                 </v-col>
               </v-row>
@@ -178,13 +182,7 @@
                 <v-btn text @click="goBackUpdate">Back</v-btn>
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn
-                  
-                  text
-                  color="primary"
-                  type="submit"
-                 variant="outlined"
-                >
+                <v-btn text color="primary" type="submit" variant="outlined">
                   <v-progress-circular
                     v-if="loading"
                     indeterminate
@@ -202,8 +200,6 @@
     <!-- Participants List -->
 
     <div>
-
-
       <v-data-table
         :headers="headers"
         :items="allParticipants"
@@ -213,7 +209,7 @@
         <template v-slot:top>
           <v-toolbar flat>
             <v-btn
-            color="blue"
+              color="blue"
               prepend-icon="mdi-plus"
               size="large"
               variant="elevated"
@@ -236,7 +232,6 @@
               single-line
               clearable
             ></v-text-field>
-           
           </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
@@ -258,56 +253,59 @@
         </template></v-data-table
       >
     </div>
-<div> 
-  <v-overlay v-model="overlayenroll" class="!flex !justify-center items-center">
-          <v-card flat class="bg-slate-300">
-            <span class="flex justify-center border-b-[1px] text-3xl">
-              Enrollment
-            </span>
+    <div>
+      <v-overlay
+        v-model="overlayenroll"
+        class="!flex !justify-center items-center"
+      >
+        <v-card flat class="bg-slate-300">
+          <span class="flex justify-center border-b-[1px] text-3xl">
+            Enrollment
+          </span>
 
-            <v-form ref="form" @submit.prevent="createEnrollment" class="m-3">
-              <v-container
-                fluid
-                class="border-[1px] border-gray-200 !flex !w-[800px] !rounded-lg"
-              >
-                <v-row>
-                  <v-col cols="20" sm="10">
-                    <v-select
-                      class="w-[700px]"
-                      clearable
-                      chips
-                      label="Select Training"
-                      :items="ParticipantList"
-                      item-title="Training_name"
-                      item-value="id"
-                      variant="outlined"
-                      v-model="SelectedParticipantId"
-                      :rules="rules.required"
-                      multiple
-                    ></v-select>
-                  </v-col>
+          <v-form ref="form" @submit.prevent="createEnrollment" class="m-3">
+            <v-container
+              fluid
+              class="border-[1px] border-gray-200 !flex !w-[800px] !rounded-lg"
+            >
+              <v-row>
+                <v-col cols="20" sm="10">
+                  <v-select
+                    class="w-[700px]"
+                    clearable
+                    chips
+                    label="Select Training"
+                    :items="ParticipantList"
+                    item-title="Training_name"
+                    item-value="id"
+                    variant="outlined"
+                    v-model="SelectedParticipantId"
+                    :rules="rules.required"
+                    multiple
+                  ></v-select>
+                </v-col>
 
-                  <v-card-actions class="flex justify-between !w-[700px]">
-                    <div>
-                      <v-btn text @click="goBack">Back</v-btn>
-                      <v-btn text @click="resetForm">Clear</v-btn>
-                    </div>
+                <v-card-actions class="flex justify-between !w-[700px]">
+                  <div>
+                    <v-btn text @click="goBack">Back</v-btn>
+                    <v-btn text @click="resetForm">Clear</v-btn>
+                  </div>
 
-                    <v-btn text color="primary" type="submit"variant="outlined">
-                      <v-progress-circular
-                        v-if="loading"
-                        indeterminate
-                        size="20"
-                      ></v-progress-circular>
-                      Enroll
-                    </v-btn>
-                  </v-card-actions>
-                </v-row>
-              </v-container>
-            </v-form>
-          </v-card>
-        </v-overlay>
-</div>
+                  <v-btn text color="primary" type="submit" variant="outlined">
+                    <v-progress-circular
+                      v-if="loading"
+                      indeterminate
+                      size="20"
+                    ></v-progress-circular>
+                    Enroll
+                  </v-btn>
+                </v-card-actions>
+              </v-row>
+            </v-container>
+          </v-form>
+        </v-card>
+      </v-overlay>
+    </div>
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="500px">
       <v-card>
@@ -336,20 +334,14 @@ export default {
   data: () => ({
     loading: false,
     overlay: false,
-    overlayenroll:false,
+    overlayenroll: false,
     overlayUpdate: false,
     selectedItem: null,
-    SelectedParticipantId:[],
+    SelectedParticipantId: [],
     snackbar1: false,
     snackbarMessage1: "",
-    snackbarError1: false,
-    snackbarMessageError1: "",
+    snackbarColor1: false,
     deleteDialog: false,
-    filterDialog: false,
-    deleteIndex: null,
-    editIndex: null,
-    currentPage: 1,
-    itemsPerPage: 5,
     searchQuery: "",
     // formValid: false,
     items: [],
@@ -376,16 +368,9 @@ export default {
       phoneUpdate: "",
       GenderUpdate: "",
     },
-    filter: {
-      first_name: "",
-      last_name: "",
-      email: "",
-      phone: "",
-    },
+
     rules: {
       required: [(v) => !!v || "This field is required."],
-      email: [(v) => /.+@.+\..+/.test(v) || "Must be a valid email."],
-      numeric: [(v) => !isNaN(parseFloat(v)) || "Must be a valid number."],
     },
     allParticipants: [],
   }),
@@ -401,96 +386,118 @@ export default {
       );
     },
 
-    emailRule(){
+    emailRule() {
       return (v) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(v) || "Must be a valid email.";
       };
-
     },
     phoneRules() {
       return (v) => {
         if (!v) return "This field is required";
         if (!/^\d+$/.test(v)) return "Only numeric values allowed";
         if (!v.startsWith("09")) return "Phone number must start with '09...'";
-        if ( v.length < 10|| v.length > 10) return "Phone number must be 10 digits long";
+        if (v.length < 10 || v.length > 10)
+          return "Phone number must be 10 digits long";
         return true;
       };
     },
-   
   },
   mounted() {
-    // this.fetchData();
-    this.participants() // Fetch data when the component is mounted
-  
-// this.fetchParticipant()  
- },
+    this.participants();
+  },
   methods: {
-    ...mapActions(useParticipantStore,(["allParticipant","updateParticipant","createParticipant","deleteParticipant","searchParticipant"])),
-    participantDetails(){
-this.searchParticipant(this.selectedItem.id)
-.then((res)=>{
-
-})
-  .catch((err)=>{})  },
-participantDelete(){
-this.deleteParticipant(this.selectedItem.id)
-.then((res)=>{
-this.snackbarMessage1="Participant has Been Deleted Succesfully!",res
-this.snackbarColor1="green"
-this.snackbar1=true
-}).catch((err)=>{
- this.snackbarMessage1="Error Deleting "
-this.snackbarColor1="red"
-this.snackbar1=true
-}).finally(()=>{
-  this.deleteDialog=false
-  this.participants()
-})
-},
-
-participantCreate(){
-  this.createParticipant(this.form.first_name,this.form.middle_name,this.form.last_name,this.form.email,this.form.phone,this.form.Gender)
-  .then((res)=>{
-this.snackbarMessage1="Participant has Been Created Succesfully!",res
-this.snackbarColor1="green"
-this.snackbar1=true
-  }).catch((err)=>{
- this.snackbarMessage1="Error Creating "
-this.snackbarColor1="red"
-this.snackbar1=true
-  }).finally(()=>{
-  this.overlay=false
-  this.participants()
-})
-},
-
-
-    participantUpdate(){
-this.updateParticipant([this.selectedItem.id,this.form.first_nameUpdate,this.form.middle_nameUpdate,this.form.last_nameUpdate,this.form.emailUpdate,this.form.phoneUpdate,this.form.GenderUpdate])
-.then((res)=>{
-this.snackbarMessage1="Participant Data Updated Succesfully!",res
-this.snackbarColor1="green"
-this.snackbar1=true
-}).catch((err)=>{
-   this.snackbarMessage1="Error Updating "
-this.snackbarColor1="red"
-this.snackbar1=true
-    console.error(err)
-}).finally(()=>{
-  this.overlayUpdate=false
-  this.participants()
-})
+    ...mapActions(useParticipantStore, [
+      "allParticipant",
+      "updateParticipant",
+      "createParticipant",
+      "deleteParticipant",
+      "searchParticipant",
+    ]),
+    participantDetails() {
+      this.searchParticipant(this.selectedItem.id)
+        .then((res) => {})
+        .catch((err) => {});
     },
-    participants(){
-  this.allParticipant()
-  .then((res)=>{
-    this.allParticipants= res.data
-  })
-  .catch((err)=>{})
+    participantDelete() {
+      this.deleteParticipant(this.selectedItem.id)
+        .then((res) => {
+          (this.snackbarMessage1 = "Participant has Been Deleted Succesfully!"),
+            res;
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = "Error Deleting ";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          this.deleteDialog = false;
+          this.participants();
+        });
     },
 
+    participantCreate() {
+      this.createParticipant([
+        this.form.first_name,
+        this.form.middle_name,
+        this.form.last_name,
+        this.form.email,
+        this.form.phone,
+        this.form.Gender,
+     ] )
+        .then((res) => {
+          (this.snackbarMessage1 = "Participant has Been Created Succesfully!"),
+            res;
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = "Error Creating ";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          this.overlay = false;
+          this.participants();
+        });
+    },
 
+    participantUpdate() {
+      this.updateParticipant([
+        this.selectedItem.id,
+        this.form.first_nameUpdate,
+        this.form.middle_nameUpdate,
+        this.form.last_nameUpdate,
+        this.form.emailUpdate,
+        this.form.phoneUpdate,
+        this.form.GenderUpdate,
+      ])
+        .then((res) => {
+          (this.snackbarMessage1 = "Participant Data Updated Succesfully!"),
+            res;
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = "Error Updating ";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+          console.error(err);
+        })
+        .finally(() => {
+          this.overlayUpdate = false;
+          this.participants();
+        });
+    },
+    participants() {
+      this.allParticipant()
+        .then((res) => {
+          this.allParticipants = res.data;
+        })
+        .catch((err) => {});
+    },
 
     confirmenroll(item) {
       this.overlayenroll = true;
@@ -500,7 +507,7 @@ this.snackbar1=true
       try {
         this.loading = true;
 
-   const Participant_id=this.selectedItem.id
+        const Participant_id = this.selectedItem.id;
         const Training_id = this.SelectedParticipantId;
         for (const Training_id of this.SelectedParticipantId) {
           const response = await api.post("/enrollment/create", {
@@ -521,37 +528,12 @@ this.snackbar1=true
         this.loading = false;
       } finally {
         this.loading = false;
-        
       }
     },
 
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
-    },
-    async deleteItem() {
-      if (!this.confirmDelete) return;
-
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/participant/delete/${this.selectedItem.id}`,
-          {},
-        );
-        this.snackbarMessage1 = "participant has been Deleted successfully!";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-
-        this.deleteDialog = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
     },
 
     selectItem(item) {
@@ -563,88 +545,6 @@ this.snackbar1=true
       this.form.emailUpdate = item.Email;
       this.form.phoneUpdate = item.Phone;
     },
-
-    async editItem() {
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/participant/update/${this.selectedItem.id}`,
-          {
-            First_name: this.form.first_nameUpdate,
-            Middle_name: this.form.middle_nameUpdate,
-            Last_name: this.form.last_nameUpdate,
-            Email: this.form.emailUpdate,
-            Phone: this.form.phoneUpdate,
-            Gender: this.form.GenderUpdate,
-          },
-        );
-        this.snackbarMessage1 ="Participant has been Updated successfully!";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlayUpdate = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async createParticipant() {
-      try {
-        this.loading = true;
-        const response = await api.post("/participant/create", {
-          First_name: this.form.first_name,
-          Middle_name: this.form.middle_name,
-          Last_name: this.form.last_name,
-          Email: this.form.email,
-          Phone: this.form.phone,
-          Gender: this.form.Gender,
-        });
-
-        this.snackbarMessage1 = "Participant has been Created successfully!";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlay = null;
-        this.fetchData();
-        this.resetForm();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data || error.response.message;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-        this.loading = false;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async fetchData() {
-      try {
-        const response = await api.get("/participant/allparticipant");
-        this.items = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
-    async fetchParticipant() {
-      try {
-        const response = await api.get("/training/all");
-        this.ParticipantList = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
-
     toggleForm() {
       this.overlay = !this.overlay;
     },

@@ -223,8 +223,6 @@
         >
       </div>
     </div>
-
-    <v-pagination v-model:page="page" :length="pageCount"></v-pagination>
   </div>
   <!-- Delete Confirmation Dialog -->
   <v-dialog v-model="deleteDialog" max-width="500px">
@@ -248,15 +246,12 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-  <cards />
   <v-snackbar v-model="snackbar1" :color="snackbarColor1">
     {{ snackbarMessage1 }}
   </v-snackbar>
 </template>
 <script>
-import api from "@/service/api";
 import { useCourseStore } from "@/stores/courseStore";
-import { jwtDecode } from "jwt-decode";
 import { mapActions } from "pinia";
 export default {
   data: () => ({
@@ -266,13 +261,13 @@ export default {
       { title: "Course Objective", value: "Course_objective" },
       { title: "Actions", value: "actions", sortable: false },
     ],
-    items: [],
+    CourseList: [],
     selectedItem: null,
     overlayUpdate: false,
     loading: false,
     overlay: false,
-    filterDialog: false,
     snackbar1: false,
+    snackbarColor1: "",
     deleteDialog: false,
     form: {
       Title: "",
@@ -284,23 +279,12 @@ export default {
       PrerequisitesUpdate: "",
       ObjectivesUpdate: "",
     },
-    filterForm: {
-      Title: "",
-      Description: "",
-    },
     searchQuery: "",
     rules: {
       Title: [(val) => !!val || "This field is required"],
       Description: [(val) => !!val || "This field is required"],
       Objectives: [(val) => !!val || "This field is required"],
     },
-    courses: [],
-    CourseList: [],
-    menuItems: [{ title: "Edit" }, { title: "Delete" }],
-    location: "end",
-    page: 1,
-    itemsPerPage: 5,
-    selectedIndex: -1,
   }),
   computed: {
     formIsValid() {
@@ -364,7 +348,7 @@ export default {
     courseCreate() {
       this.createCourse([
         this.form.Title,
-        this.form.Prerequests,
+        this.form.Prerequestes,
         this.form.Description,
         this.form.Objectives,
       ])
@@ -395,61 +379,6 @@ export default {
           this.snackbar1 = true;
         });
     },
-    // async createCourse() {
-    //   try {
-    //     const token = localStorage.getItem("token");
-
-    //     if (token) {
-    //       try {
-    //         this.loading = true;
-    //         const decodedToken = jwtDecode(token);
-
-    //         const userId = decodedToken.id;
-
-    //         const response = await api.post("/course/create", {
-    //           Course_title: this.form.Title,
-    //           Course_description: this.form.Description,
-    //           Course_objective: this.form.Objectives,
-    //           Prerequests: this.form.Prerequisites,
-    //         });
-
-    //         this.snackbarMessage1 = "Successfully Created ";
-    //         this.snackbarColor1 = "green";
-    //         this.snackbar1 = true;
-    //         this.overlay = null;
-    //         this.fetchData();
-    //       } catch (error) {
-    //         console.error("Error decoding token:", error);
-    //         this.snackbarMessage1 = error.response.data;
-    //         this.snackbarColor1 = "red";
-    //         this.snackbar1 = true;
-    //       }
-    //     } else {
-    //       this.snackbarMessage1 = error.response.data;
-    //       this.snackbarColor1 = "red";
-    //       this.snackbar1 = true;
-    //     }
-    //   } catch (error) {
-    //     console.error(error);
-    //     this.snackbarMessage1 = error.response.data;
-    //     this.snackbarColor1 = "red";
-    //     this.snackbar1 = true;
-    //   } finally {
-    //     this.loading = false;
-    //   }
-    // },
-    async fetchData() {
-      try {
-        const response = await api.get("/course/all");
-
-        this.items = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
 
     selectItem(item) {
       this.overlayUpdate = true;
@@ -459,84 +388,16 @@ export default {
       this.form.PrerequisitesUpdate = item.Prerequests;
       this.form.ObjectivesUpdate = item.Course_objective;
     },
-
-    async editItem() {
-      try {
-        this.loading = true;
-
-        const response = await api.post(
-          `/Course/update/${this.selectedItem.id}`,
-          {
-            Course_title: this.form.TitleUpdate,
-            Prerequests: this.form.PrerequisitesUpdate,
-            Course_description: this.form.DescriptionUpdate,
-            Course_objective: this.form.ObjectivesUpdate,
-          },
-        );
-
-        this.snackbarMessage1 = response.data.message;
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-
-        this.overlayUpdate = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
-
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
     },
-
-    async deleteItem() {
-      try {
-        this.loading = true;
-
-        const response = await api.post(
-          `/course/delete/${this.selectedItem.id}`,
-          {},
-        );
-
-        this.snackbarMessage1 = response.data;
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.deleteDialog = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
-
     resetForm() {
       this.$refs.form.reset();
-    },
-    submit() {
-      if (this.selectedIndex === -1) {
-        this.courses.push({ ...this.form });
-      } else {
-        this.courses.splice(this.selectedIndex, 1, { ...this.form });
-        this.selectedIndex = -1;
-      }
-      this.snackbar = true;
-      this.overlay = false;
-      this.resetForm();
     },
     toggleOverlay() {
       this.overlay = true;
     },
-
     goBack() {
       this.overlay = false;
     },
@@ -545,7 +406,6 @@ export default {
     },
   },
   mounted() {
-    // this.fetchData();
     this.course();
   },
 };

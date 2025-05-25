@@ -161,13 +161,7 @@
         </v-form>
       </v-card>
     </v-overlay>
-    <!-- Filter Dialog -->
-    <v-dialog
-      v-model="filterDialog"
-      max-width="500px"
-      class="!flex !justify-center !items-center"
-    >
-    </v-dialog>
+
     <v-snackbar v-model="snackbar1" :color="snackbarColor1">
       {{ snackbarMessage1 }}
     </v-snackbar>
@@ -188,22 +182,12 @@ export default {
         { title: "Actions", value: "actions", sortable: false },
       ],
       loading: false,
-
       overlayUpdate: false,
       snackbarMessage1: "",
       snackbarColor1: "",
       snackbar1: false,
       overlay: false,
-      snackbar: false,
-      snackbarMessage: "",
-      snackbarError: false,
-      snackbarMessageError: "",
       deleteDialog: false,
-      filterDialog: false,
-      deleteIndex: null,
-      editIndex: null,
-      currentPage: 1,
-      itemsPerPage: 10,
       searchQuery: "",
       selectedItem: null,
       formValid: false,
@@ -214,8 +198,6 @@ export default {
       rules: {
         required: [(v) => !!v || "This field is required."],
       },
-
-      items: [], // Data fetched from the API
       TeamRoleList: [],
     };
   },
@@ -232,10 +214,6 @@ export default {
         );
       }
       return results;
-    },
-    paginatedTraining() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      return this.filteredTraining.slice(start, start + this.itemsPerPage);
     },
   },
   methods: {
@@ -324,56 +302,7 @@ export default {
       this.overlay = false;
       this.resetForm();
     },
-    async fetchData() {
-      try {
-        const response = await api.get("/teamrole/allteamroles");
 
-        this.items = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
-
-    async createRole() {
-      try {
-        const token = localStorage.getItem("token"); // Adjust if your token is stored elsewhere
-
-        if (token) {
-          try {
-            this.loading = true;
-
-            const response = await api.post("/teamrole/create", {
-              Team_role: this.form.TeamRole,
-            });
-
-            this.snackbarMessage1 = "Successfully Created  ";
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-            this.overlay = null;
-            this.fetchData();
-          } catch (error) {
-            console.error("Error decoding token:", error);
-            this.snackbarMessage1 = error.response.data;
-            this.snackbarColor1 = "red";
-            this.snackbar1 = true;
-          }
-        } else {
-          this.snackbarMessage1 = error.response.data;
-          this.snackbarColor1 = "red";
-          this.snackbar1 = true;
-        }
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
     toggleForm() {
       this.overlay = !this.overlay;
     },
@@ -384,99 +313,19 @@ export default {
       this.$refs.form.reset();
       this.editIndex = null;
     },
-    submit() {
-      if (!this.form.TeamRole) {
-        this.snackbarError = true;
-        this.snackbarMessageError = "Role is required.";
-        return;
-      }
-      if (this.editIndex !== null) {
-        Object.assign(this.items[this.editIndex], this.form);
-        this.snackbarMessage = "Training updated successfully!";
-      } else {
-        this.items.push({ ...this.form });
-        this.snackbarMessage = "Training added successfully!";
-      }
-      this.snackbar = true;
-      this.resetForm();
-      this.overlay = false;
-    },
+
     selectItem(item) {
       this.overlayUpdate = true;
       this.selectedItem = item;
       this.form.TeamRoleUpdate = item.Team_role;
     },
 
-    async editItem() {
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/teamrole/update/${this.selectedItem.id}`,
-          {
-            Team_role: this.form.TeamRoleUpdate,
-          },
-        );
-        this.snackbarMessage1 = response.data.message;
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlayUpdate = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
     },
-    async deleteItem() {
-      if (!this.confirmDelete) return;
-      try {
-        const token = localStorage.getItem("token"); // Adjust if your token is stored elsewhere
-
-        if (token) {
-          try {
-            this.loading = true;
-            const decodedToken = jwtDecode(token);
-
-            const userId = decodedToken.id;
-
-            const response = await api.post(
-              `/teamrole/delete/${this.selectedItem.id}`,
-              {},
-            );
-
-            this.snackbarMessage1 = "Role Deleted successfully!";
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-
-            this.deleteDialog = false;
-            this.fetchData();
-          } catch (error) {
-            console.error("Error decoding token:", error);
-          }
-        } else {
-          this.snackbarMessage1 = error.request.responseText;
-          this.snackbarColor1 = "red";
-          this.snackbar1 = true;
-        }
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
   },
   mounted() {
-    // this.fetchData(); // Fetch data when the component is mounted
     this.teamRoles();
   },
 };

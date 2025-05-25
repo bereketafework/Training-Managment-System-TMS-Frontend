@@ -26,7 +26,7 @@ const router = createRouter({
           component: () => import("../views/Training/TrainingNav.vue"),
           children: [
             {
-              path: "/training",
+              path: "",
               name: "TrainingNav",
               component: () => import("@/views/Training/NewTrainingUi.vue"),
             },

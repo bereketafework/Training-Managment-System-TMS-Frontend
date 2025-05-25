@@ -182,7 +182,6 @@
 </template>
 <script>
 import { jwtDecode } from "jwt-decode";
-import dayjs from "dayjs";
 import api from "@/service/api";
 import MiniCard from "@/components/MiniCard.vue";
 import { mapActions } from "pinia";
@@ -202,15 +201,7 @@ export default {
       snackbarColor1: "",
       snackbar1: false,
       overlay: false,
-      snackbar: false,
-      snackbarMessage: "",
-      snackbarError: false,
-      snackbarMessageError: "",
       deleteDialog: false,
-      filterDialog: false,
-      deleteIndex: null,
-      editIndex: null,
-      currentPage: 1,
       itemsPerPage: this.calculateItemsPerPage(),
       searchQuery: "",
       selectedItem: null,
@@ -219,15 +210,9 @@ export default {
         Role: "",
         RoleUpdate: "",
       },
-      filter: {
-        Role: "",
-      },
       rules: {
         required: [(v) => !!v || "This field is required."],
       },
-      training: [],
-
-      items: [], // Data fetched from the API
       userRoleList: [],
     };
   },
@@ -247,18 +232,6 @@ export default {
         );
       }
       return results;
-    },
-    paginatedTraining() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      return this.filteredTraining.slice(start, start + this.itemsPerPage);
-    },
-    paginatedItems() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.items.slice(start, end);
-    },
-    pageCount() {
-      return Math.ceil(this.items.length / this.itemsPerPage);
     },
   },
   methods: {
@@ -343,60 +316,7 @@ export default {
       this.overlay = false;
       this.overlayUpdate = false;
     },
-    async fetchData() {
-      try {
-        const response = await api.get("/userrole/all");
-
-        this.items = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
-
-    async createRole() {
-      try {
-        const token = localStorage.getItem("token"); // Adjust if your token is stored elsewhere
-
-        if (token) {
-          try {
-            this.loading = true;
-            const decodedToken = jwtDecode(token);
-
-            const userId = decodedToken.id;
-
-            const response = await api.post("/userrole/create", {
-              User_id: userId,
-              Role: this.form.Role,
-            });
-
-            this.snackbarMessage1 = "Role has been created successfully!";
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-            this.overlay = null;
-            this.fetchData();
-          } catch (error) {
-            console.error("Error decoding token:", error);
-            this.snackbarMessage1 = error.response.data;
-            this.snackbarColor1 = "red";
-            this.snackbar1 = true;
-          }
-        } else {
-          this.snackbarMessage1 = error.response.data;
-          this.snackbarColor1 = "red";
-          this.snackbar1 = true;
-        }
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
+   
     toggleForm() {
       this.overlay = !this.overlay;
     },
@@ -405,7 +325,6 @@ export default {
         Role: "",
       };
       this.$refs.form.reset();
-      this.editIndex = null;
     },
 
     selectItem(item) {
@@ -415,74 +334,13 @@ export default {
       console.log(this.selectedItem.id);
     },
 
-    async editItem() {
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/userrole/update/${this.selectedItem.id}`,
-          {
-            Role: this.form.RoleUpdate,
-          },
-        );
-        this.snackbarMessage1 = "Role has been Updated successfully!";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlayUpdate = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
+   
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
       console.log(this.selectedItem.id);
     },
-    async deleteItem() {
-      if (!this.confirmDelete) return;
-      try {
-        const token = localStorage.getItem("token"); // Adjust if your token is stored elsewhere
-
-        if (token) {
-          try {
-            this.loading = true;
-            const decodedToken = jwtDecode(token);
-
-            const userId = decodedToken.id;
-
-            const response = await api.post(
-              `/userrole/delete/${this.selectedItem.id}`,
-              {},
-            );
-
-            this.snackbarMessage1 = "Role Deleted successfully!";
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-
-            this.deleteDialog = false;
-            this.fetchData();
-          } catch (error) {
-            console.error("Error decoding token:", error);
-          }
-        } else {
-          this.snackbarMessage1 = error.request.responseText;
-          this.snackbarColor1 = "red";
-          this.snackbar1 = true;
-        }
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
+   
     showDeleteDialog(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
@@ -500,7 +358,6 @@ export default {
     },
   },
   mounted() {
-    // this.fetchData(); // Fetch data when the component is mounted
     this.userRoles();
     window.addEventListener("resize", this.handleResize);
   },

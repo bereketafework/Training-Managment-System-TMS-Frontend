@@ -146,22 +146,19 @@
       </template>
     </v-data-table>
   </div>
-  <div>     <v-snackbar v-model="snackbar1" :color="snackbarColor1">
+  <div>
+    <v-snackbar v-model="snackbar1" :color="snackbarColor1">
       {{ snackbarMessage1 }}
-    </v-snackbar></div>
+    </v-snackbar>
+  </div>
 </template>
 
 <script>
-import api from "@/service/api.js";
 import { mapActions } from "pinia";
 import PrimaryButton from "../../components/PrimaryButton.vue";
 import { useTrainingStore } from "@/stores/TrainingStore";
-import {useCertificateStore} from"@/stores/certificateStore";
-import { h } from "vue";
-import { all } from "axios";
+import { useCertificateStore } from "@/stores/certificateStore";
 import router from "@/router";
-// const ListTraining = useTrainingStore();
-// console.log(ListTraining);
 export default {
   data() {
     return {
@@ -175,11 +172,13 @@ export default {
       CertificateList: [],
       certificate: false,
       loading: false,
+      snackbar1: false,
+      snackbarColor1: "",
       Title: "",
       Description: "",
       IssueDate: "",
       ExpireDate: "",
-
+      searchQuery: "",
       selectedParticipant: {},
       overlay: false,
       trainingList: [],
@@ -190,13 +189,14 @@ export default {
     PrimaryButton,
   },
   computed: {
-   required(){
-    return (v) => !!v || "This field is required";
-   },
-   issueDateRules() {
+    required() {
+      return (v) => !!v || "This field is required";
+    },
+    issueDateRules() {
       return [
         (v) => !!v || "Issue Date is required",
-        (v) => new Date(v) <= new Date() || "Issue Date must be today or earlier",
+        (v) =>
+          new Date(v) <= new Date() || "Issue Date must be today or earlier",
       ];
     },
     expireDateRules() {
@@ -207,87 +207,59 @@ export default {
           "Expire Date must be after Issue Date",
       ];
     },
-
   },
   methods: {
-    ...mapActions(useCertificateStore,(["Certificates","createCertificate"])),
-    certificateCreate(){
-      console.warn(this.selectedTrainingId)
-      this.createCertificate([this.selectedTrainingId,this.Title,this.Description,this.IssueDate,this.ExpireDate])
-      .then((res)=>{
-        this.snackbarMessage1="Certificate has Been Created Succesfully!"
-this.snackbarColor1="green"
-this.snackbar1=true
-      }).catch((err)=>{
-        this.snackbarMessage1=err.response.data.error||"Error"
-this.snackbarColor1="red"
-this.snackbar1=true
-      }).finally(()=>{
-  this.overlay=false
-  this.allcerteficates()
-})
+    ...mapActions(useCertificateStore, ["Certificates", "createCertificate"]),
+    certificateCreate() {
+      console.warn(this.selectedTrainingId);
+      this.createCertificate([
+        this.selectedTrainingId,
+        this.Title,
+        this.Description,
+        this.IssueDate,
+        this.ExpireDate,
+      ])
+        .then((res) => {
+          this.snackbarMessage1 = "Certificate has Been Created Succesfully!";
+          this.snackbarColor1 = "green";
+          this.snackbar1 = true;
+        })
+        .catch((err) => {
+          this.snackbarMessage1 = err.response.data.error || "Error";
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        })
+        .finally(() => {
+          this.overlay = false;
+          this.allcerteficates();
+        });
     },
 
-
-     allcerteficates(){
-    this.Certificates().then((res)=>{
-      this.CertificateList = res.data;
-    }).catch((err)=>{
-    console.error("Error:",err)
-    })
+    allcerteficates() {
+      this.Certificates()
+        .then((res) => {
+          this.CertificateList = res.data;
+        })
+        .catch((err) => {
+          console.error("Error:", err);
+        });
     },
-
-
 
     certeficateView(item) {
       this.selectedParticipant = item;
-     router.push({ name: "CertificateView", params: { id: item.id } });
+      router.push({ name: "CertificateView", params: { id: item.id } });
     },
-    // Certificates() {
-    //   return api
-    //     .get("/certificate/all")
-    //     .then((response) => {
-    //       this.allCertificate = response.data;
 
-    //       return Promise.resolve(response)
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //       return Promise.reject(error)
-    //     });
-    // },
     resetForm() {
       this.$refs.form.reset();
     },
-    // createCertificate() {
-    //   return api
-    //     .post("/certificate/create", {
-    //       Training_id: this.selectedTrainingId,
-    //       Title: this.Title,
-    //       Description: this.Description,
-    //       Issue_date: this.IssueDate,
-    //       Expire_date: this.ExpireDate,
-    //     })
-    //     .then((response) => {
-    //       this.loading = false;
-    //       this.overlay = false;
-    //       this.refresh();
-    //       this.certificate = false;
-    //       return Promise.resolve(response.data);
-    //     })
-    //     .catch((error) => {
-    //       this.loading = false;
-    //       return Promise.reject(error);
-    //     });
-    
+
     ...mapActions(useTrainingStore, ["allTraining"]),
     refresh() {
       this.allTraining()
         .then((response) => {
           this.trainingList = response.data;
-          console.log(this.trainingList);
           this.Certificates();
-
         })
         .catch((error) => {
           console.log(error);
@@ -301,7 +273,6 @@ this.snackbar1=true
         this.Description +
         this.IssueDate +
         this.ExpireDate;
-      console.log(all);
     },
     goBack() {
       this.overlay = false;
@@ -313,15 +284,10 @@ this.snackbar1=true
     handleClick() {
       this.overlay = true;
     },
-    printCertificate() {
-      window.print();
-    },
   },
   mounted() {
     this.refresh();
     this.allcerteficates();
-    // ListTraining.fetchTrainings();
   },
 };
 </script>
-
