@@ -260,6 +260,7 @@
               hide-details
               single-line
               clearable
+              
             ></v-text-field>
           
           </v-toolbar>

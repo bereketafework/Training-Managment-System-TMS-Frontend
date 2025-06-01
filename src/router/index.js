@@ -49,13 +49,13 @@ const router = createRouter({
                   component: () =>
                     import("@/views/Training/TrainingSessionHomePage.vue"),
                 },
-                {
-                  path: "TrainingCourse",
-                  name: "TrainingCourse",
+                // {
+                //   path: "TrainingCourse",
+                //   name: "TrainingCourse",
 
-                  component: () =>
-                    import("../views/Training/TrainingAddCourse.vue"),
-                },
+                //   component: () =>
+                //     import("../views/Training/TrainingAddCourse.vue"),
+                // },
 
                 // {
                 //   path: "sessions",

@@ -119,17 +119,17 @@ export const useTrainingStore = defineStore("training", {
           return Promise.reject(error);
         });
     },
-    // TrainingDetails() {
-    //   return api
-    //     .post("/training/search", { tid: this.tid })
-    //     .then((response) => {
-    //       //   this.trainings = response.data;
-    //       return Promise.resolve(response.data);
-    //     })
-    //     .catch((error) => {
-    //       return Promise.reject(error);
-    //     });
-    // },
+    TrainingDetails(selectedTrainingId) {
+      return api
+        .get(`/training/search/${selectedTrainingId}`, {})
+        .then((res) => {
+          //   this.trainings = response.data;
+          return Promise.resolve(res);
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    },
     // createCertificate(){
     //   return api.post("/certificate/create"{tid: this.trainings.id}).then((response) => {
     //     return Promise.resolve(response.data);

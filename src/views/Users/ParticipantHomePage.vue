@@ -263,7 +263,7 @@
             Enrollment
           </span>
 
-          <v-form ref="form" @submit.prevent="createEnrollment" class="m-3">
+          <v-form ref="form" @submit.prevent=" enrollParticipants" class="m-3">
             <v-container
               fluid
               class="border-[1px] border-gray-200 !flex !w-[800px] !rounded-lg"
@@ -275,11 +275,11 @@
                     clearable
                     chips
                     label="Select Training"
-                    :items="ParticipantList"
+                    :items="allTrainingList"
                     item-title="Training_name"
                     item-value="id"
                     variant="outlined"
-                    v-model="SelectedParticipantId"
+                    v-model="SelectedTrainingId"
                     :rules="rules.required"
                     multiple
                   ></v-select>
@@ -330,6 +330,8 @@
 import api from "@/service/api";
 import { useParticipantStore } from "@/stores/participantStore";
 import { mapActions } from "pinia";
+import { useEnrollmentStore } from '@/stores/enrollmentStore';
+import { useTrainingStore } from '@/stores/TrainingStore';
 export default {
   data: () => ({
     loading: false,
@@ -337,7 +339,8 @@ export default {
     overlayenroll: false,
     overlayUpdate: false,
     selectedItem: null,
-    SelectedParticipantId: [],
+    SelectedTrainingId: [],
+    allTrainingList:[],
     snackbar1: false,
     snackbarMessage1: "",
     snackbarColor1: false,
@@ -405,8 +408,11 @@ export default {
   },
   mounted() {
     this.participants();
+    this.Trainings()
   },
   methods: {
+    ...mapActions(useTrainingStore,(["allTraining"])),
+    ...mapActions(useEnrollmentStore,(["createEnrollmentForParticipant"])),
     ...mapActions(useParticipantStore, [
       "allParticipant",
       "updateParticipant",
@@ -414,6 +420,34 @@ export default {
       "deleteParticipant",
       "searchParticipant",
     ]),
+    Trainings(){
+      this.allTraining()
+      .then((res)=>{
+        this.allTrainingList=res.data
+      }).catch((err)=>{
+            this.snackbarMessage1 = err.response.data.error;
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+      })
+    },
+     enrollParticipants(){
+      this.createEnrollmentForParticipant([this.SelectedTrainingId,this.selectedItem.id])
+      .then((res)=>{
+         this.snackbarMessage1 = "Participants Successfully Enrolled  ";
+        this.snackbarColor1 = "green";
+        this.snackbar1 = true;
+      })
+      .catch((err)=>{      
+          this.snackbarMessage1 = err.response.data.error;
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+
+      }).finally(() => {
+       this.overlayenroll=false
+          this.participants();
+        });
+  
+    },
     participantDetails() {
       this.searchParticipant(this.selectedItem.id)
         .then((res) => {})
@@ -496,40 +530,43 @@ export default {
         .then((res) => {
           this.allParticipants = res.data;
         })
-        .catch((err) => {});
+        .catch((err) => { this.snackbarMessage1 = err.response.data.error || err.response.data || "Error"
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+      });
     },
 
     confirmenroll(item) {
       this.overlayenroll = true;
       this.selectedItem = item;
     },
-    async createEnrollment() {
-      try {
-        this.loading = true;
+    // async createEnrollment() {
+    //   try {
+    //     this.loading = true;
 
-        const Participant_id = this.selectedItem.id;
-        const Training_id = this.SelectedParticipantId;
-        for (const Training_id of this.SelectedParticipantId) {
-          const response = await api.post("/enrollment/create", {
-            Training_id: Training_id,
-            Participant_id: Participant_id,
-          });
-        }
-        this.snackbarMessage1 = "successfully Enrolled!";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlayenroll = false;
-        this.resetForm();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data.message;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-        this.loading = false;
-      } finally {
-        this.loading = false;
-      }
-    },
+    //     const Participant_id = this.selectedItem.id;
+    //     const Training_id = this.SelectedParticipantId;
+    //     for (const Training_id of this.SelectedParticipantId) {
+    //       const response = await api.post("/enrollment/create", {
+    //         Training_id: Training_id,
+    //         Participant_id: Participant_id,
+    //       });
+    //     }
+    //     this.snackbarMessage1 = "successfully Enrolled!";
+    //     this.snackbarColor1 = "green";
+    //     this.snackbar1 = true;
+    //     this.overlayenroll = false;
+    //     this.resetForm();
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data.message;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //     this.loading = false;
+    //   } finally {
+    //     this.loading = false;
+    //   }
+    // },
 
     confirmDelete(item) {
       this.deleteDialog = true;
