@@ -176,6 +176,7 @@ export default {
         });
     },
     async Attendance(item) {
+
       try {
         const SelectedParticipantId = item.Participant.id;
         const session = this.SelectedSessionIdForAttendance;
@@ -201,7 +202,7 @@ export default {
         this.fetchResourceAllocation();
       } catch (error) {
         console.error(error);
-        this.snackbarMessage1 = error.response.data;
+        this.snackbarMessage1 = "error";
         this.snackbarColor1 = "red";
         this.snackbar1 = true;
         this.loading = false;

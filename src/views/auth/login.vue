@@ -114,6 +114,7 @@ export default {
   },
   computed: {
     // Validates the password length.
+
     validatePassword() {
       return (v) => {
         if (v.length < 8) {
@@ -133,6 +134,7 @@ export default {
   methods: {
     // Sends a login request to the backend.
     async login() {
+      
       try {
         const response = await api.post('/user/login', {
           Username: this.username,

@@ -17,7 +17,7 @@ export const useGuestAssignStore = defineStore("GuestAssign", {
       const requests = SessionIds.map((SessionId) => {
         return api
           .post("/guestassign/assignguest", {
-            Session_id: SessionId,
+            Sessions_id: SessionId,
             Guest_id: GuestId,
             Training_id: TrainingId,
           })

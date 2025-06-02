@@ -261,14 +261,15 @@ export default {
         });
     },
     resourceAllocateForTraining() {
+  
       this.AllocateResource([
-        this.$route.params.id,
-        this.SelectedSessionIdForResource,
+         this.SelectedSessionIdForResource,
         this.SelectedResourceId,
         this.form.Quantity,
         this.form.SingleCost,
         this.form.Provider,
       ])
+   
         .then((res) => {
           this.snackbarMessage1 = "Resource Allocated Sucessfully!!";
           this.snackbarColor1 = "green";

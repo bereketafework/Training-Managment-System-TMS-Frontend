@@ -22,7 +22,7 @@ export const useTeamStore = defineStore("Team", {
 
     allAsignedTeamsForTraining(selectedTrainingId) {
       return api
-        .post(`/team/select/`, {
+        .post(`/team/select`, {
           tid: selectedTrainingId,
         })
         .then((res) => {

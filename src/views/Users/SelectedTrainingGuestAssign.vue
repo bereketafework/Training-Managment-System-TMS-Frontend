@@ -183,6 +183,7 @@ export default {
     };
   },
 
+  
   computed: {
     Search() {
       let results = this.items;
@@ -258,6 +259,7 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
+      this.listOfAssignedGuests()
           this.loading = false;
           this.resetForm();
           this.overlay = false;

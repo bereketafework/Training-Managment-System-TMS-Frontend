@@ -32,17 +32,17 @@ const router = createRouter({
             },
 
             {
-              path: ":id/",
+              path: ":id",
               name: "TrainingDetails",
               component: () => import("@/views/Training/TrainingDetails.vue"),
               children: [
-                // {
-                //   path: "details",
-                //   name: "TrainingDetailsView",
+                {
+                  path: "details",
+                  name: "TrainingDetailsView",
 
-                //   component: () =>
-                //     import("../views/Training/SelectedTrainingDetails.vue"),
-                // },
+                  component: () =>
+                    import("../views/Training/SelectedTrainingDetails.vue"),
+                },
                 {
                   path: "sessions",
                   name: "TrainingSessions",

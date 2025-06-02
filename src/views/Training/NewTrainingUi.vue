@@ -295,6 +295,8 @@
             </div>
             
             <v-card-text>
+              <div class="flex justify-between">
+                <div>
               <p class="mb-4 text-body-1"> {{ training.Courses.Course_description }} </p>
 
               <div class="d-flex align-center mb-2">
@@ -317,8 +319,30 @@
                  {{ training.Training_location }}
                 </span>
               </div>
+              </div>
+              <div> 
+<!--                 
+                <div class="relative flex justify-center items-center">
+                  <p> {{ training.Capacity  }} & {{ EnrollmentList.length  }}</p>
+           <v-progress-circular
+                  :model-value="(EnrollmentList.length / training.Capacity) * 100"
+                  color="green"
+                  size="70"
+                  width="10"
+                >
+                </v-progress-circular> 
+           <span
+                  class="absolute text-sm font-bold"
+                  style="color: var(--v-primary-base)"
+                >
+                  {{
+                    Math.round((EnrollmentList.length / training.Capacity) * 100)
+                  }}%
+                </span> 
+              </div> -->
+              </div>
               
-           
+           </div>
             </v-card-text>
           </v-card-item>
 
@@ -381,6 +405,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { useTrainingStore } from "@/stores/TrainingStore";
 import { mapActions } from "pinia";
+import { useEnrollmentStore } from '@/stores/enrollmentStore';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -389,6 +414,7 @@ dayjs.tz.setDefault("Africa/Nairobi");
 export default {
   components: { Cards },
   data: () => ({
+    EnrollmentList:[],
     rules: {
       required: [(v) => !!v || "This field is required."],   },
     formValid: false,
@@ -466,8 +492,20 @@ this.fetchedTraining();
     this.fetchData(); // Fetch data when the component is mounted
   this.fetchSession();
   this.courseData();
+      this.enrollment()
   },
   methods: {
+    ...mapActions(useEnrollmentStore,(["enrolledForTraining"])),
+enrollment(){
+      this.enrolledForTraining(this.allTrainings)
+.then((res)=>{
+
+  this.EnrollmentList= res.data
+
+}).catch((err)=>{
+
+})
+},
     validateForm() {
       return this.$refs.form.validate();
     },
@@ -783,7 +821,8 @@ this.fetchedTraining()
     async itemDetails(item) { // Add parameter here
 
     this.$router.push({ 
-      name: 'TrainingDetails', 
+      
+      name: 'TrainingDetailsView', 
       params: { id: item.id } // Now 'item' is defined
     });
   }

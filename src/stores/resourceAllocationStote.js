@@ -4,6 +4,7 @@ export const useResourceAllocationStore = defineStore("ResourceAllocation", {
   actions: {
     AllocateResource([SessionIds, ResorceId, Quantity, SingleCoast, Provider]) {
       const requests = SessionIds.map((SessionId) => {
+        console.log(SessionId);
         return api
           .post("/resourceallocation/create", {
             Session_id: SessionId,
@@ -17,6 +18,7 @@ export const useResourceAllocationStore = defineStore("ResourceAllocation", {
             console.log("Error", err);
             throw err;
           });
+        co;
       });
       return Promise.all(requests);
     },
