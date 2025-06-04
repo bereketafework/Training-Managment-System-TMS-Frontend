@@ -219,7 +219,7 @@
             <v-btn text @click="resetForm">Clear</v-btn>
             <v-spacer></v-spacer>
             <v-btn
-              :disabled="!formIsValid"
+              
               text
               color="primary"
               type="submit"
@@ -467,7 +467,14 @@ this.snackbar1=true
 })
 
     },
-    userCreate(){
+   async userCreate(){
+       const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
 this.createUser( [ this.form.first_name,
            this.form.middle_name,
            this.form.last_name,

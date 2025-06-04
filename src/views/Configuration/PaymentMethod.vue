@@ -33,7 +33,7 @@
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
-                  :disabled="!formValid || loading"
+                
                   text
                   color="primary"
                   type="submit"
@@ -192,9 +192,6 @@ export default {
         PaymentMethod: "",
         PaymentMethodupdate: "",
       },
-      filter: {
-        Role: "",
-      },
       rules: {
         required: [(v) => !!v || "This field is required."],
       },
@@ -235,7 +232,14 @@ export default {
           (this.deleteDialog = false), this.PaymentMethods();
         });
     },
-    paymentMethodUpdateInfo() {
+   async  paymentMethodUpdateInfo() {
+       const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
       this.updatepaymentmethod([
         this.selectedItem.id,
         this.form.PaymentMethodupdate,
@@ -257,7 +261,15 @@ export default {
           this.resetForm();
         });
     },
-    PaymentMethodCreate() {
+    async PaymentMethodCreate() {
+      // Vuetify 3 validate returns a promise with { valid, errors }
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
       this.createPaymentMethod(this.form.PaymentMethod)
         .then((res) => {
           this.snackbarMessage1 =

@@ -132,7 +132,7 @@ export default {
   //   }
   // },
   methods: {
-    // Sends a login request to the backend.
+    
     async login() {
       
       try {

@@ -219,7 +219,7 @@
                 </v-col>
               </v-row>
               <v-card-actions>
-                <v-btn text @click="goBack">Back</v-btn>
+                <v-btn text @click="goBackUpdate">Back</v-btn>
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
@@ -249,7 +249,7 @@
             <v-toolbar-title class=" md:flex hidden justify-center items-center !text-4xl">
               List of Trainings
             </v-toolbar-title>
-            <v-text-field
+            <!-- <v-text-field
               class="bg-transparent"
               v-model="searchQuery"
               append-inner-icon="mdi-magnify"
@@ -261,7 +261,7 @@
               single-line
               clearable
               
-            ></v-text-field>
+            ></v-text-field> -->
           
           </v-toolbar>
 
@@ -489,10 +489,7 @@ export default {
   },
   mounted() {
 this.fetchedTraining();
-    this.fetchData(); // Fetch data when the component is mounted
-  this.fetchSession();
-  this.courseData();
-      this.enrollment()
+      // this.enrollment()
   },
   methods: {
     ...mapActions(useEnrollmentStore,(["enrolledForTraining"])),
@@ -506,17 +503,15 @@ enrollment(){
 
 })
 },
-    validateForm() {
-      return this.$refs.form.validate();
+goBackUpdate() {
+      this.overlayUpdate = false;
     },
     goBack() {
       this.overlay = false;
     },
 
     resetForm() {
-  
       this.$refs.form.reset();
-      this.editIndex = null;
     },
     async courseData() {
       try {
@@ -559,71 +554,34 @@ this.selectedItem=item;
            this.form.PriceUpdate=item.Cost
            
 },
-// async  editItem() {
-//       try{  
-//         this.loading = true;
-//          const response = await api.post(`/training/update/${this.selectedItem.id}`, {
-//           Course_id: this.SelectedCourseIdUpdate,
-//           Training_name: this.form.TitleUpdate,
-//           Training_mode: this.form.ModeUpdate,
-//           Training_location: this.form.LocationUpdate,
-//           Training_start_date: this.form.StartDateUpdate,
-//           Training_end_date: this.form.EndDateUpdate,
-//           Enrolment_deadline: this.form.EnrollmentDeadlineUpdate,
-//           Capacity: this.form.CapacityUpdate,
-//           Cost: this.form.PriceUpdate,
-//          });
-          
-//           this.snackbarMessage1 =" Training Updated Successfully";
-//           this.snackbarColor1 = 'green';
-//           this.snackbar1 = true;
-//           this.overlayUpdate = false;
-//           this.fetchData();
 
-//   }catch (error) {
-//           console.error(error);
-//           this.snackbarMessage1 = error.response.data;
-//             this.snackbarColor1 = 'red';
-//             this.snackbar1 = true;
-//             this.overlayUpdate = false;
-//         }
-//         finally {
-//           this.loading = false;
-//         }},
     confirmDelete(item) {
       this.deleteDialog = true;
 this.selectedItem=item;
 
     },
-  //   async  deleteItem() {
-  //     try{  
-  //       this.loading = true;
-  //       const response = await api.post(`/training/delete/${this.selectedItem.id}`,{});
-  //           this.snackbarMessage1 = "Training Deleted Successfully";
-  //         this.snackbarColor1 = 'green';
-  //         this.snackbar1 = true;
-  //         this.deleteDialog = false;
-  //         this.fetchData();
-  // }
 
-  //        catch (error) {
-  //         console.error(error);
-  //         this.snackbarMessage1 = error.response.data;
-  //           this.snackbarColor1 = 'red';
-  //           this.snackbar1 = true;
-  //       }
-  //       finally {
-  //         this.loading = false;
-  //       }},
-       
-
-    async fetchData() {
-      try {
-        const response = await api.get("/training/all");
-        this.items = response.data;
-
-        // Iterate over each item to calculate durations
-        this.allTrainings = this.allTrainings.map((item) => {
+  
+      
+...mapActions(useTrainingStore,  ["createTraining","allTraining","updateTraining","deleteTraining","selectedTrainingDetail"]),
+trainingDetails(item) {
+    this.selectedTrainingDetail(item.id)
+      .then((response) => {
+        console.log(response)
+         this.$router.push({ 
+      name: 'TrainingDetailsView', 
+      params: { id: item.id } 
+    });
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  },
+fetchedTraining(){
+  this.allTraining()
+.then((response)=>{
+this.allTrainings= response.data
+ this.allTrainings = this.allTrainings.map((item) => {
           const startDate = dayjs(item.Training_start_date).tz("Africa/Nairobi");
           const endDate = dayjs(item.Training_end_date).tz("Africa/Nairobi");
 
@@ -635,71 +593,22 @@ this.selectedItem=item;
           return {
             ...item,
             durationInDays,
-            // durationInHours,
+        
           };
         });
-
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response?.data || "An error occurred";
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
-    async fetchSession() {
-      try {
-        const response = await api.get("/session/all");
-        this.session = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-        console.log(item.id)
-      }
-    },
-    async courseData() {
-      try {
-        const response = await api.get("/course/all");
-
-        this.Courses = response.data;
-        console.log(this.SelectedCourseId);
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
-      
-...mapActions(useTrainingStore,  ["createTraining","allTraining","updateTraining","deleteTraining","selectedTrainingDetail"]),
-trainingDetails(item) {
-    this.selectedTrainingDetail(item.id)
-      .then((response) => {
-        console.log(response)
-         this.$router.push({ 
-      name: 'TrainingDetails', 
-      params: { id: item.id } // Now 'item' is defined
-    });
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  },
-fetchedTraining(){
-  this.allTraining()
-.then((response)=>{
-this.allTrainings= response.data
-  console.log(response.data)
 })
-  .catch((error)=>{
-    console.log("Error:",error)
+  .catch((err)=>{
+    console.log("Error:",err.response.data);
+        this.snackbarMessage1 = err.response.data;
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
   })
 },
 
 trainingDelete(){
 this.deleteTraining(this.selectedItem.id)
 .then((response)=>{
+
           this.snackbarMessage1 = "Training Deleted Successfully"
       this.snackbarColor1 = "green";
       this.snackbar1 = true;
@@ -713,11 +622,12 @@ this.deleteDialog=false
 })
 },
 
-trainingCreate(){
-   if (!this.validateDates()) {
-        this.snackbarMessage1 =
-          "Please ensure all data are Correct.";
-        this.snackbar = true;
+async trainingCreate(){
+ const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
         return;
       }
      this.createTraining([
@@ -750,7 +660,14 @@ this.overlay=false
 },
 
 
-trainingUpdate(){
+async trainingUpdate(){
+   const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
      this.updateTraining([
     this.selectedItem.id,
          this.form.TitleUpdate,
@@ -782,50 +699,6 @@ this.overlayUpdate=false
 this.fetchedTraining()
     })
 },
-    // async createTraining() {
-    //   if (!this.validateDates()) {
-    //     this.snackbarMessageerror =
-    //       "Please ensure all dates are valid and End Date is at least one day after Start Date.";
-    //     this.snackbar = true;
-    //     return;
-    //   }
-    //   try {
-    //     this.loading = true;
-    //     const response = await api.post("/training/create", {
-    //       Course_id: this.SelectedCourseId,
-    //       Training_name: this.form.Title,
-    //       Training_mode: this.form.Mode,
-    //       Training_location: this.form.Location,
-    //       Training_start_date: this.form.StartDate,
-    //       Training_end_date: this.form.EndDate,
-    //       Enrolment_deadline: this.form.EnrollmentDeadline,
-    //       Capacity: this.form.Capacity,
-    //       Cost: this.form.Price,
-    //     });
-
-    //     this.snackbarMessage1 = "Tarining Successfully Created ";
-    //     this.snackbarColor1 = "green";
-    //     this.snackbar1 = true;
-    //     this.overlay = null;
-    //     this.fetchData();
-    //   } catch (error) {
-    //     console.error(error);
-    //     this.snackbarMessage1 = error.response.data;
-    //     this.snackbarColor1 = "red";
-    //     this.snackbar1 = true;
-    //     this.loading = false;
-    //   } finally {
-    //     this.loading = false;
-    //   }
-    // },
-    async itemDetails(item) { // Add parameter here
-
-    this.$router.push({ 
-      
-      name: 'TrainingDetailsView', 
-      params: { id: item.id } // Now 'item' is defined
-    });
-  }
   },
 };
 </script>

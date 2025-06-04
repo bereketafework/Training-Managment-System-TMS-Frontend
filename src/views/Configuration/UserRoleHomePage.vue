@@ -10,7 +10,7 @@
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >Role Registration Form</span
           >
-          <v-form ref="form" @submit.prevent="createRole" v-model="formValid">
+          <v-form ref="form" @submit.prevent="userRoleCreate" v-model="formValid">
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-row">
                 <v-col cols="8" sm="4">
@@ -29,17 +29,12 @@
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
-                  :disabled="!formValid || loading"
+                  :loading="loading"
                   text
                   color="primary"
-                  type="submit"
-                  @click="createRole"
+                  @click="userRoleCreate"
                 >
-                  <v-progress-circular
-                    v-if="loading"
-                    indeterminate
-                    size="20"
-                  ></v-progress-circular>
+                 
                   Register
                 </v-btn>
               </v-card-actions>
