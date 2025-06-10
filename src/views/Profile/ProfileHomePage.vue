@@ -86,7 +86,7 @@
           size="large"
           class="rounded-none !flex !justify-center !bg-gray-200 !bottom-0 !text-2xl w-full"
           variant="outlined"
-          @click="logout"
+          @click="Out"
           elevation="5"
         >
           Logout</v-btn
@@ -132,6 +132,9 @@ const Store = useCurrentUserStore();
 import api from "@/service/api";
 import { storeKey } from "vuex";
 import PrimaryButton from "@/components/PrimaryButton.vue";
+import { mapActions } from 'pinia';
+import { useLoginAuthStore } from "@/stores/loginAuthStore";
+
 
 export default {
   components: {
@@ -148,13 +151,19 @@ export default {
     Store.ProfileInfo();
   },
   methods: {
+    ...mapActions(useLoginAuthStore,(["logout"])),
+    Out(){
+      this.logout();
+    this.$router.push("/login");
+    },
+
     clearFields() {
       this.$refs.form.reset();
     },
-    logout() {
-      localStorage.removeItem("authToken");
-      this.$router.push("/login");
-    },
+    // logout() {
+    //   localStorage.removeItem("authToken");
+    //   this.$router.push("/login");
+    // },
   },
 };
 </script>

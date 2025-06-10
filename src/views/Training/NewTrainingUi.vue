@@ -321,7 +321,7 @@
               </div>
               </div>
               <div> 
-<!--                 
+                
                 <div class="relative flex justify-center items-center">
                   <p> {{ training.Capacity  }} & {{ EnrollmentList.length  }}</p>
            <v-progress-circular
@@ -339,7 +339,7 @@
                     Math.round((EnrollmentList.length / training.Capacity) * 100)
                   }}%
                 </span> 
-              </div> -->
+              </div>
               </div>
               
            </div>
@@ -489,12 +489,12 @@ export default {
   },
   mounted() {
 this.fetchedTraining();
-      // this.enrollment()
+      this.enrollment()
   },
   methods: {
     ...mapActions(useEnrollmentStore,(["enrolledForTraining"])),
 enrollment(){
-      this.enrolledForTraining(this.allTrainings)
+      this.enrolledForTraining(this.allTrainings.id)
 .then((res)=>{
 
   this.EnrollmentList= res.data

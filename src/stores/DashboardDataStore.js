@@ -1,5 +1,6 @@
 import api from "../service/api";
-import { defineStore } from "pinia";
+import { defineStore, mapActions } from "pinia";
+import { useLoginAuthStore } from "./loginAuthStore";
 
 export const useDashboardDataStore = defineStore("dashboardData", {
   state: () => ({
@@ -10,7 +11,12 @@ export const useDashboardDataStore = defineStore("dashboardData", {
     CourseData: [],
   }),
   actions: {
+    ...mapActions(useLoginAuthStore, ["verifyToken"]),
     fetchTrainingData() {
+      if (!this.verifyToken()) {
+        // If token is invalid, redirect to login and reject
+        window.location.href = "/login";
+      }
       return api
         .get("/training/all")
         .then((response) => {
@@ -23,6 +29,10 @@ export const useDashboardDataStore = defineStore("dashboardData", {
         });
     },
     fetchParticipantData() {
+      if (!this.verifyToken()) {
+        window.location.href = "/login";
+        return Promise.reject("Invalid or expired token");
+      }
       return api
         .get("/participant/allparticipant")
         .then((response) => {
@@ -34,11 +44,14 @@ export const useDashboardDataStore = defineStore("dashboardData", {
         });
     },
     fetchGuestData() {
+      if (!this.verifyToken()) {
+        window.location.href = "/login";
+        return Promise.reject("Invalid or expired token");
+      }
       return api
         .get("/guest/all")
         .then((response) => {
           this.GuestData = response.data;
-
           return Promise.resolve(response.data);
         })
         .catch((error) => {
@@ -46,11 +59,14 @@ export const useDashboardDataStore = defineStore("dashboardData", {
         });
     },
     fetchUserData() {
+      if (!this.verifyToken()) {
+        window.location.href = "/login";
+        return Promise.reject("Invalid or expired token");
+      }
       return api
         .get("/user/all")
         .then((response) => {
           this.UserData = response.data;
-
           return Promise.resolve(response.data);
         })
         .catch((error) => {
@@ -58,11 +74,14 @@ export const useDashboardDataStore = defineStore("dashboardData", {
         });
     },
     fetchCourseData() {
+      if (!this.verifyToken()) {
+        window.location.href = "/login";
+        return Promise.reject("Invalid or expired token");
+      }
       return api
         .get("/course/all")
         .then((response) => {
           this.CourseData = response.data;
-
           return Promise.resolve(response.data);
         })
         .catch((error) => {

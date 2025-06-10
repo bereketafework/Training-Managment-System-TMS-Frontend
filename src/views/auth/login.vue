@@ -72,7 +72,7 @@
         <!-- <v-text-field label="Password" v-model="password" type="password" required variant="outlined"></v-text-field> -->
       </v-card-text>
       <!-- <v-card-actions>
-<!--         
+        
         <v-btn color="White" class="w-full h-full !bg-slate-600 !text-3xl text-white" @click="login">Login</v-btn> -->
       <!-- </v-card-actions> -->
       <v-card-actions>
@@ -81,7 +81,7 @@
           size="large"
           class="rounded-none !flex !justify-center !bg-gray-200 !bottom-0 !text-2xl w-full"
           variant="outlined"
-         @click="login"
+         @click="Logins"
         
         >
           Login</v-btn
@@ -100,6 +100,8 @@
 <script>
 import axios from 'axios';
 import api from "@/service/api"
+import { useLoginAuthStore } from '@/stores/loginAuthStore';
+import { mapActions } from 'pinia';
 
 export default {
   name: 'LoginPage',
@@ -132,26 +134,43 @@ export default {
   //   }
   // },
   methods: {
-    
-    async login() {
-      
-      try {
-        const response = await api.post('/user/login', {
-          Username: this.username,
-          Password: this.password
-        });
-        // Save the token in localStorage.
-        localStorage.setItem('token', response.data.token);
-        // Navigate to the welcome page.
-        this.$router.push( "/");
-      } catch (error) {
-        console.error('Login failed:', error);
-        // alert(error.response?.data?.message || 'Login failed');
-        this.snackbar= true
-        this.snackbarText= error.response?.data.error || 'Login failed';
 
-      }
-    }
+    ...mapActions(useLoginAuthStore,(["fetchToken"])),
+Logins(){
+      this.fetchToken([
+        this.username,
+        this.password
+      ]).then((res)=>{
+        // console.log('Login successful:', res.data.token);
+        // localStorage.setItem("token",  res.data.token);
+        this.$router.push( "/");
+      })
+      .catch((err)=>{
+        this.snackbar = true;
+        console.log('Login failed:', err);
+        this.snackbarText = err|| 'Login failed';
+      })
+}
+    ,
+    // async login() {
+      
+    //   try {
+    //     const response = await api.post('/user/login', {
+    //       Username: this.username,
+    //       Password: this.password
+    //     });
+    //     // Save the token in localStorage.
+    //     localStorage.setItem('token', response.data.token);
+    //     // Navigate to the welcome page.
+    //     this.$router.push( "/");
+    //   } catch (error) {
+    //     console.error('Login failed:', error);
+    //     // alert(error.response?.data?.message || 'Login failed');
+    //     this.snackbar= true
+    //     this.snackbarText= error.response?.data.error || 'Login failed';
+
+    //   }
+    // }
   }
 };
 </script>

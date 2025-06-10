@@ -5,7 +5,7 @@
      
         <!-- <div class=" w-16 h-screen !rounded-md items-center min-h-full flex-none !pb-2 overflow-hidden"> -->
           
-            <v-list density="compact" nav class="w-16 h-full   p-2 fixed overflow-hidden flex-shrink-0 justify-items-center scroll-m-0 " v-model="drawers">
+            <v-list  density="compact" nav class="w-16 h-full   p-2 fixed overflow-hidden flex-shrink-0 justify-items-center scroll-m-0 " v-model="drawers">
 
           <v-list-item class="!flex justify-items-center " color="blue"  prepend-icon="mdi-home-city"  value="home" v-model="drawers" @click="drawers='Home' " :to="{ name: 'Dashboard' }" link  >
             <v-tooltip
@@ -51,6 +51,7 @@
           <v-list density="compact" nav class="w-16 p-2 fixed overflow-hidden flex-shrink-0 justify-items-center ">          
           </v-list>  </div> -->
           <router-view></router-view>
+          
         </div>
         <!-- </div> -->
 

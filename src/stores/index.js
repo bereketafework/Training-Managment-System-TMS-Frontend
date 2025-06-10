@@ -34,25 +34,25 @@
 //   },
 // });
 
-import { createStore } from "vuex";
+// import { createStore } from "vuex";
 
-export default createStore({
-  state: {
-    token: localStorage.getItem("token") || "",
-  },
-  mutations: {
-    CLEAR_AUTH(state) {
-      state.token = "";
-      localStorage.removeItem("token");
-    },
-  },
-  actions: {
-    logout({ commit }) {
-      commit("CLEAR_AUTH");
-      this.$router.push("/login");
-    },
-  },
-  modules: {
-    // other modules
-  },
-});
+// export default createStore({
+//   state: {
+//     token: localStorage.getItem("token") || "",
+//   },
+//   mutations: {
+//     CLEAR_AUTH(state) {
+//       state.token = "";
+//       localStorage.removeItem("token");
+//     },
+//   },
+//   actions: {
+//     logout({ commit }) {
+//       commit("CLEAR_AUTH");
+//       this.$router.push("/login");
+//     },
+//   },
+//   modules: {
+//     // other modules
+//   },
+// });
