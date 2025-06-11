@@ -259,4 +259,24 @@ const router = createRouter({
   ],
 });
 
+// Navigation guard using loginAuthStore
+router.beforeEach((to, from, next) => {
+  const loginAuthStore = useLoginAuthStore();
+
+  // Always allow access to login page
+  if (to.name === "Login") {
+    return next();
+  }
+
+  // Check token validity and update state if needed
+  const token = loginAuthStore.extractToken();
+  if (!token || !loginAuthStore.verifyToken()) {
+    // Not authenticated or token invalid/expired
+    return next({ name: "Login" });
+  }
+
+  // Authenticated, allow navigation
+  return next();
+});
+
 export default router;

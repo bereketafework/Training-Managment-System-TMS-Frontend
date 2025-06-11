@@ -7,7 +7,7 @@ import api from "@/service/api";
 
 export const useLoginAuthStore = defineStore("loginAuth", {
   state: () => ({
-    token: [],
+    token: null,
     user: null,
     isAuthenticated: false,
     tokenError: null,
@@ -35,20 +35,16 @@ export const useLoginAuthStore = defineStore("loginAuth", {
         });
     },
     extractToken() {
-      this.token = localStorage.getItem("token");
-      return this.token;
+      const token = localStorage.getItem("token");
+      this.token = token;
+      return token;
     },
-    // saveToken(token) {
-    //   this.token = token;
-    //   localStorage.setItem("token", token);
-    // },
     verifyToken() {
       try {
         const token = this.extractToken();
         if (!token) {
           this.isAuthenticated = false;
           this.tokenError = "Token missing";
-          router.push("/login");
           return false;
         }
         const decoded = jwtDecode(token);
@@ -57,19 +53,16 @@ export const useLoginAuthStore = defineStore("loginAuth", {
           this.isAuthenticated = false;
           this.tokenError = "Token expired";
           localStorage.removeItem("token");
-          router.push("/login");
           return false;
         }
         this.user = decoded;
         this.isAuthenticated = true;
         this.tokenError = null;
-        router.push("/");
         return true;
       } catch (err) {
         this.isAuthenticated = false;
         this.tokenError = "Invalid token";
         localStorage.removeItem("token");
-        router.push("/login");
         return false;
       }
     },
@@ -78,7 +71,7 @@ export const useLoginAuthStore = defineStore("loginAuth", {
       this.user = null;
       this.isAuthenticated = false;
       localStorage.removeItem("token");
-      router.push("/login");
+      // router.push("/login"); // Remove router navigation from store
     },
   },
 });
