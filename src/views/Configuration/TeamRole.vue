@@ -32,17 +32,7 @@
                 <v-btn text @click="goBack">Back</v-btn>
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn
-                  :disabled="!formValid || loading"
-                  text
-                  color="primary"
-                  type="submit"
-                >
-                  <v-progress-circular
-                    v-if="loading"
-                    indeterminate
-                    size="20"
-                  ></v-progress-circular>
+                <v-btn :loading="loading" text color="primary" type="submit">
                   Register
                 </v-btn>
               </v-card-actions>
@@ -113,13 +103,16 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="teamRoleDelete">Delete</v-btn>
+          <v-btn color="red" text @click="teamRoleDelete" :loading="loading"
+            >Delete</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
     <!-- form for apply updates -->
     <v-overlay
       v-model="overlayUpdate"
+      persistent
       class="!flex !justify-center items-center"
     >
       <v-card flat class="bg-slate-300">
@@ -148,13 +141,8 @@
               <v-btn text @click="goBackUpdate">Back</v-btn>
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
-              <v-btn text color="primary" type="submit">
-                <v-progress-circular
-                  v-if="loading"
-                  indeterminate
-                  size="20"
-                ></v-progress-circular
-                >Update</v-btn
+              <v-btn text color="primary" type="submit" :loading="loading">
+                Update</v-btn
               >
             </v-card-actions>
           </v-container>
@@ -232,6 +220,7 @@ export default {
         .finally(() => {});
     },
     teamRoleDelete() {
+      this.loading = true;
       this.deleteTeamRole(this.selectedItem.id)
         .then((res) => {
           this.snackbarMessage1 = "Team Role has Been Deleted Succesfully!";
@@ -246,9 +235,19 @@ export default {
         })
         .finally(() => {
           (this.deleteDialog = false), this.teamRoles();
+          this.loading = false;
+          this.resetForm();
         });
     },
-    teamRoleCreate() {
+    async teamRoleCreate() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.createTeamRole(this.form.TeamRole)
         .then((res) => {
           this.snackbarMessage1 = "Team Role has Been Created Succesfully!";
@@ -263,9 +262,19 @@ export default {
         })
         .finally(() => {
           (this.overlay = false), this.teamRoles();
+          this.loading = false;
+          this.resetForm();
         });
     },
-    teamRoleUpdateInfo() {
+    async teamRoleUpdateInfo() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.updateTeamRole([this.selectedItem.id, this.form.TeamRoleUpdate])
         .then((res) => {
           this.snackbarMessage1 = "Team Role has Been Updated Succesfully!";
@@ -280,6 +289,7 @@ export default {
         })
         .finally(() => {
           (this.overlayUpdate = false), this.teamRoles();
+          this.loading = false;
         });
     },
     teamRoles() {

@@ -5,7 +5,7 @@
       <v-overlay
         v-model="overlay"
         class="!flex !justify-center items-center"
-        :persistent="true"
+        persistent
       >
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
@@ -62,7 +62,7 @@
                 <v-col cols="8" sm="4">
                   <v-text-field
                     v-model="form.phone"
-                    :rules="[numericRule]"
+                    :rules="[phoneRules]"
                     color="black darken-2"
                     label="Phone *"
                     variant="outlined"
@@ -85,17 +85,12 @@
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
-                  :disabled="!formValid"
+                :loading=loading
                   text
                   color="primary"
                   type="submit"
                   variant="outlined"
                 >
-                  <v-progress-circular
-                    v-if="loading"
-                    indeterminate
-                    size="20"
-                  ></v-progress-circular>
                   Register</v-btn
                 >
               </v-card-actions>
@@ -107,6 +102,7 @@
       <v-overlay
         v-model="overlayUpdate"
         class="!flex !justify-center items-center"
+        persistent
       >
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
@@ -170,7 +166,7 @@
                 </v-col>
                 <v-col cols="8" sm="4">
                   <v-select
-                    label="Training Mode *"
+                    label="Gender *"
                     :items="['Male', 'Female']"
                     variant="outlined"
                     v-model="form.GenderUpdate"
@@ -182,13 +178,8 @@
                 <v-btn text @click="goBackUpdate">Back</v-btn>
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn text color="primary" type="submit" variant="outlined">
-                  <v-progress-circular
-                    v-if="loading"
-                    indeterminate
-                    size="20"
-                  ></v-progress-circular
-                  >Update</v-btn
+                <v-btn text color="primary" type="submit" variant="outlined"  :loading=loading>
+                Update</v-btn
                 >
               </v-card-actions>
             </v-container>
@@ -257,13 +248,14 @@
       <v-overlay
         v-model="overlayenroll"
         class="!flex !justify-center items-center"
+        persistent
       >
         <v-card flat class="bg-slate-300">
           <span class="flex justify-center border-b-[1px] text-3xl">
             Enrollment
           </span>
 
-          <v-form ref="form" @submit.prevent=" enrollParticipants" class="m-3">
+          <v-form ref="form" @submit.prevent="enrollParticipants" class="m-3">
             <v-container
               fluid
               class="border-[1px] border-gray-200 !flex !w-[800px] !rounded-lg"
@@ -274,29 +266,25 @@
                     class="w-[700px]"
                     clearable
                     chips
-                    label="Select Training"
+                    label="Select Training *"
                     :items="allTrainingList"
                     item-title="Training_name"
                     item-value="id"
                     variant="outlined"
                     v-model="SelectedTrainingId"
-                    :rules="rules.required"
+                 :rules="requiredRules"
                     multiple
                   ></v-select>
                 </v-col>
 
                 <v-card-actions class="flex justify-between !w-[700px]">
                   <div>
-                    <v-btn text @click="goBack">Back</v-btn>
+                    <v-btn text @click="goBackENROLL">Back</v-btn>
                     <v-btn text @click="resetForm">Clear</v-btn>
                   </div>
 
-                  <v-btn text color="primary" type="submit" variant="outlined">
-                    <v-progress-circular
-                      v-if="loading"
-                      indeterminate
-                      size="20"
-                    ></v-progress-circular>
+                  <v-btn text color="primary" type="submit" variant="outlined"  :loading=loading>
+
                     Enroll
                   </v-btn>
                 </v-card-actions>
@@ -315,7 +303,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="participantDelete">Delete</v-btn>
+          <v-btn color="red" text @click="participantDelete"  :loading=loading >Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -388,7 +376,13 @@ export default {
         this.form.Gender
       );
     },
-
+    requiredRules() {
+      return [
+        (v) =>
+          (Array.isArray(v) ? v.length > 0 : !!v) ||
+          "This field is required.",
+      ];
+    },
     emailRule() {
       return (v) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -399,9 +393,9 @@ export default {
       return (v) => {
         if (!v) return "This field is required";
         if (!/^\d+$/.test(v)) return "Only numeric values allowed";
-        if (!v.startsWith("09")) return "Phone number must start with '09...'";
-        if (v.length < 10 || v.length > 10)
-          return "Phone number must be 10 digits long";
+        if (!v.startsWith("9"&&"7")) return "Phone number must start with '9...'Or '7...'";
+        if (v.length < 9 || v.length > 9)
+          return "Phone number must be 9 digits long";
         return true;
       };
     },
@@ -430,7 +424,15 @@ export default {
         this.snackbar1 = true;
       })
     },
-     enrollParticipants(){
+    async enrollParticipants(){
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+     this.loading = true;
       this.createEnrollmentForParticipant([this.SelectedTrainingId,this.selectedItem.id])
       .then((res)=>{
          this.snackbarMessage1 = "Participants Successfully Enrolled  ";
@@ -443,6 +445,8 @@ export default {
         this.snackbar1 = true;
 
       }).finally(() => {
+          this.loading = false;
+          this.resetForm();
        this.overlayenroll=false
           this.participants();
         });
@@ -454,6 +458,7 @@ export default {
         .catch((err) => {});
     },
     participantDelete() {
+      this.loading = true;
       this.deleteParticipant(this.selectedItem.id)
         .then((res) => {
           (this.snackbarMessage1 = "Participant has Been Deleted Succesfully!"),
@@ -467,12 +472,22 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
+          this.loading = false;
           this.deleteDialog = false;
           this.participants();
         });
     },
 
-    participantCreate() {
+   async participantCreate() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+
+      this.loading = true;
       this.createParticipant([
         this.form.first_name,
         this.form.middle_name,
@@ -493,12 +508,22 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
+          this.loading = false;
+          this.resetForm();
           this.overlay = false;
           this.participants();
         });
     },
 
-    participantUpdate() {
+  async  participantUpdate() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.updateParticipant([
         this.selectedItem.id,
         this.form.first_nameUpdate,
@@ -521,6 +546,8 @@ export default {
           console.error(err);
         })
         .finally(() => {
+          this.loading = false;
+          this.resetForm();
           this.overlayUpdate = false;
           this.participants();
         });
@@ -584,6 +611,9 @@ export default {
     },
     toggleForm() {
       this.overlay = !this.overlay;
+    },
+    goBackENROLL() {
+      this.overlayenroll = false;
     },
     goBack() {
       this.overlay = false;

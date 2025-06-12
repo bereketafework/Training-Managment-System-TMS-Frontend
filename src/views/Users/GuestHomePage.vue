@@ -80,13 +80,8 @@
             <v-btn text @click="goBack">Back</v-btn>
             <v-btn text @click="resetForm">Clear</v-btn>
             <v-spacer></v-spacer>
-            <v-btn :disabled="!formValid" text color="primary" type="submit">
-              <v-progress-circular
-                v-if="loading"
-                indeterminate
-                size="20"
-              ></v-progress-circular
-              >Register</v-btn
+            <v-btn  text color="primary" type="submit"  :loading=loading>
+             Register</v-btn
             >
           </v-card-actions>
         </v-form>
@@ -96,6 +91,7 @@
     <v-overlay
       v-model="overlayUpdate"
       class="!flex !justify-center items-center"
+      persistent
     >
       <v-card flat class="bg-slate-300">
         <span class="flex justify-center border-b-[1px] text-3xl p-4"
@@ -145,7 +141,7 @@
               <v-col cols="8" sm="4">
                 <v-text-field
                   v-model="form.phoneUpdate"
-                  :rules="[rules.required, rules.numeric]"
+                  :rules="[phoneRules]"
                   color="black darken-2"
                   variant="outlined"
                   label="Phone *"
@@ -158,13 +154,8 @@
             <v-btn text @click="UpdateGoBack">Back</v-btn>
             <v-btn text @click="resetForm">Clear</v-btn>
             <v-spacer></v-spacer>
-            <v-btn :disabled="!formValid" text color="primary" type="submit">
-              <v-progress-circular
-                v-if="loading"
-                indeterminate
-                size="20"
-              ></v-progress-circular
-              >Update</v-btn
+            <v-btn  :loading=loading text color="primary" type="submit">
+             Update</v-btn
             >
           </v-card-actions>
         </v-form>
@@ -233,7 +224,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="guestDelete">Delete</v-btn>
+          <v-btn color="red" text @click="guestDelete"  :loading=loading>Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -249,6 +240,7 @@ import { useGuestStore } from "@/stores/guestStore";
 import { mapActions } from "pinia";
 export default {
   data: () => ({
+    loading: false,
     selectedItem: "",
     snackbar1: false,
     snackbarColor1: "",
@@ -289,9 +281,9 @@ export default {
       return (v) => {
         if (!v) return "This field is required";
         if (!/^\d+$/.test(v)) return "Only numeric values allowed";
-        if (!v.startsWith("09")) return "Phone number must start with '09...'";
-        if (v.length < 10 || v.length > 10)
-          return "Phone number must be 10 digits long";
+        if (!v.startsWith("9"&&"7")) return "Phone number must start with '9...'or '7...'";
+        if (v.length < 9 || v.length > 9)
+          return "Phone number must be 9 digits long";
         return true;
       };
     },
@@ -308,6 +300,7 @@ export default {
     ]),
     guestDelete() {
       this.deleteGuest(this.selectedItem.id)
+      this.loading = true
         .then((res) => {
           this.snackbarMessage1 = "Guest Deleted Succesfully!";
           this.snackbarColor1 = "green";
@@ -319,11 +312,20 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
+          this.loading = false;
           this.deleteDialog = false;
           this.guests();
         });
     },
-    guestUpdate() {
+   async guestUpdate() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.updateGuest([
         this.selectedItem.id,
         this.form.first_nameUpdate,
@@ -344,12 +346,21 @@ export default {
           console.error(err);
         })
         .finally(() => {
+          this.loading = false;
           this.overlayUpdate = false;
           this.guests();
           this.resetForm();
         });
     },
-    guestCreate() {
+    async guestCreate() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.createGuest([
         this.form.first_name,
         this.form.middle_name,
@@ -370,6 +381,7 @@ export default {
           console.error("Error", err);
         })
         .finally(() => {
+          this.loading = false;
           this.overlay = false;
           this.guests();
           this.resetForm();

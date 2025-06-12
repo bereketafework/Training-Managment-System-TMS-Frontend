@@ -38,16 +38,12 @@
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
-                  :disabled="!formValid || loading"
+                :loading="loading"
                   text
                   color="primary"
                   type="submit"
                 >
-                  <v-progress-circular
-                    v-if="loading"
-                    indeterminate
-                    size="20"
-                  ></v-progress-circular>
+                  
                   Register
                 </v-btn>
               </v-card-actions>
@@ -121,13 +117,14 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="resourceDelete">Delete</v-btn>
+          <v-btn color="red" text @click="resourceDelete"  :loading="loading">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <!-- form for apply updates -->
     <v-overlay
       v-model="overlayUpdate"
+      persistent
       class="!flex !justify-center items-center"
     >
       <v-card flat class="bg-slate-300">
@@ -166,18 +163,13 @@
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
               <v-btn
-                :disabled="!formValid"
+                :loading="loading"
                 text
                 color="primary"
                 type="submit"
 
               >
-                <v-progress-circular
-                  v-if="loading"
-                  indeterminate
-                  size="20"
-                ></v-progress-circular
-                >Update</v-btn
+              Update</v-btn
               >
             </v-card-actions>
           </v-container>
@@ -246,6 +238,7 @@ export default {
       .catch((err)=>{})
     },
     resourceDelete(){
+      this.loading = true;
 this.deleteResource(this.selectedItem.id)
 .then((res)=>{
 this.snackbarMessage1="Resource has Been Deleted Succesfully!"
@@ -258,11 +251,21 @@ this.snackbarColor1="red"
 this.snackbar1=true
 })
 .finally(()=>{
+  this.loading = false
+
   this.deleteDialog=false
   this.resources()
 })
     },
-    resourceUpdate(){
+  async  resourceUpdate(){
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.updateResource([this.selectedItem.id,this.form.NameUpdate,this.SelectedCategoryIdUpdate])
       .then((res)=>{
         
@@ -277,12 +280,21 @@ this.snackbarColor1="red"
 this.snackbar1=true
       })
       .finally(()=>{
+this.loading = false
   this.overlayUpdate=false
   this.resetForm()
   this.resources()
 })
     },
-    resourceCreate(){
+ async   resourceCreate(){
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.createResource([this.form.Name,this.SelectedCategoryId])
       .then((res)=>{
 this.snackbarMessage1="User has Been Created Succesfully!"
@@ -296,6 +308,7 @@ this.snackbarColor1="red"
 this.snackbar1=true
       })
       .finally(()=>{
+this.loading = false
   this.overlay=false
   this.resetForm()
   this.resources()
@@ -318,57 +331,57 @@ this.snackbar1=true
       this.overlay = false;
     },
 
-    async fetchData() {
-      try {
-        const response = await api.get("/resource/all");
+    // async fetchData() {
+    //   try {
+    //     const response = await api.get("/resource/all");
 
-        this.items = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
+    //     this.items = response.data;
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //   }
+    // },
 
-    async createRole() {
-      try {
-        const token = localStorage.getItem("token"); // Adjust if your token is stored elsewhere
+    // async createRole() {
+    //   try {
+    //     const token = localStorage.getItem("token"); // Adjust if your token is stored elsewhere
 
-        if (token) {
-          try {
-            this.loading = true;
+    //     if (token) {
+    //       try {
+    //         this.loading = true;
 
-            const response = await api.post("/resource/create", {
-              Name: this.form.Category,
-              Category_id: this.SelectedCourseId,
-            });
+    //         const response = await api.post("/resource/create", {
+    //           Name: this.form.Category,
+    //           Category_id: this.SelectedCourseId,
+    //         });
 
-            this.snackbarMessage1 = "Successfully Created  ";
-            this.snackbarColor1 = "green";
-            this.snackbar1 = true;
-            this.overlay = null;
-            this.fetchData();
-          } catch (error) {
-            console.error("Error decoding token:", error);
-            this.snackbarMessage1 = error.response.data;
-            this.snackbarColor1 = "red";
-            this.snackbar1 = true;
-          }
-        } else {
-          this.snackbarMessage1 = error.response.data;
-          this.snackbarColor1 = "red";
-          this.snackbar1 = true;
-        }
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
+    //         this.snackbarMessage1 = "Successfully Created  ";
+    //         this.snackbarColor1 = "green";
+    //         this.snackbar1 = true;
+    //         this.overlay = null;
+    //         this.fetchData();
+    //       } catch (error) {
+    //         console.error("Error decoding token:", error);
+    //         this.snackbarMessage1 = error.response.data;
+    //         this.snackbarColor1 = "red";
+    //         this.snackbar1 = true;
+    //       }
+    //     } else {
+    //       this.snackbarMessage1 = error.response.data;
+    //       this.snackbarColor1 = "red";
+    //       this.snackbar1 = true;
+    //     }
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //   } finally {
+    //     this.loading = false;
+    //   }
+    // },
     async courseData() {
       try {
         const response = await api.get("/category/all");
@@ -417,60 +430,60 @@ this.snackbar1=true
       this.SelectedCategoryIdUpdate = item.Category_id;
     },
 
-    async editItem() {
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/resource/update/${this.selectedItem.id}`,
-          {
-            Name: this.form.CategoryUpdate,
-            Category_id: this.SelectedCourseIdupdate,
-          },
-        );
-        this.snackbarMessage1 = response.data.message;
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
-        this.overlayUpdate = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
+    // async editItem() {
+    //   try {
+    //     this.loading = true;
+    //     const response = await api.post(
+    //       `/resource/update/${this.selectedItem.id}`,
+    //       {
+    //         Name: this.form.CategoryUpdate,
+    //         Category_id: this.SelectedCourseIdupdate,
+    //       },
+    //     );
+    //     this.snackbarMessage1 = response.data.message;
+    //     this.snackbarColor1 = "green";
+    //     this.snackbar1 = true;
+    //     this.overlayUpdate = false;
+    //     this.fetchData();
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //   } finally {
+    //     this.loading = false;
+    //   }
+    // },
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
       console.log(this.selectedItem.id);
     },
-    async deleteItem() {
-      if (!this.confirmDelete) return;
+    // async deleteItem() {
+    //   if (!this.confirmDelete) return;
 
-      try {
-        this.loading = true;
-        const response = await api.post(
-          `/resource/delete/${this.selectedItem.id}`,
-          {},
-        );
+    //   try {
+    //     this.loading = true;
+    //     const response = await api.post(
+    //       `/resource/delete/${this.selectedItem.id}`,
+    //       {},
+    //     );
 
-        this.snackbarMessage1 = "Role Deleted successfully!";
-        this.snackbarColor1 = "green";
-        this.snackbar1 = true;
+    //     this.snackbarMessage1 = "Role Deleted successfully!";
+    //     this.snackbarColor1 = "green";
+    //     this.snackbar1 = true;
 
-        this.deleteDialog = false;
-        this.fetchData();
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      } finally {
-        this.loading = false;
-      }
-    },
+    //     this.deleteDialog = false;
+    //     this.fetchData();
+    //   } catch (error) {
+    //     console.error(error);
+    //     this.snackbarMessage1 = error.response.data;
+    //     this.snackbarColor1 = "red";
+    //     this.snackbar1 = true;
+    //   } finally {
+    //     this.loading = false;
+    //   }
+    // },
   },
   mounted() {
     // this.fetchData(); // Fetch data when the component is mounted

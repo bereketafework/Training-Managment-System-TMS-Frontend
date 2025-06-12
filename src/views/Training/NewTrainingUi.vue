@@ -107,10 +107,9 @@
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
-                  
                   text
                   color="primary"
-                  type="submit"   >Register</v-btn
+                  type="submit" >Register</v-btn
                 >
               </v-card-actions>
             </v-container>
@@ -121,7 +120,7 @@
 
 <!-- Training Update Form -->
 <div class="flex flex-row mt-2">
-      <v-overlay v-model="overlayUpdate" class="!flex !justify-center items-center">
+      <v-overlay v-model="overlayUpdate" class="!flex !justify-center items-center"   persistent>
         <v-card flat class="bg-slate-300">
           <v-form ref="form" @submit.prevent="trainingUpdate" v-model="formValid">
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
@@ -320,7 +319,7 @@
                 </span>
               </div>
               </div>
-              <div> 
+              <!-- <div> 
                 
                 <div class="relative flex justify-center items-center">
                   <p> {{ training.Capacity  }} & {{ EnrollmentList.length  }}</p>
@@ -340,7 +339,7 @@
                   }}%
                 </span> 
               </div>
-              </div>
+              </div> -->
               
            </div>
             </v-card-text>
@@ -406,6 +405,7 @@ import timezone from "dayjs/plugin/timezone";
 import { useTrainingStore } from "@/stores/TrainingStore";
 import { mapActions } from "pinia";
 import { useEnrollmentStore } from '@/stores/enrollmentStore';
+import { useCourseStore } from '@/stores/courseStore';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -490,9 +490,23 @@ export default {
   mounted() {
 this.fetchedTraining();
       this.enrollment()
+      this.courses();
   },
   methods: {
     ...mapActions(useEnrollmentStore,(["enrolledForTraining"])),
+    ...mapActions(useCourseStore, (["allCourse"])),
+  courses() {
+      this.allCourse()
+        .then((response) => {
+          this.Courses = response.data;
+        })
+        .catch((error) => {
+          console.error(error);
+          this.snackbarMessage1 = error.response.data;
+          this.snackbarColor1 = "red";
+          this.snackbar1 = true;
+        });
+    },
 enrollment(){
       this.enrolledForTraining(this.allTrainings.id)
 .then((res)=>{
@@ -513,18 +527,6 @@ goBackUpdate() {
     resetForm() {
       this.$refs.form.reset();
     },
-    async courseData() {
-      try {
-        const response = await api.get("/course/all");
-        this.Courses = response.data;
-      } catch (error) {
-        console.error(error);
-        this.snackbarMessage1 = error.response.data;
-        this.snackbarColor1 = "red";
-        this.snackbar1 = true;
-      }
-    },
-       
     toggleForm() {
       this.overlay = !this.overlay;
     },

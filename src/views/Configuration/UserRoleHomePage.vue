@@ -10,7 +10,11 @@
           <span class="flex justify-center border-b-[1px] text-3xl p-4"
             >Role Registration Form</span
           >
-          <v-form ref="form" @submit.prevent="userRoleCreate" v-model="formValid">
+          <v-form
+            ref="form"
+            @submit.prevent="userRoleCreate"
+            v-model="formValid"
+          >
             <v-container fluid class="border-[1px] border-gray-200 !w-[900px]">
               <v-row class="!flex !flex-row">
                 <v-col cols="8" sm="4">
@@ -34,7 +38,6 @@
                   color="primary"
                   @click="userRoleCreate"
                 >
-                 
                   Register
                 </v-btn>
               </v-card-actions>
@@ -114,6 +117,7 @@
     <v-overlay
       v-model="overlayUpdate"
       class="!flex !justify-center items-center"
+      persistent
     >
       <v-card flat class="bg-slate-300">
         <span class="flex justify-center border-b-[1px] text-3xl p-4"
@@ -137,13 +141,8 @@
               <v-btn text @click="goBack">Back</v-btn>
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
-              <v-btn text color="primary" type="submit">
-                <v-progress-circular
-                  v-if="loading"
-                  indeterminate
-                  size="20"
-                ></v-progress-circular
-                >Update</v-btn
+              <v-btn text color="primary" type="submit" :loading="loading">
+                Update</v-btn
               >
             </v-card-actions>
           </v-container>
@@ -176,7 +175,6 @@
   </div>
 </template>
 <script>
-
 import MiniCard from "@/components/MiniCard.vue";
 import { mapActions } from "pinia";
 import { useUserRoleStore } from "@/stores/userRoleStore";
@@ -242,6 +240,7 @@ export default {
         .catch((err) => {});
     },
     userRoleDelete() {
+      this.loading = true;
       this.deleteUserRole(this.selectedItem.id)
         .then((res) => {
           this.snackbarMessage1 = "UserRole has Been Deleted Succesfully!";
@@ -255,11 +254,19 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
-          (this.deleteDialog = false), this.userRoles();
+          (this.loading = false), (this.deleteDialog = false), this.userRoles();
         });
     },
 
-    userRoleUpdate() {
+    async userRoleUpdate() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.updateUserRole([this.selectedItem.id, this.form.RoleUpdate])
         .then((res) => {
           this.snackbarMessage1 = "UserRole has Been Updated Succesfully!";
@@ -273,10 +280,21 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
-          (this.overlayUpdate = false), this.userRoles();
+          (this.loading = false),
+            (this.overlayUpdate = false),
+            this.userRoles();
         });
     },
-    userRoleCreate() {
+    async userRoleCreate() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+
+      this.loading = true;
       this.createUserRole(this.form.Role)
         .then((res) => {
           this.snackbarMessage1 = "UserRole has Been Created Succesfully!";
@@ -290,7 +308,7 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
-          (this.overlay = false), this.userRoles();
+          (this.loading = false), (this.overlay = false), this.userRoles();
           this.resetForm();
         });
     },
@@ -310,7 +328,7 @@ export default {
       this.overlay = false;
       this.overlayUpdate = false;
     },
-   
+
     toggleForm() {
       this.overlay = !this.overlay;
     },
@@ -328,13 +346,12 @@ export default {
       console.log(this.selectedItem.id);
     },
 
-   
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
       console.log(this.selectedItem.id);
     },
-   
+
     showDeleteDialog(item) {
       this.deleteDialog = true;
       this.selectedItem = item;

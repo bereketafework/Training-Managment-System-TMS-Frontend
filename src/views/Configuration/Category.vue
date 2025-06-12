@@ -33,16 +33,12 @@
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn
-                  :disabled="!formValid || loading"
+                 :loading="loading"
                   text
                   color="primary"
                   type="submit"
                 >
-                  <v-progress-circular
-                    v-if="loading"
-                    indeterminate
-                    size="20"
-                  ></v-progress-circular>
+                 
                   Register
                 </v-btn>
               </v-card-actions>
@@ -113,7 +109,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="DeleteCategory">Delete</v-btn>
+          <v-btn color="red" text @click="DeleteCategory" :loading="loading">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -121,6 +117,7 @@
     <v-overlay
       v-model="overlayUpdate"
       class="!flex !justify-center items-center"
+      persistent
     >
       <v-card flat class="bg-slate-300">
         <span class="flex justify-center border-b-[1px] text-3xl p-4"
@@ -144,13 +141,8 @@
               <v-btn text @click="goBack">Back</v-btn>
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
-              <v-btn :disabled="!formValid" text color="primary" type="submit">
-                <v-progress-circular
-                  v-if="loading"
-                  indeterminate
-                  size="20"
-                ></v-progress-circular
-                >Update</v-btn
+              <v-btn  text color="primary" type="submit" :loading="loading" >
+              Update</v-btn
               >
             </v-card-actions>
           </v-container>
@@ -166,9 +158,9 @@
 import { jwtDecode } from "jwt-decode";
 
 import api from "@/service/api";
-import { useCategoryStore } from "@/stores/categoryStore";
 import { mapActions } from "pinia";
-const categoryStore = useCategoryStore;
+import { useCategoryStore } from "@/stores/categoryStore";
+
 export default {
   data() {
     return {
@@ -216,7 +208,15 @@ export default {
           console.log("error:", error);
         });
     },
-    CreateCategory() {
+  async CreateCategory() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.createCategory(this.form.Category)
 
         .then((res) => {
@@ -238,7 +238,14 @@ export default {
           this.form.Category = null;
         });
     },
-    UpdateCategory() {
+   async UpdateCategory() {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
       this.loading = true;
       this.updateCategories([this.form.CategoryUpdate, this.selectedItem.id])
         .then((response) => {
@@ -261,6 +268,7 @@ export default {
     },
 
     DeleteCategory() {
+      this.loading = true;
       this.deleteCategory(this.selectedItem.id)
         .then((res) => {
           this.snackbarMessage1 = "Category Has Been Deleted successfully!";

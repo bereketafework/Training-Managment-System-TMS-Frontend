@@ -32,17 +32,7 @@
                 <v-btn text @click="goBack">Back</v-btn>
                 <v-btn text @click="resetForm">Clear</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn
-                
-                  text
-                  color="primary"
-                  type="submit"
-                >
-                  <v-progress-circular
-                    v-if="loading"
-                    indeterminate
-                    size="20"
-                  ></v-progress-circular>
+                <v-btn :loading="loading" text color="primary" type="submit">
                   Register
                 </v-btn>
               </v-card-actions>
@@ -113,7 +103,13 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red" text @click="paymentMethodDelete">Delete</v-btn>
+          <v-btn
+            color="red"
+            text
+            @click="paymentMethodDelete"
+            :loading="loading"
+            >Delete</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -148,13 +144,8 @@
               <v-btn text @click="goBack">Back</v-btn>
               <v-btn text @click="resetForm">Clear</v-btn>
               <v-spacer></v-spacer>
-              <v-btn text color="primary" type="submit">
-                <v-progress-circular
-                  v-if="loading"
-                  indeterminate
-                  size="20"
-                ></v-progress-circular
-                >Update</v-btn
+              <v-btn text color="primary" type="submit" :loading="loading">
+                Update</v-btn
               >
             </v-card-actions>
           </v-container>
@@ -162,7 +153,7 @@
       </v-card>
     </v-overlay>
     <!-- Filter Dialog -->
-   
+
     <v-snackbar v-model="snackbar1" :color="snackbarColor1">
       {{ snackbarMessage1 }}
     </v-snackbar>
@@ -232,14 +223,15 @@ export default {
           (this.deleteDialog = false), this.PaymentMethods();
         });
     },
-   async  paymentMethodUpdateInfo() {
-       const validation = await this.$refs.form.validate();
+    async paymentMethodUpdateInfo() {
+      const validation = await this.$refs.form.validate();
       if (!validation.valid) {
         this.snackbarMessage1 = "Please fill all required fields correctly.";
         this.snackbarColor1 = "red";
         this.snackbar1 = true;
         return;
       }
+      this.loading = true;
       this.updatepaymentmethod([
         this.selectedItem.id,
         this.form.PaymentMethodupdate,
@@ -257,7 +249,9 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
-          (this.overlayUpdate = false), this.PaymentMethods();
+          (this.loading = false),
+            (this.overlayUpdate = false),
+            this.PaymentMethods();
           this.resetForm();
         });
     },
@@ -270,6 +264,7 @@ export default {
         this.snackbar1 = true;
         return;
       }
+      this.loading = true;
       this.createPaymentMethod(this.form.PaymentMethod)
         .then((res) => {
           this.snackbarMessage1 =
@@ -286,6 +281,8 @@ export default {
         .finally(() => {
           (this.overlay = false), this.PaymentMethods();
           this.resetForm();
+          this.loading = false;
+          this.$refs.form.reset();
         });
     },
     PaymentMethods() {
@@ -303,7 +300,7 @@ export default {
       this.overlay = false;
       this.overlayUpdate = false;
     },
-    
+
     toggleForm() {
       this.overlay = !this.overlay;
     },
@@ -321,13 +318,11 @@ export default {
       this.form.PaymentMethodupdate = item.Methods;
     },
 
-    
     confirmDelete(item) {
       this.deleteDialog = true;
       this.selectedItem = item;
       console.log(this.selectedItem.id);
     },
-    
   },
   mounted() {
     this.PaymentMethods();

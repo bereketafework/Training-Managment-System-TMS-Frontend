@@ -4,6 +4,7 @@
     <v-overlay
       v-model="overlayUpdate"
       class="!flex !justify-center items-center"
+      persistent
     >
       <v-card flat class="w-full">
         <span class="flex justify-center border-b-[1px] text-3xl">
@@ -18,7 +19,7 @@
                 <v-text-field
                   v-model="form.first_nameUpdate"
                   variant="outlined"
-                  :rules="[rules.required]"
+                  :rules="rules.required"
                   label="First Name *"
                   required
                 ></v-text-field>
@@ -29,7 +30,7 @@
                 <v-text-field
                   v-model="form.middle_nameUpdate"
                   variant="outlined"
-                  :rules="[rules.required]"
+                  :rules="rules.required"
                   label="Middle Name *"
                   required
                 ></v-text-field>
@@ -40,7 +41,7 @@
                 <v-text-field
                   v-model="form.last_nameUpdate"
                   variant="outlined"
-                  :rules="[rules.required]"
+                  :rules="rules.required"
                   label="Last Name *"
                   required
                 ></v-text-field>
@@ -51,7 +52,7 @@
                 <v-text-field
                   v-model="form.emailUpdate"
                   variant="outlined"
-                  :rules="[rules.required, rules.email]"
+                  :rules="[emailRules]"
                   label="Email *"
                   required
                 ></v-text-field>
@@ -62,7 +63,7 @@
                 <v-text-field
                   v-model="form.phoneUpdate"
                   variant="outlined"
-                  :rules="[rules.required, rules.numeric]"
+                  :rules="[phoneRules]"
                   label="Phone Number *"
                   type="number"
                   required
@@ -73,7 +74,7 @@
               <v-col cols="8" sm="4">
                 <v-text-field
                   v-model="form.companyUpdate"
-                  :rules="[rules.required]"
+                  :rules="rules.required"
                   label="Company *"
                   variant="outlined"
                   required
@@ -86,7 +87,7 @@
             <v-btn text @click="UpdateGoBack">Back</v-btn>
             <v-btn text @click="resetForm">Clear</v-btn>
             <v-spacer></v-spacer>
-            <v-btn text color="primary" type="submit" variant="outlined">
+            <v-btn :loading="loading" text color="primary" type="submit" variant="outlined">
               Update
             </v-btn>
           </v-card-actions>
@@ -219,7 +220,7 @@
             <v-btn text @click="resetForm">Clear</v-btn>
             <v-spacer></v-spacer>
             <v-btn
-              
+               :loading="loading"
               text
               color="primary"
               type="submit"
@@ -313,6 +314,8 @@ export default {
 
   data() {
     return {
+
+      loading:false,
       snackbar1:false,
       snackbarColor1:"",
       overlay: false,
@@ -364,8 +367,8 @@ export default {
       return (v) => {
         if (!v) return "This field is required";
         if (!/^\d+$/.test(v)) return "Only numeric values allowed";
-        if (!v.startsWith("09")) return "Phone number must start with '09...'";
-        if ( v.length < 10|| v.length > 10) return "Phone number must be 10 digits long";
+        if (!v.startsWith("9"&&"7")) return "Phone number must start with '9...' or '7...'";
+        if ( v.length < 9|| v.length > 9) return "Phone number must be 9 digits long";
         return true;
       };
     },
@@ -441,7 +444,15 @@ this.snackbar1=true
   this.users();
 })
     },
-    userUpdate(){
+  async  userUpdate(){
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.updateUser([
       this.selectedItem.id,  
       this.form.first_nameUpdate,
@@ -461,6 +472,7 @@ this.snackbarColor1="red"
 this.snackbar1=true
              })
               .finally(()=>{
+  this.loading = false;
   this.overlayUpdate=false
   this.resetForm()
   this.users()
@@ -475,6 +487,7 @@ this.snackbar1=true
         this.snackbar1 = true;
         return;
       }
+      this.loading = true;
 this.createUser( [ this.form.first_name,
            this.form.middle_name,
            this.form.last_name,
@@ -496,6 +509,7 @@ this.snackbar1=true
 
          })
          .finally(()=>{
+  this.loading = false;
   this.overlay=false
   this.resetForm()
   this.users()

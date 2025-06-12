@@ -67,19 +67,12 @@
                   <v-btn text @click="resetForm">Clear</v-btn>
                   <v-spacer></v-spacer>
                   <v-btn
-                    :disabled="!formIsValid"
                     text
                     color="primary"
                     type="submit"
+                    :loading="loading"
                   >
-                    <template v-if="loading">
-                      <v-progress-circular
-                        indeterminate
-                        size="20"
-                        color="primary"
-                      ></v-progress-circular>
-                    </template>
-                    <template v-else> Register </template>
+                     Register 
                   </v-btn>
                 </v-card-actions>
               </v-row>
@@ -90,6 +83,7 @@
 
       <v-overlay
         v-model="overlayUpdate"
+        persistent
         class="!flex !justify-center items-center"
       >
         <v-card flat class="bg-slate-300">
@@ -137,6 +131,7 @@
                 <v-col cols="14" sm="10">
                   <v-textarea
                     v-model="form.ObjectivesUpdate"
+                     :rules="rules.Objectives"
                     label="Course Objectives  *"
                     row-height="20"
                     rows="2"
@@ -149,15 +144,8 @@
                   <v-btn text @click="gobackUpdate">Back</v-btn>
                   <v-btn text @click="resetForm">Clear</v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn text color="primary" type="submit">
-                    <template v-if="loading">
-                      <v-progress-circular
-                        indeterminate
-                        size="20"
-                        color="primary"
-                      ></v-progress-circular>
-                    </template>
-                    <template v-else> Update </template>
+                  <v-btn text color="primary" type="submit" :loading=loading>
+                     Update 
                   </v-btn>
                 </v-card-actions>
               </v-row>
@@ -233,15 +221,8 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn text @click="deleteDialog = false">Cancel</v-btn>
-        <v-btn color="red" text @click="courseDelete">
-          <template v-if="loading">
-            <v-progress-circular
-              indeterminate
-              size="20"
-              color="primary"
-            ></v-progress-circular>
-          </template>
-          <template v-else> Delete </template>
+        <v-btn color="red" text @click="courseDelete"  :loading=loading>
+           Delete 
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -300,6 +281,7 @@ export default {
       "detailsCourse",
     ]),
     courseDetails() {
+      this.loading = true;
       this.detailsCourse(this.selectedItem.id)
         .then(() => {})
         .catch((err) => {});
@@ -317,11 +299,22 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
+          this.loading = false;
           this.course();
           this.deleteDialog = false;
         });
     },
-    courseUpdate() {
+    async courseUpdate() {
+   
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+      
+        return;
+      }
+         this.loading = true;
       this.updateCourse([
         this.selectedItem.id,
         this.form.TitleUpdate,
@@ -340,12 +333,22 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
+          this.loading = false;   
           this.course();
           this.overlayUpdate = false;
           this.resetForm();
         });
     },
-    courseCreate() {
+    async courseCreate() {
+      
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
+        this.snackbarMessage1 = "Please fill all required fields correctly.";
+        this.snackbarColor1 = "red";
+        this.snackbar1 = true;
+        return;
+      }
+      this.loading = true;
       this.createCourse([
         this.form.Title,
         this.form.Prerequestes,
@@ -363,6 +366,7 @@ export default {
           this.snackbar1 = true;
         })
         .finally(() => {
+          this.loading = false;
           this.course();
           this.overlay = false;
           this.resetForm();

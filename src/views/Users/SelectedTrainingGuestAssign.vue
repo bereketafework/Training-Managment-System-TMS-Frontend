@@ -89,7 +89,7 @@
                 <v-select
                   class="w-[700px]"
                   clearable
-                  chips
+                 
                   label="Select Guest"
                   :items="GuestList"
                   :item-title="guestName"
